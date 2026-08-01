@@ -7,7 +7,7 @@ import { FileResourceService, formatFileSize } from "../services/FileResourceSer
 import { StoredResource } from "../services/VaultResourceRepository";
 import { getYouTubeThumbnailFallbacks } from "./thumbnailFallbacks";
 
-interface LibraryFilters {
+export interface LibraryFilters {
   search: string;
   type: string;
   tag: string;
@@ -67,6 +67,11 @@ export class KnowledgeLibraryView extends ItemView {
   async onOpen(): Promise<void> {
     this.renderShell();
     await this.refresh();
+  }
+
+  setFilters(filters: Partial<LibraryFilters>): void {
+    this.filters = { ...this.filters, ...filters };
+    this.renderCards();
   }
 
   async refresh(): Promise<void> {

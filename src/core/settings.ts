@@ -5,6 +5,10 @@ import { UniversalSearchDisplayMode } from "../services/SearchRankingService";
 
 export interface KnowledgeLibraryPluginSettings {
   versionLabel: string;
+  homeShowContinueLearning: boolean;
+  homeShowTimeline: boolean;
+  homeShowTagCloud: boolean;
+  defaultStartupPage: "home" | "library" | "dashboard" | "universal-search";
   libraryFolder: string;
   resourcesFolder: string;
   includeLegacyNotes: boolean;
@@ -87,7 +91,11 @@ export const DEFAULT_VAULT_CONNECTORS: VaultConnector[] = [
   }
 ];
 export const DEFAULT_SETTINGS: KnowledgeLibraryPluginSettings = {
-  versionLabel: "KL 6.4.1",
+  versionLabel: "KL 6.5.0-alpha.1",
+  homeShowContinueLearning: true,
+  homeShowTimeline: true,
+  homeShowTagCloud: true,
+  defaultStartupPage: "home",
   libraryFolder: "01 - Biblioteca",
   resourcesFolder: "01 - Biblioteca/Recursos",
   includeLegacyNotes: true,

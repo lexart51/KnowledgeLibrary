@@ -5,6 +5,15 @@ import { MigrationReportModal } from "../ui/MigrationReportModal";
 
 export function registerLibraryCommands(plugin: KnowledgeLibraryPlugin): void {
   plugin.addCommand({
+    id: "open-home",
+    name: "Knowledge Library: Home",
+    callback: () => {
+      void plugin.openHomeView().catch((error) => {
+        new Notice(error instanceof Error ? error.message : "Unable to open Knowledge Library Home.");
+      });
+    }
+  });
+  plugin.addCommand({
     id: "open-library",
     name: "Knowledge Library: Open Library",
     callback: () => {

@@ -4,6 +4,14 @@
 
 - No unreleased changes.
 
+## 6.5.0-alpha.1
+
+- Added `Knowledge Library: Home` as the navigation-first landing view.
+- Added search-first Home navigation into Universal Search.
+- Added Continue Learning, Recent Activity, recent role sections, favorite collections, most-used tags, and new-library empty-state actions.
+- Added Home settings for Continue Learning, timeline, tag cloud, and default startup page.
+- Updated plugin metadata and status bar label to `6.5.0-alpha.1`.
+
 ## 6.4.1
 
 - Changed deployment scripts to update only `main.js`, `manifest.json`, and `styles.css`, preserving `data.json` and future plugin state files.

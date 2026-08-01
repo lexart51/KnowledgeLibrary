@@ -15,6 +15,52 @@ export class KnowledgeLibrarySettingTab extends PluginSettingTab {
     containerEl.empty();
     containerEl.createEl("h2", { text: "KnowledgeLibrary" });
 
+    this.createGroup(containerEl, "Home", "Configure the Knowledge Navigator Home landing view.");
+
+    new Setting(containerEl)
+      .setName("Show Continue Learning")
+      .setDesc("Show in-progress, favorite, high-priority, and recently updated items on Home.")
+      .addToggle((toggle) => toggle
+        .setValue(this.plugin.settings.homeShowContinueLearning)
+        .onChange(async (value) => {
+          this.plugin.settings.homeShowContinueLearning = value;
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName("Show Timeline")
+      .setDesc("Show the Today, Yesterday, and This Week activity timeline on Home.")
+      .addToggle((toggle) => toggle
+        .setValue(this.plugin.settings.homeShowTimeline)
+        .onChange(async (value) => {
+          this.plugin.settings.homeShowTimeline = value;
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName("Show Tag Cloud")
+      .setDesc("Show the top tags on Home.")
+      .addToggle((toggle) => toggle
+        .setValue(this.plugin.settings.homeShowTagCloud)
+        .onChange(async (value) => {
+          this.plugin.settings.homeShowTagCloud = value;
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName("Default startup page")
+      .setDesc("Choose the view opened from the KnowledgeLibrary ribbon icon.")
+      .addDropdown((dropdown) => dropdown
+        .addOption("home", "Home")
+        .addOption("library", "Library")
+        .addOption("dashboard", "Dashboard")
+        .addOption("universal-search", "Universal Search")
+        .setValue(this.plugin.settings.defaultStartupPage)
+        .onChange(async (value) => {
+          this.plugin.settings.defaultStartupPage = value === "library" || value === "dashboard" || value === "universal-search" ? value : "home";
+          await this.plugin.saveSettings();
+        }));
+
     this.createGroup(containerEl, "Storage", "Choose where KnowledgeLibrary reads library notes and writes resource notes.");
 
     new Setting(containerEl)

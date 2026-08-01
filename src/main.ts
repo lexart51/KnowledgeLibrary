@@ -1,7 +1,7 @@
 import { Plugin, TFile } from "obsidian";
 import { registerLibraryCommands } from "./commands/libraryCommands";
 import { DEFAULT_SETTINGS, KnowledgeLibraryPluginSettings } from "./core/settings";
-import { KNOWLEDGE_DASHBOARD_VIEW_TYPE, KNOWLEDGE_DIAGNOSTICS_VIEW_TYPE, KNOWLEDGE_LIBRARY_VIEW_TYPE, KNOWLEDGE_UNIVERSAL_SEARCH_VIEW_TYPE } from "./core/viewTypes";
+import { KNOWLEDGE_DASHBOARD_VIEW_TYPE, KNOWLEDGE_DIAGNOSTICS_VIEW_TYPE, KNOWLEDGE_HOME_VIEW_TYPE, KNOWLEDGE_LIBRARY_VIEW_TYPE, KNOWLEDGE_UNIVERSAL_SEARCH_VIEW_TYPE } from "./core/viewTypes";
 import { AddResourceRequest, AddResourceResult, AddResourceService } from "./services/AddResourceService";
 import { MigrationService } from "./services/MigrationService";
 import { CollectionService } from "./services/CollectionService";
@@ -15,7 +15,8 @@ import { TagService } from "./services/TagService";
 import { VaultResourceRepository } from "./services/VaultResourceRepository";
 import { AddResourceModal } from "./ui/AddResourceModal";
 import { KnowledgeLibrarySettingTab } from "./ui/KnowledgeLibrarySettingTab";
-import { KnowledgeLibraryView } from "./ui/KnowledgeLibraryView";
+import { KnowledgeLibraryView, LibraryFilters } from "./ui/KnowledgeLibraryView";
+import { KnowledgeHomeView } from "./ui/KnowledgeHomeView";
 import { KnowledgeDashboardView } from "./ui/KnowledgeDashboardView";
 import { CollectionManagementModal } from "./ui/CollectionManagementModal";
 import { ResourceEditorModal } from "./ui/ResourceEditorModal";
@@ -70,9 +71,10 @@ export default class KnowledgeLibraryPlugin extends Plugin {
     this.tagService = new TagService(this.tagAliases);
     this.resourceService = new ResourceService(undefined, this.tagService);
     this.initializeServices();
-    this.ribbonService = new RibbonService(this, () => this.openLibraryView());
+    this.ribbonService = new RibbonService(this, () => this.openDefaultLandingView());
     this.statusBarService = new StatusBarService(this, this.settings.versionLabel);
 
+    this.registerView(KNOWLEDGE_HOME_VIEW_TYPE, (leaf) => new KnowledgeHomeView(leaf, this));
     this.registerView(KNOWLEDGE_LIBRARY_VIEW_TYPE, (leaf) => new KnowledgeLibraryView(leaf, this));
     this.registerView(KNOWLEDGE_DASHBOARD_VIEW_TYPE, (leaf) => new KnowledgeDashboardView(leaf, this));
     this.registerView(KNOWLEDGE_UNIVERSAL_SEARCH_VIEW_TYPE, (leaf) => new UniversalSearchView(leaf, this));
@@ -84,6 +86,7 @@ export default class KnowledgeLibraryPlugin extends Plugin {
   }
 
   onunload(): void {
+    this.app.workspace.detachLeavesOfType(KNOWLEDGE_HOME_VIEW_TYPE);
     this.app.workspace.detachLeavesOfType(KNOWLEDGE_LIBRARY_VIEW_TYPE);
     this.app.workspace.detachLeavesOfType(KNOWLEDGE_DASHBOARD_VIEW_TYPE);
     this.app.workspace.detachLeavesOfType(KNOWLEDGE_UNIVERSAL_SEARCH_VIEW_TYPE);
@@ -205,8 +208,17 @@ export default class KnowledgeLibraryPlugin extends Plugin {
   async addResourceFromWizard(request: AddResourceRequest): Promise<AddResourceResult> {
     const result = await this.addResourceService.addResource(request);
     await this.refreshLibraryViews();
+    await this.refreshHomeViews();
     await this.openResourceNote(result.stored.path);
     return result;
+  }
+
+  async refreshHomeViews(): Promise<void> {
+    await Promise.all(this.app.workspace.getLeavesOfType(KNOWLEDGE_HOME_VIEW_TYPE).map(async (leaf) => {
+      if (leaf.view instanceof KnowledgeHomeView) {
+        await leaf.view.refresh();
+      }
+    }));
   }
 
   async refreshLibraryViews(): Promise<void> {
@@ -224,18 +236,42 @@ export default class KnowledgeLibraryPlugin extends Plugin {
     }
   }
 
-  async openLibraryView(): Promise<void> {
-    const existingLeaf = this.app.workspace.getLeavesOfType(KNOWLEDGE_LIBRARY_VIEW_TYPE)[0];
-    if (existingLeaf) {
-      await this.app.workspace.revealLeaf(existingLeaf);
+  async openDefaultLandingView(): Promise<void> {
+    if (this.settings.defaultStartupPage === "library") {
+      await this.openLibraryView();
       return;
     }
+    if (this.settings.defaultStartupPage === "dashboard") {
+      await this.openDashboardView();
+      return;
+    }
+    if (this.settings.defaultStartupPage === "universal-search") {
+      await this.openUniversalSearch();
+      return;
+    }
+    await this.openHomeView();
+  }
 
-    const leaf = this.app.workspace.getLeaf(true);
-    await leaf.setViewState({ type: KNOWLEDGE_LIBRARY_VIEW_TYPE, active: true });
+  async openHomeView(): Promise<void> {
+    const existingLeaf = this.app.workspace.getLeavesOfType(KNOWLEDGE_HOME_VIEW_TYPE)[0];
+    const leaf = existingLeaf ?? this.app.workspace.getLeaf(true);
+    if (!existingLeaf) {
+      await leaf.setViewState({ type: KNOWLEDGE_HOME_VIEW_TYPE, active: true });
+    }
     await this.app.workspace.revealLeaf(leaf);
   }
 
+  async openLibraryView(filters: Partial<LibraryFilters> = {}): Promise<void> {
+    const existingLeaf = this.app.workspace.getLeavesOfType(KNOWLEDGE_LIBRARY_VIEW_TYPE)[0];
+    const leaf = existingLeaf ?? this.app.workspace.getLeaf(true);
+    if (!existingLeaf) {
+      await leaf.setViewState({ type: KNOWLEDGE_LIBRARY_VIEW_TYPE, active: true });
+    }
+    await this.app.workspace.revealLeaf(leaf);
+    if (leaf.view instanceof KnowledgeLibraryView && Object.keys(filters).length > 0) {
+      leaf.view.setFilters(filters);
+    }
+  }
   async loadSettings(): Promise<void> {
     this.initializeStorage();
     this.settings = await this.settingsRepository.load(DEFAULT_SETTINGS);

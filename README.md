@@ -4,7 +4,7 @@ KnowledgeLibrary is a professional Obsidian plugin for unified personal knowledg
 
 ## Status
 
-`6.4.1`
+`6.5.0-alpha.1`
 
 ## Development
 
@@ -50,7 +50,8 @@ KnowledgeLibrary v6 installs side by side under plugin id and folder `knowledge-
 
 ## Current Plugin Surface
 
-- Ribbon icon: opens the Knowledge Library view.
+- Ribbon icon: opens the configured default startup page, which defaults to Knowledge Library Home.
+- Command palette command: `Knowledge Library: Home`.
 - Command palette command: `Knowledge Library: Open Library`.
 - Command palette command: `Knowledge Library: Add Resource`.
 - Command palette command: `Knowledge Library: Manage collections`.
@@ -65,6 +66,7 @@ KnowledgeLibrary v6 installs side by side under plugin id and folder `knowledge-
 - Command palette command: `Knowledge Library: Open universal search`.
 - Command palette command: `Knowledge Library: Save current search`.
 - Command palette command: `Knowledge Library: Manage saved searches`.
+- Knowledge Navigator Home with search-first navigation, Continue Learning, recent activity, recent resources/conversations/documents, favorite collections, and most-used tags.
 - Universal Knowledge Search with source-aware ranking, query filters, keyboard navigation, grouped display modes, duplicate suppression, and saved searches.
 - Command palette command: `Knowledge Library: Analyze existing vault`.
 - Command palette command: `Knowledge Library: Simulate migration`.

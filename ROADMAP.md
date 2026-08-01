@@ -8,7 +8,8 @@
 - [x] Add read-only multi-vault connectors and unified index for `6.3.0`.
 - [x] Add universal search, source-aware ranking, saved searches, and ecosystem navigation for `6.4.0`.
 - [x] Stabilize deployment, state preservation, diagnostics, backup/restore, and logging for `6.4.1`.
-- [ ] Install 6.4.1 into the YouTubes vault for controlled manual testing.
+- [x] Add Knowledge Navigator Home for `6.5.0-alpha.1`.
+- [ ] Install 6.5.0-alpha.1 into the YouTubes vault for controlled manual testing.
 - [ ] Validate migration dry-run output against the production dataset.
 - [ ] Apply migration only after reviewed backup and simulation reports.
 
