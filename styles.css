@@ -85,6 +85,11 @@
   overflow: hidden;
 }
 
+.knowledge-library-card.is-missing {
+  border-color: var(--text-error);
+  opacity: 0.78;
+}
+
 .knowledge-library-card-media {
   aspect-ratio: 16 / 9;
   background: var(--background-secondary);
@@ -103,6 +108,18 @@
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0;
+}
+
+.knowledge-library-card.is-pdf .knowledge-library-placeholder,
+.knowledge-library-card.is-powerpoint .knowledge-library-placeholder,
+.knowledge-library-card.is-document .knowledge-library-placeholder,
+.knowledge-library-card.is-book .knowledge-library-placeholder,
+.knowledge-library-card.is-markdown .knowledge-library-placeholder,
+.knowledge-library-card.is-script .knowledge-library-placeholder,
+.knowledge-library-card.is-archive .knowledge-library-placeholder {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  padding: 8px 10px;
 }
 
 .knowledge-library-card-body {

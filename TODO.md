@@ -1,6 +1,6 @@
 # TODO
 
-- Deploy v6 beta.2 into the YouTubes vault only after confirming the target path.
+- Deploy v6 beta.3 into the YouTubes vault only after confirming the target path.
 - Run migration analysis and review generated counts in Obsidian.
 - Create migration backup before any apply operation.
 - Add richer provider metadata extraction.
@@ -13,3 +13,8 @@
 - Fixed library view scrolling for large card grids.
 - Fixed YouTube thumbnail fallback rendering for new and legacy resources.
 - Consolidated legacy `ia` tags into canonical `ai` across read, write, filter, analysis, and migration paths.
+
+## Completed in 6.0.0-beta.3
+
+- Completed local vault file resource support with picker, metadata, dedupe, missing-file display, and drag/drop prefill.
+- Added file resource documentation.

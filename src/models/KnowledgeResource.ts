@@ -1,4 +1,4 @@
-export type KnowledgeResourceType = "youtube" | "website" | "pdf" | "book" | "powerpoint" | "markdown" | "image" | "script" | "skill" | "archive" | "file" | "other";
+export type KnowledgeResourceType = "youtube" | "website" | "pdf" | "book" | "powerpoint" | "document" | "markdown" | "image" | "script" | "skill" | "archive" | "file" | "other";
 
 export type KnowledgeResourceStatus = "active" | "archived" | "unavailable";
 

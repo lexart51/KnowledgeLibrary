@@ -3,11 +3,12 @@ import { KnowledgeLibraryPluginSettings } from "../core/settings";
 import { KnowledgeResource, KnowledgeResourceType, ResourceInput } from "../models/KnowledgeResource";
 import { parseYouTubeUrl } from "../providers/YouTubeProvider";
 import { normalizeWebsiteUrl } from "../providers/WebsiteProvider";
+import { FileResourceService } from "./FileResourceService";
 import { TagService } from "./TagService";
 import { ResourceService } from "./ResourceService";
 import { StoredResource, VaultResourceRepository } from "./VaultResourceRepository";
 
-export type AddResourceKind = "youtube" | "website" | "pdf" | "book" | "powerpoint" | "markdown" | "image" | "script" | "skill" | "archive" | "other";
+export type AddResourceKind = "youtube" | "website" | "pdf" | "book" | "powerpoint" | "document" | "markdown" | "image" | "script" | "skill" | "archive" | "other";
 
 export interface AddResourceRequest {
   kind: AddResourceKind;
@@ -89,7 +90,7 @@ export class AddResourceService {
       tags,
       metadata: {
         ...metadata,
-        vaultFile: this.getFileMetadata(required(request.filePath, "Vault file is required."))
+        ...this.getFileMetadata(required(request.filePath, "Vault file is required."))
       }
     };
   }
@@ -106,26 +107,35 @@ export class AddResourceService {
     }
 
     if (input.filePath) {
-      return (await this.repository.list()).find((item) => item.resource.filePath === input.filePath) ?? null;
+      const normalizedPath = FileResourceService.normalizeVaultPath(input.filePath);
+      const activeFile = this.app.vault.getAbstractFileByPath(normalizedPath);
+      const resources = await this.repository.list();
+      return resources.find((item) => item.resource.filePath === normalizedPath)
+        ?? (activeFile instanceof TFile ? resources.find((item) => FileResourceService.isProbablyMovedFile(item.resource, activeFile)) ?? null : null);
     }
 
     return null;
   }
 
   private getFileMetadata(path: string): Record<string, unknown> {
-    const file = this.app.vault.getAbstractFileByPath(path);
+    const normalizedPath = FileResourceService.normalizeVaultPath(path);
+    const file = this.app.vault.getAbstractFileByPath(normalizedPath);
+    const typeInfo = FileResourceService.typeInfo(normalizedPath);
+
     if (file instanceof TFile) {
-      return {
-        basename: file.basename,
-        extension: file.extension,
-        path: file.path,
-        size: file.stat.size,
-        modifiedTime: file.stat.mtime,
-        createdTime: file.stat.ctime
-      };
+      return { ...FileResourceService.metadataFromFile(file, typeInfo) };
     }
 
-    return { path };
+    return {
+      filename: FileResourceService.filenameFromPath(normalizedPath),
+      extension: FileResourceService.extensionFromPath(normalizedPath),
+      vaultRelativePath: normalizedPath,
+      parentFolder: FileResourceService.parentFolderFromPath(normalizedPath),
+      mimeType: typeInfo.mimeType,
+      scriptLanguage: typeInfo.scriptLanguage,
+      archiveFormat: typeInfo.archiveFormat,
+      documentFormat: typeInfo.documentFormat
+    };
   }
 }
 

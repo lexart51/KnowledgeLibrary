@@ -144,6 +144,7 @@ function typeFrom(value: unknown, url: string | null, filePath: string | null, v
     value === "pdf" ||
     value === "book" ||
     value === "powerpoint" ||
+    value === "document" ||
     value === "markdown" ||
     value === "image" ||
     value === "script" ||

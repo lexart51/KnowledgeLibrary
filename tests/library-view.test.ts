@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("obsidian", () => ({
+  normalizePath: (path: string) => path.replace(/\\/g, "/").replace(/\/+/g, "/"),
   ItemView: class ItemView {
     app = { vault: { getAbstractFileByPath: () => null }, workspace: { getLeaf: () => ({ openFile: vi.fn() }) } };
     contentEl = {};
@@ -72,6 +73,18 @@ describe("KnowledgeLibraryView scrolling and tags", () => {
 
     (view as unknown as { filters: { tag: string } }).filters.tag = "ia";
     expect((view as unknown as { getFilteredResources: () => StoredResource[] }).getFilteredResources()).toHaveLength(2);
+  });
+
+  it("filters missing local files without modifying resources", () => {
+    const view = viewWithResources([
+      resource(1),
+      resource(2, ["ai"])
+    ]);
+    (view as unknown as { resources: StoredResource[] }).resources[1].resource.filePath = "Missing/report.pdf";
+    (view as unknown as { resources: StoredResource[] }).resources[1].resource.type = "pdf";
+    (view as unknown as { filters: { missingOnly: boolean } }).filters.missingOnly = true;
+
+    expect((view as unknown as { getFilteredResources: () => StoredResource[] }).getFilteredResources().map((item) => item.path)).toEqual(["Resource 2.md"]);
   });
 
   it("uses the Obsidian content element and a scroll container with regression styles", () => {

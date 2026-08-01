@@ -51,8 +51,8 @@ export default class KnowledgeLibraryPlugin extends Plugin {
     this.statusBarService?.unload();
   }
 
-  openAddResourceModal(): void {
-    new AddResourceModal(this.app, this).open();
+  openAddResourceModal(initialFilePath: string | null = null): void {
+    new AddResourceModal(this.app, this, initialFilePath).open();
   }
 
   async addResourceFromWizard(request: AddResourceRequest): Promise<AddResourceResult> {

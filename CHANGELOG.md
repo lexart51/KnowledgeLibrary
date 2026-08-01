@@ -4,6 +4,15 @@
 
 - No unreleased changes.
 
+## 6.0.0-beta.3
+
+- Added first-class local vault file resources for PDFs, PowerPoint, Word/Text documents, EPUB books, Markdown, images, scripts, archives, and unknown files.
+- Added searchable vault file picker filtering, type override, deterministic file IDs, duplicate and moved-file detection, and file metadata storage.
+- Added image thumbnails for vault image resources, type placeholders for other files, open-original-file actions, missing-file filtering, and drag-and-drop prefill.
+- Added settings for allowed extensions, excluded folders, file-size display, drag/drop, and unknown file type defaults.
+- Updated docs for file resources, file picker behavior, and drag-and-drop.
+- Updated plugin metadata and status bar label to `6.0.0-beta.3`.
+
 ## 6.0.0-beta.2
 
 - Fixed the Knowledge Library `ItemView` to render through Obsidian `contentEl` and use a dedicated scroll container for large card grids.

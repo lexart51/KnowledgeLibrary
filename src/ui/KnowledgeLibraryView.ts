@@ -2,6 +2,7 @@ import { ItemView, Notice, TFile, WorkspaceLeaf } from "obsidian";
 import { KNOWLEDGE_LIBRARY_VIEW_TYPE } from "../core/viewTypes";
 import { KnowledgeResource } from "../models/KnowledgeResource";
 import KnowledgeLibraryPlugin from "../main";
+import { FileResourceService, formatFileSize } from "../services/FileResourceService";
 import { StoredResource } from "../services/VaultResourceRepository";
 import { getYouTubeThumbnailFallbacks } from "./thumbnailFallbacks";
 
@@ -12,6 +13,7 @@ interface LibraryFilters {
   status: string;
   favoritesOnly: boolean;
   completedOnly: boolean;
+  missingOnly: boolean;
   sort: "updated" | "title";
 }
 
@@ -22,6 +24,7 @@ const INITIAL_FILTERS: LibraryFilters = {
   status: "all",
   favoritesOnly: false,
   completedOnly: false,
+  missingOnly: false,
   sort: "updated"
 };
 
@@ -63,6 +66,7 @@ export class KnowledgeLibraryView extends ItemView {
   private renderShell(): void {
     this.contentEl.empty();
     this.contentEl.addClass("knowledge-library-view");
+    this.registerDragAndDrop();
 
     const header = this.contentEl.createDiv({ cls: "knowledge-library-view-header" });
     header.createEl("h2", { text: "Knowledge Library" });
@@ -82,7 +86,7 @@ export class KnowledgeLibraryView extends ItemView {
       this.renderCards();
     });
 
-    this.createSelect(controls, "Type", ["all", "youtube", "website", "file"], (value) => {
+    this.createSelect(controls, "Type", ["all", "youtube", "website", "pdf", "powerpoint", "document", "book", "markdown", "image", "script", "archive", "file", "other"], (value) => {
       this.filters.type = value;
       this.renderCards();
     });
@@ -105,6 +109,10 @@ export class KnowledgeLibraryView extends ItemView {
     });
     this.createCheckbox(controls, "Completed", (checked) => {
       this.filters.completedOnly = checked;
+      this.renderCards();
+    });
+    this.createCheckbox(controls, "Missing files", (checked) => {
+      this.filters.missingOnly = checked;
       this.renderCards();
     });
 
@@ -166,7 +174,8 @@ export class KnowledgeLibraryView extends ItemView {
         const matchesStatus = this.filters.status === "all" || resource.status === this.filters.status;
         const matchesFavorite = !this.filters.favoritesOnly || resource.favorite;
         const matchesCompleted = !this.filters.completedOnly || resource.completed;
-        return matchesSearch && matchesType && matchesTag && matchesStatus && matchesFavorite && matchesCompleted;
+        const matchesMissing = !this.filters.missingOnly || this.isMissingFile(resource);
+        return matchesSearch && matchesType && matchesTag && matchesStatus && matchesFavorite && matchesCompleted && matchesMissing;
       })
       .sort((left, right) => {
         if (this.filters.sort === "title") {
@@ -179,25 +188,27 @@ export class KnowledgeLibraryView extends ItemView {
 
   private renderCard(parent: HTMLElement, item: StoredResource): void {
     const { resource } = item;
-    const card = parent.createDiv({ cls: "knowledge-library-card" });
+    const card = parent.createDiv({ cls: `knowledge-library-card is-${resource.type}` });
+    card.toggleClass("is-missing", this.isMissingFile(resource));
     const media = card.createDiv({ cls: "knowledge-library-card-media" });
     this.renderMedia(media, resource);
 
     const body = card.createDiv({ cls: "knowledge-library-card-body" });
     body.createEl("h3", { text: resource.title });
-    body.createDiv({ text: resource.creator ?? resource.source, cls: "knowledge-library-card-meta" });
+    body.createDiv({ text: this.fileCardMeta(resource), cls: "knowledge-library-card-meta" });
     body.createDiv({ text: this.plugin.tagService.normalizeTags(resource.tags).join(" #"), cls: "knowledge-library-card-tags" });
 
     const actions = card.createDiv({ cls: "knowledge-library-card-actions" });
     this.createActionButton(actions, "Open note", () => void this.openNote(item.path));
-    this.createActionButton(actions, "Open resource", () => this.openExternal(resource));
+    this.createActionButton(actions, "Open resource", () => void this.openResource(resource));
     this.createActionButton(actions, resource.favorite ? "Unfavorite" : "Favorite", () => void this.toggleFavorite(item));
     this.createActionButton(actions, resource.completed ? "Mark incomplete" : "Complete", () => void this.toggleCompleted(item));
   }
 
   private renderMedia(parent: HTMLElement, resource: KnowledgeResource): void {
+    const imageSource = getVaultImageCardSource(resource, this.app);
     const videoId = typeof resource.metadata.videoId === "string" ? resource.metadata.videoId : null;
-    const candidates = resource.type === "youtube" ? getYouTubeThumbnailFallbacks(resource.thumbnail, resource.url, videoId) : resource.thumbnail ? [resource.thumbnail] : [];
+    const candidates = imageSource ? [imageSource] : resource.type === "youtube" ? getYouTubeThumbnailFallbacks(resource.thumbnail, resource.url, videoId) : resource.thumbnail ? [resource.thumbnail] : [];
 
     if (candidates.length > 0) {
       const image = parent.createEl("img", { attr: { src: candidates[0], alt: "" } });
@@ -215,7 +226,38 @@ export class KnowledgeLibraryView extends ItemView {
       return;
     }
 
-    parent.createDiv({ text: resource.type.toUpperCase(), cls: "knowledge-library-placeholder" });
+    parent.createDiv({ text: this.typeIcon(resource), cls: "knowledge-library-placeholder" });
+  }
+
+  private typeIcon(resource: KnowledgeResource): string {
+    switch (resource.type) {
+      case "pdf": return "PDF";
+      case "powerpoint": return "PPT";
+      case "document": return "DOC";
+      case "book": return "BOOK";
+      case "markdown": return "MD";
+      case "image": return "IMG";
+      case "script": return "CODE";
+      case "archive": return "ZIP";
+      default: return resource.type.toUpperCase();
+    }
+  }
+
+  private fileCardMeta(resource: KnowledgeResource): string {
+    if (!resource.filePath) {
+      return resource.creator ?? resource.source;
+    }
+
+    const parts = [
+      String(resource.metadata.filename ?? FileResourceService.filenameFromPath(resource.filePath)),
+      resource.creator,
+      resource.type,
+      this.plugin.settings.showFileSizeOnCards ? formatFileSize(resource.metadata.fileSizeBytes) : null,
+      String(resource.metadata.parentFolder ?? FileResourceService.parentFolderFromPath(resource.filePath)),
+      this.isMissingFile(resource) ? "missing" : null
+    ].filter((value): value is string => Boolean(value));
+
+    return parts.join(" | ");
   }
 
   private createActionButton(parent: HTMLElement, text: string, onClick: () => void): void {
@@ -230,11 +272,44 @@ export class KnowledgeLibraryView extends ItemView {
     }
   }
 
-  private openExternal(resource: KnowledgeResource): void {
-    const target = resource.url ?? (resource.filePath ? `file://${resource.filePath}` : null);
-    if (target) {
-      window.open(target, "_blank");
+  private async openResource(resource: KnowledgeResource): Promise<void> {
+    if (resource.filePath) {
+      const file = this.app.vault.getAbstractFileByPath(FileResourceService.normalizeVaultPath(resource.filePath));
+      if (file instanceof TFile) {
+        await this.app.workspace.getLeaf(false).openFile(file);
+      } else {
+        new Notice("Original vault file is missing.");
+      }
+      return;
     }
+
+    if (resource.url) {
+      window.open(resource.url, "_blank");
+    }
+  }
+
+  private isMissingFile(resource: KnowledgeResource): boolean {
+    return Boolean(resource.filePath && !(this.app.vault.getAbstractFileByPath(FileResourceService.normalizeVaultPath(resource.filePath)) instanceof TFile));
+  }
+
+  private registerDragAndDrop(): void {
+    if (!this.plugin.settings.enableDragAndDrop) {
+      return;
+    }
+
+    this.contentEl.addEventListener("dragover", (event) => {
+      event.preventDefault();
+    });
+    this.contentEl.addEventListener("drop", (event) => {
+      event.preventDefault();
+      const path = event.dataTransfer?.getData("text/plain") || event.dataTransfer?.getData("text/uri-list") || "";
+      const file = path ? this.app.vault.getAbstractFileByPath(FileResourceService.normalizeVaultPath(path)) : null;
+      if (file instanceof TFile && FileResourceService.isAllowedFile(file, this.plugin.settings)) {
+        this.plugin.openAddResourceModal(file.path);
+      } else {
+        new Notice("Drop a file from this vault to add it to Knowledge Library.");
+      }
+    });
   }
 
   private async toggleFavorite(item: StoredResource): Promise<void> {
@@ -252,4 +327,18 @@ export class KnowledgeLibraryView extends ItemView {
   private getAllTags(): string[] {
     return this.plugin.tagService.normalizeTags(this.resources.flatMap((item) => item.resource.tags)).sort();
   }
+}
+
+
+export function getVaultImageCardSource(resource: KnowledgeResource, app: { vault: { getAbstractFileByPath(path: string): unknown; getResourcePath?: (file: TFile) => string } }): string | null {
+  if (resource.type !== "image" || !resource.filePath) {
+    return null;
+  }
+
+  const file = app.vault.getAbstractFileByPath(FileResourceService.normalizeVaultPath(resource.filePath));
+  if (!(file instanceof TFile)) {
+    return null;
+  }
+
+  return app.vault.getResourcePath ? app.vault.getResourcePath(file) : resource.filePath;
 }

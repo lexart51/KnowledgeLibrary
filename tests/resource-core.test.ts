@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("obsidian", () => ({
-  requestUrl: vi.fn()
+  requestUrl: vi.fn(),
+  normalizePath: (path: string) => path.replace(/\\/g, "/").replace(/\/+/g, "/"),
+  TFile: class TFile {}
 }));
 
 import { ProviderRegistry } from "../src/services/ProviderRegistry";

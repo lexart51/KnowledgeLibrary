@@ -1,5 +1,6 @@
-import { App, Modal, Notice } from "obsidian";
+import { App, Modal, Notice, TFile } from "obsidian";
 import { AddResourceKind } from "../services/AddResourceService";
+import { FileResourceService } from "../services/FileResourceService";
 import KnowledgeLibraryPlugin from "../main";
 
 const RESOURCE_TYPES: Array<{ value: AddResourceKind; label: string }> = [
@@ -8,6 +9,7 @@ const RESOURCE_TYPES: Array<{ value: AddResourceKind; label: string }> = [
   { value: "pdf", label: "PDF" },
   { value: "book", label: "Book" },
   { value: "powerpoint", label: "PowerPoint" },
+  { value: "document", label: "Word/Text Document" },
   { value: "markdown", label: "Markdown" },
   { value: "image", label: "Image" },
   { value: "script", label: "Script" },
@@ -19,6 +21,7 @@ const RESOURCE_TYPES: Array<{ value: AddResourceKind; label: string }> = [
 export class AddResourceModal extends Modal {
   private typeSelect!: HTMLSelectElement;
   private urlInput!: HTMLInputElement;
+  private fileSearchInput!: HTMLInputElement;
   private fileSelect!: HTMLSelectElement;
   private titleInput!: HTMLInputElement;
   private creatorInput!: HTMLInputElement;
@@ -35,7 +38,8 @@ export class AddResourceModal extends Modal {
 
   constructor(
     app: App,
-    private readonly plugin: KnowledgeLibraryPlugin
+    private readonly plugin: KnowledgeLibraryPlugin,
+    private readonly initialFilePath: string | null = null
   ) {
     super(app);
   }
@@ -70,6 +74,8 @@ export class AddResourceModal extends Modal {
     this.addButton.addEventListener("click", () => void this.submit());
 
     this.typeSelect.addEventListener("change", () => this.renderConditionalFields());
+    this.fileSelect.addEventListener("change", () => this.detectSelectedFileType());
+    this.applyInitialFilePath();
     this.renderConditionalFields();
   }
 
@@ -103,18 +109,65 @@ export class AddResourceModal extends Modal {
 
   private createFileSelect(parent: HTMLElement): HTMLSelectElement {
     parent.createEl("span", { text: "Vault file" });
+    this.fileSearchInput = parent.createEl("input", { attr: { placeholder: "Search filename or folder" } });
+    this.fileSearchInput.type = "search";
     const select = parent.createEl("select");
+    this.fileSearchInput.addEventListener("input", () => this.populateFileSelect(select, this.fileSearchInput.value));
+    this.populateFileSelect(select, "");
+    return select;
+  }
+
+  private populateFileSelect(select: HTMLSelectElement, search: string): void {
+    const selected = select.value || this.initialFilePath || "";
+    select.empty();
     select.createEl("option", { text: "Select a file", value: "" });
-    for (const file of this.app.vault.getFiles().sort((left, right) => left.path.localeCompare(right.path))) {
+    for (const file of FileResourceService.filterVaultFiles(this.app.vault.getFiles(), this.plugin.settings, search)) {
       select.createEl("option", { text: file.path, value: file.path });
     }
-    return select;
+    if (selected && Array.from(select.options).some((option) => option.value === selected)) {
+      select.value = selected;
+    }
+  }
+
+  private applyInitialFilePath(): void {
+    if (!this.initialFilePath) {
+      return;
+    }
+
+    const normalizedPath = FileResourceService.normalizeVaultPath(this.initialFilePath);
+    const file = this.app.vault.getAbstractFileByPath(normalizedPath);
+    if (!(file instanceof TFile) || !FileResourceService.isAllowedFile(file, this.plugin.settings)) {
+      this.validationEl?.setText("Selected file is outside the allowed vault file set.");
+      return;
+    }
+
+    this.fileSearchInput.value = normalizedPath;
+    this.populateFileSelect(this.fileSelect, normalizedPath);
+    this.fileSelect.value = normalizedPath;
+    this.detectSelectedFileType();
+  }
+
+  private detectSelectedFileType(): void {
+    const selected = this.fileSelect.value;
+    if (!selected) {
+      return;
+    }
+
+    const detectedType = FileResourceService.detectType(selected, undefined, this.plugin.settings.defaultUnknownFileType);
+    if (RESOURCE_TYPES.some((item) => item.value === detectedType)) {
+      this.typeSelect.value = detectedType;
+      this.renderConditionalFields();
+    }
+
+    if (!this.titleInput.value.trim()) {
+      this.titleInput.value = FileResourceService.filenameFromPath(selected).replace(/\.[^.]+$/, "");
+    }
   }
 
   private renderConditionalFields(): void {
     const kind = this.typeSelect.value as AddResourceKind;
-    const needsUrl = kind === "youtube" || kind === "website" || kind === "book";
-    const needsFile = kind !== "youtube" && kind !== "website";
+    const needsUrl = kind === "youtube" || kind === "website" || (kind === "book" && !this.fileSelect.value);
+    const needsFile = kind !== "youtube" && kind !== "website" && !needsUrl;
     this.urlField.toggleClass("is-hidden", !needsUrl);
     this.fileField.toggleClass("is-hidden", !needsFile);
     this.bookFields.toggleClass("is-hidden", kind !== "book");

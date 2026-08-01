@@ -6,6 +6,7 @@ vi.mock("obsidian", () => ({
   normalizePath: (path: string) => path.replace(/\\/g, "/").replace(/\/+/g, "/")
 }));
 
+import { TFile } from "obsidian";
 import { DEFAULT_SETTINGS } from "../src/core/settings";
 import { KnowledgeResource } from "../src/models/KnowledgeResource";
 import { FileProvider } from "../src/providers/FileProvider";
@@ -99,6 +100,29 @@ describe("AddResourceService", () => {
     expect(repository.create).not.toHaveBeenCalled();
   });
 
+  it("prevents duplicate local file resources by normalized vault path", async () => {
+    const existing = { resource: baseResource({ type: "pdf", filePath: "Docs/report.pdf", url: null, metadata: { filename: "report.pdf", fileSizeBytes: 1, modifiedTime: 2 } }), path: "Report.md", legacy: false };
+    const { add, repository } = service([existing]);
+    const result = await add.addResource({ kind: "pdf", filePath: "Docs\\report.pdf" });
+
+    expect(result.duplicate).toBe(true);
+    expect(result.stored).toBe(existing);
+    expect(repository.create).not.toHaveBeenCalled();
+  });
+
+  it("prevents duplicate local file resources after a move when metadata matches", async () => {
+    const existing = { resource: baseResource({ type: "pdf", filePath: "Old/report.pdf", url: null, metadata: { filename: "report.pdf", fileSizeBytes: 10, modifiedTime: 20 } }), path: "Report.md", legacy: false };
+    const movedFile = Object.assign(new TFile(), { path: "New/report.pdf", basename: "report", extension: "pdf", stat: { size: 10, ctime: 1, mtime: 20 } });
+    const { add, repository } = service([existing]);
+    (add as unknown as { app: { vault: { getAbstractFileByPath: (path: string) => unknown } } }).app.vault.getAbstractFileByPath = (path: string) => path === "New/report.pdf" ? movedFile : null;
+
+    const result = await add.addResource({ kind: "pdf", filePath: "New/report.pdf" });
+
+    expect(result.duplicate).toBe(true);
+    expect(result.stored).toBe(existing);
+    expect(repository.create).not.toHaveBeenCalled();
+  });
+
   it("prevents duplicate websites by canonical URL", async () => {
     const existing = { resource: baseResource({ type: "website", url: "https://example.com/page", metadata: { canonicalUrl: "https://example.com/page" } }), path: "Website.md", legacy: false };
     const { add, repository } = service([existing]);
@@ -121,9 +145,40 @@ describe("file extension type detection", () => {
   it("detects supported file-backed resource types", () => {
     expect(detectResourceTypeFromFilePath("Docs/report.pdf")).toBe("pdf");
     expect(detectResourceTypeFromFilePath("Slides/deck.pptx")).toBe("powerpoint");
+    expect(detectResourceTypeFromFilePath("Docs/spec.docx")).toBe("document");
+    expect(detectResourceTypeFromFilePath("Books/manual.epub")).toBe("book");
     expect(detectResourceTypeFromFilePath("Notes/page.md")).toBe("markdown");
     expect(detectResourceTypeFromFilePath("Images/photo.png")).toBe("image");
     expect(detectResourceTypeFromFilePath("Scripts/tool.py")).toBe("script");
     expect(detectResourceTypeFromFilePath("Archives/export.zip")).toBe("archive");
+  });
+
+  it("adds EPUB files as book resources with local file metadata", async () => {
+    class LocalFile {
+      basename = "manual";
+      extension = "epub";
+      stat = { size: 1234, ctime: 100, mtime: 200 };
+      constructor(public path: string) {}
+    }
+    const registry = new ProviderRegistry();
+    registry.register(new FileProvider());
+    const repository = {
+      create: vi.fn(async (resource: KnowledgeResource) => ({ resource, path: `${resource.title}.md`, legacy: false })),
+      list: vi.fn(async () => [])
+    };
+    const app = {
+      vault: {
+        getMarkdownFiles: () => [],
+        getAbstractFileByPath: (path: string) => path === "Books/manual.epub" ? new LocalFile(path) : null
+      },
+      metadataCache: { getFileCache: () => null }
+    };
+
+    const add = new AddResourceService(app as never, DEFAULT_SETTINGS, new ResourceService(registry, new TagService()), repository as never, new TagService());
+    const result = await add.addResource({ kind: "book", filePath: "Books/manual.epub", title: "Manual", creator: "Author", publisher: "Pub", edition: "2", isbn: "123" });
+
+    expect(result.resource.type).toBe("book");
+    expect(result.resource.filePath).toBe("Books/manual.epub");
+    expect(result.resource.metadata).toMatchObject({ publisher: "Pub", edition: "2", isbn: "123", extension: "epub", documentFormat: "EPUB" });
   });
 });

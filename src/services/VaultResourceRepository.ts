@@ -2,6 +2,7 @@ import { App, normalizePath, TFile } from "obsidian";
 import { KnowledgeLibraryPluginSettings } from "../core/settings";
 import { KnowledgeResource } from "../models/KnowledgeResource";
 import { parseYouTubeUrl } from "../providers/YouTubeProvider";
+import { FileResourceService } from "./FileResourceService";
 import { ResourceDeserializer } from "./ResourceDeserializer";
 import { ResourceSerializer } from "./ResourceSerializer";
 import { TagService } from "./TagService";
@@ -26,8 +27,8 @@ export function getProviderResourceKey(resource: KnowledgeResource): string {
     return `youtube:${videoId ?? resource.id}`;
   }
 
-  if (resource.type === "file") {
-    return `file:${resource.filePath ?? resource.id}`;
+  if (resource.filePath) {
+    return `file:${FileResourceService.normalizeVaultPath(resource.filePath).toLowerCase()}`;
   }
 
   return `${resource.type}:${resource.url ?? resource.id}`;
@@ -130,8 +131,12 @@ export class VaultResourceRepository {
   }
 
   private normalizeResource(resource: KnowledgeResource): KnowledgeResource {
+    const filePath = resource.filePath ? FileResourceService.normalizeVaultPath(resource.filePath) : null;
     return {
       ...resource,
+      id: filePath ? FileResourceService.deterministicResourceId(filePath) : resource.id,
+      filePath,
+      thumbnail: resource.thumbnail ?? (filePath && resource.type === "image" ? filePath : null),
       tags: this.tagService.normalizeTags(resource.tags)
     };
   }

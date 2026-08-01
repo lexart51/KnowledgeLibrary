@@ -1,5 +1,6 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import KnowledgeLibraryPlugin from "../main";
+import { DEFAULT_ALLOWED_FILE_EXTENSIONS, DEFAULT_EXCLUDED_FILE_FOLDERS } from "../services/FileResourceService";
 
 export class KnowledgeLibrarySettingTab extends PluginSettingTab {
   constructor(
@@ -54,6 +55,62 @@ export class KnowledgeLibrarySettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         }));
 
+
+
+    new Setting(containerEl)
+      .setName("Allowed file extensions")
+      .setDesc("Comma-separated vault file extensions shown in the Add Resource file picker.")
+      .addTextArea((text) => text
+        .setValue(this.plugin.settings.allowedFileExtensions.join(", "))
+        .onChange(async (value) => {
+          this.plugin.settings.allowedFileExtensions = parseCsv(value, DEFAULT_ALLOWED_FILE_EXTENSIONS);
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName("Excluded file folders")
+      .setDesc("Comma-separated folder names hidden from the Add Resource file picker.")
+      .addTextArea((text) => text
+        .setValue(this.plugin.settings.excludedFileFolders.join(", "))
+        .onChange(async (value) => {
+          this.plugin.settings.excludedFileFolders = parseCsv(value, DEFAULT_EXCLUDED_FILE_FOLDERS);
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName("Show file size on cards")
+      .setDesc("Display stored local file sizes in library cards.")
+      .addToggle((toggle) => toggle
+        .setValue(this.plugin.settings.showFileSizeOnCards)
+        .onChange(async (value) => {
+          this.plugin.settings.showFileSizeOnCards = value;
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName("Enable drag and drop")
+      .setDesc("Allow vault files to be dropped onto the library view to prefill Add Resource.")
+      .addToggle((toggle) => toggle
+        .setValue(this.plugin.settings.enableDragAndDrop)
+        .onChange(async (value) => {
+          this.plugin.settings.enableDragAndDrop = value;
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName("Unknown file type")
+      .setDesc("Default resource type for allowed files whose extension is unknown.")
+      .addDropdown((dropdown) => dropdown
+        .addOption("other", "Other")
+        .addOption("document", "Document")
+        .addOption("archive", "Archive")
+        .addOption("script", "Script")
+        .setValue(this.plugin.settings.defaultUnknownFileType)
+        .onChange(async (value) => {
+          this.plugin.settings.defaultUnknownFileType = value === "document" || value === "archive" || value === "script" ? value : "other";
+          await this.plugin.saveSettings();
+        }));
+
     new Setting(containerEl)
       .setName("Display card density")
       .setDesc("Controls spacing in the library card grid.")
@@ -66,4 +123,10 @@ export class KnowledgeLibrarySettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         }));
   }
+}
+
+
+function parseCsv(value: string, fallback: string[]): string[] {
+  const values = value.split(",").map((item) => item.trim().replace(/^\./, "").toLowerCase()).filter(Boolean);
+  return values.length > 0 ? Array.from(new Set(values)) : fallback;
 }
