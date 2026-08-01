@@ -7,6 +7,7 @@ import { FileResourceService, formatFileSize } from "../services/FileResourceSer
 import { discoverTopicCandidates, primaryTopicForEntry } from "../services/TopicService";
 import { StoredResource } from "../services/VaultResourceRepository";
 import { getYouTubeThumbnailFallbacks } from "./thumbnailFallbacks";
+import { renderKnowledgeNavigation } from "./NavigationShell";
 
 export interface LibraryFilters {
   search: string;
@@ -91,6 +92,7 @@ export class KnowledgeLibraryView extends ItemView {
     this.contentEl.empty();
     this.contentEl.addClass("knowledge-library-view");
     this.registerDragAndDrop();
+    renderKnowledgeNavigation(this.contentEl, this.plugin, "library");
 
     const header = this.contentEl.createDiv({ cls: "knowledge-library-view-header" });
     header.createEl("h2", { text: "Knowledge Library" });

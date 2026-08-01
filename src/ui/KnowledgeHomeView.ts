@@ -5,6 +5,7 @@ import { UnifiedIndexEntry, UnifiedKnowledgeIndex, VaultConnectorRole } from "..
 import { duplicateKeys } from "../services/SearchRankingService";
 import { TopicService, TopicSummary } from "../services/TopicService";
 import { StoredResource } from "../services/VaultResourceRepository";
+import { renderKnowledgeNavigation } from "./NavigationShell";
 
 export interface HomeOverviewCounts {
   resources: number;
@@ -61,6 +62,7 @@ export class KnowledgeHomeView extends ItemView {
     const counts = homeOverviewCounts(entries, index);
     this.contentEl.empty();
     this.contentEl.addClass("knowledge-library-home-view");
+    renderKnowledgeNavigation(this.contentEl, this.plugin, "home");
 
     this.renderSearch();
     this.renderQuickNavigation(counts);

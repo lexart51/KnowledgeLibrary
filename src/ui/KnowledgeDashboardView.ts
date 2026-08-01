@@ -5,6 +5,7 @@ import { CollectionService } from "../services/CollectionService";
 import { ConnectorStatus, UnifiedKnowledgeIndex } from "../models/VaultConnector";
 import { StoredResource } from "../services/VaultResourceRepository";
 import { FileResourceService } from "../services/FileResourceService";
+import { renderKnowledgeNavigation } from "./NavigationShell";
 
 export interface DashboardStats {
   total: number;
@@ -58,6 +59,7 @@ export class KnowledgeDashboardView extends ItemView {
   private render(stats: DashboardStats, index: UnifiedKnowledgeIndex | null = null): void {
     this.contentEl.empty();
     this.contentEl.addClass("knowledge-library-dashboard");
+    renderKnowledgeNavigation(this.contentEl, this.plugin, "dashboard");
     const header = this.contentEl.createDiv({ cls: "knowledge-library-universal-header" });
     header.createEl("h2", { text: "Knowledge Dashboard" });
     const searchButton = header.createEl("button", { text: "Universal Search", cls: "knowledge-library-button mod-cta", attr: { "aria-label": "Open universal search", title: "Open universal search" } });

@@ -14,12 +14,14 @@ export class TopicPickerModal extends Modal {
   private inputEl!: HTMLInputElement;
   private resultsEl!: HTMLElement;
 
-  constructor(app: App, private readonly topics: TopicSummary[], private readonly onChooseTopic: (topicName: string) => void | Promise<void>) {
+  constructor(app: App, private readonly topics: TopicSummary[], private readonly onChooseTopic: (topicName: string) => void | Promise<void>, private readonly onOpened: (() => void) | null = null) {
     super(app);
   }
 
   onOpen(): void {
     this.modalEl.addClass("knowledge-library-topic-picker-modal");
+    this.containerEl.addClass("mod-knowledge-library-topic-picker");
+    this.onOpened?.();
     this.contentEl.empty();
     this.contentEl.addClass("knowledge-library-topic-picker");
     this.contentEl.createEl("h2", { text: "Open Topic" });

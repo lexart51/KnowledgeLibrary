@@ -94,10 +94,10 @@ describe("Topic Page launch hotfix", () => {
 
   it("openTopicPage validates topics and never silently fails", () => {
     const main = source("src/main.ts");
-    expect(main).toContain("async openTopicPicker()");
+    expect(main).toContain("async openTopicPicker(options: { fallbackToTopicsView?: boolean } = {})");
     expect(main).toContain("No topics are currently available.");
     expect(main).toContain("Topic not found:");
-    expect(main).toContain("Knowledge Topic view did not initialize.");
+    expect(main).toContain("Topic view could not be initialized.");
   });
 
   it("selecting a topic opens and reuses the Knowledge Topic ItemView", () => {
@@ -123,6 +123,72 @@ describe("Topic Page launch hotfix", () => {
     expect(source("src/ui/KnowledgeLibraryView.ts")).toContain("openTopicPage(collection)");
     expect(source("src/ui/KnowledgeLibraryView.ts")).toContain("openTopicPage(topic)");
     expect(source("src/ui/KnowledgeTopicView.ts")).toContain("openTopicPage(topic)");
+  });
+
+
+  it("adds runtime diagnostics for picker and topic page stages", () => {
+    const main = source("src/main.ts");
+    expect(main).toContain("Topic navigation: command invoked");
+    expect(main).toContain("Topic navigation: topic discovery started");
+    expect(main).toContain("Topic navigation: topic count");
+    expect(main).toContain("Topic navigation: picker constructed");
+    expect(main).toContain("Topic navigation: picker opened");
+    expect(main).toContain("Topic navigation: picker onOpen executed");
+    expect(main).toContain("Topic navigation: topic selected");
+    expect(main).toContain("Topic navigation: topic leaf opened");
+  });
+
+  it("opens the Topics ItemView fallback when picker onOpen is not observed", () => {
+    const main = source("src/main.ts");
+    expect(main).toContain("openTopicsView()");
+    expect(main).toContain("picker open did not invoke onOpen");
+    expect(main).toContain("Topic picker could not be opened. Opening Topics view instead.");
+    expect(source("src/core/viewTypes.ts")).toContain("KNOWLEDGE_TOPICS_VIEW_TYPE");
+    expect(source("src/main.ts")).toContain("KnowledgeTopicsView");
+  });
+
+  it("registers Topic navigation self-test command", () => {
+    const commands = source("src/commands/libraryCommands.ts");
+    const main = source("src/main.ts");
+    expect(commands).toContain("Knowledge Library: Test Topic Navigation");
+    expect(commands).toContain("runTopicNavigationSelfTest");
+    expect(main).toContain("Unified index:");
+    expect(main).toContain("Navigation shell: registered");
+  });
+
+  it("renders navigation shell in Home Library Search Dashboard and Topic views", () => {
+    expect(source("src/ui/KnowledgeHomeView.ts")).toContain("renderKnowledgeNavigation(this.contentEl, this.plugin, \"home\")");
+    expect(source("src/ui/KnowledgeLibraryView.ts")).toContain("renderKnowledgeNavigation(this.contentEl, this.plugin, \"library\")");
+    expect(source("src/ui/UniversalSearchView.ts")).toContain("renderKnowledgeNavigation(this.contentEl, this.plugin, \"search\")");
+    expect(source("src/ui/KnowledgeDashboardView.ts")).toContain("renderKnowledgeNavigation(this.contentEl, this.plugin, \"dashboard\")");
+    expect(source("src/ui/KnowledgeTopicView.ts")).toContain("renderKnowledgeNavigation(this.contentEl, this.plugin, \"topics\")");
+  });
+
+  it("navigation shell Topics action opens the picker with fallback available", () => {
+    const shell = source("src/ui/NavigationShell.ts");
+    expect(shell).toContain("plugin.openTopicPicker()");
+    expect(shell).toContain("aria-current");
+    expect(shell).toContain("knowledge-library-shell-nav-button");
+  });
+
+  it("Topics ItemView opens Topic Pages from click or Enter", () => {
+    const topicsView = source("src/ui/KnowledgeTopicsView.ts");
+    expect(topicsView).toContain("Knowledge Library: Topics");
+    expect(topicsView).toContain("this.plugin.loadTopicEntries()");
+    expect(topicsView).toContain("event.key === \"Enter\"");
+    expect(topicsView).toContain("this.plugin.openTopicPage(selected.topic.name)");
+    expect(topicsView).toContain("this.plugin.openTopicPage(option.topic.name)");
+  });
+
+  it("picker and Topics CSS remain visible and do not collapse horizontally", () => {
+    const css = source("src/styles.css");
+    expect(css).toContain(".knowledge-library-topic-picker-modal");
+    expect(css).toContain("width: min(720px, calc(100vw - 48px));");
+    expect(css).toContain("max-width: calc(100vw - 48px);");
+    expect(css).toContain("min-height: 0;");
+    expect(css).toContain("overflow-x: hidden;");
+    expect(css).toContain(".knowledge-library-topics-view");
+    expect(css).toContain(".knowledge-library-shell-nav");
   });
 
   it("dashboard source remains untouched by the hotfix", () => {

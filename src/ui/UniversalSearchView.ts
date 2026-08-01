@@ -5,6 +5,7 @@ import { UnifiedIndexEntry, UnifiedKnowledgeIndex } from "../models/VaultConnect
 import { highlightMatchedTerms, SearchRankingService, UniversalSearchDisplayMode, UniversalSearchResult, UniversalSearchSortMode } from "../services/SearchRankingService";
 import { serializeSavedSearch } from "../services/SavedSearchService";
 import { primaryTopicForEntry, TopicService, TopicSummary } from "../services/TopicService";
+import { renderKnowledgeNavigation } from "./NavigationShell";
 
 export class UniversalSearchView extends ItemView {
   private index: UnifiedKnowledgeIndex | null = null;
@@ -53,6 +54,7 @@ export class UniversalSearchView extends ItemView {
   private renderShell(): void {
     this.contentEl.empty();
     this.contentEl.addClass("knowledge-library-universal-search-view");
+    renderKnowledgeNavigation(this.contentEl, this.plugin, "search");
     const header = this.contentEl.createDiv({ cls: "knowledge-library-universal-header" });
     header.createEl("h2", { text: "Universal Knowledge Search" });
     const actions = header.createDiv({ cls: "knowledge-library-view-actions" });

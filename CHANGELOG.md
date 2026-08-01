@@ -4,6 +4,15 @@
 
 - No unreleased changes.
 
+## 6.5.0-alpha.5
+
+- Added runtime DEBUG diagnostics around Topic command invocation, discovery, picker construction/opening, picker `onOpen`, topic selection, and Topic ItemView activation.
+- Added `Knowledge Library: Topics` as a reliable fallback ItemView with search, keyboard navigation, logical counts, and click/Enter Topic Page opening.
+- Added a shared KnowledgeLibrary navigation shell to Home, Library, Universal Search, Dashboard, Topic Page, and Topics view without changing dashboard data or connector behavior.
+- Added `Knowledge Library: Test Topic Navigation` to report topic discovery, picker, view registration, navigation shell, and unified index availability.
+- Root cause: alpha.4 still depended on a modal-only launch path; when the modal layer did not visibly render or did not invoke `onOpen` at runtime, there was no persistent in-workspace fallback surface for topic selection.
+- Updated plugin metadata and status bar label to `6.5.0-alpha.5`.
+
 ## 6.5.0-alpha.4
 
 - Fixed the `Knowledge Library: Open topic page` command so it opens a searchable native topic picker instead of relying on `window.prompt`.
@@ -25,6 +34,7 @@
 - Narrowed Continue Learning to explicit learning signals: partial progress, valid position, recent opens, or high-priority unfinished items.
 - Added clearer date labels and logical-item count clarification on Home.
 - Updated plugin metadata and status bar label to `6.5.0-alpha.2`.
+
 ## 6.5.0-alpha.1
 
 - Added `Knowledge Library: Home` as the navigation-first landing view.

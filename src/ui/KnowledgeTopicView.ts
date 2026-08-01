@@ -4,6 +4,7 @@ import KnowledgeLibraryPlugin from "../main";
 import { UnifiedIndexEntry, UnifiedKnowledgeIndex, VaultConnectorRole } from "../models/VaultConnector";
 import { TopicService, TopicSummary, TopicTimelineItem } from "../services/TopicService";
 import { buildHomeEntries } from "./KnowledgeHomeView";
+import { renderKnowledgeNavigation } from "./NavigationShell";
 
 export interface TopicPageModel {
   topic: TopicSummary | null;
@@ -67,6 +68,7 @@ export class KnowledgeTopicView extends ItemView {
   private render(model: TopicPageModel, index: UnifiedKnowledgeIndex | null): void {
     this.contentEl.empty();
     this.contentEl.addClass("knowledge-library-topic-view");
+    renderKnowledgeNavigation(this.contentEl, this.plugin, "topics");
     if (!this.plugin.settings.enableTopicPages) {
       this.contentEl.createDiv({ text: "Topic Pages are disabled in settings.", cls: "knowledge-library-empty-state" });
       return;
