@@ -4,6 +4,15 @@
 
 - No unreleased changes.
 
+## 6.4.1
+
+- Changed deployment scripts to update only `main.js`, `manifest.json`, and `styles.css`, preserving `data.json` and future plugin state files.
+- Added deployment reports with version, timestamp, updated files, preserved files, and warnings.
+- Added `PluginStateManager` plus storage repositories for settings, cache, index, diagnostics, saved searches, and connectors.
+- Added state schema versioning, automatic migration, unknown-field preservation, backup, restore, and corruption fallback behavior.
+- Added diagnostics view, self diagnostics command, and configurable `LoggerService`.
+- Added plugin configuration export/import and plugin state backup/restore commands.
+- Updated plugin metadata and status bar label to `6.4.1`.
 ## 6.4.0
 
 - Added the native `Universal Knowledge Search` ItemView with debounced input, focused search, keyboard navigation, compact/grouped result modes, matched-term highlighting, and ecosystem overview counts.

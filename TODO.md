@@ -51,3 +51,8 @@
 - Added Universal Knowledge Search as a native view.
 - Added deterministic ranking, query filters, duplicate suppression, saved searches, and result highlighting.
 - Added source-aware navigation improvements and dashboard search integration.
+## Completed in 6.4.1
+
+- Made deployment artifact-only and state-preserving.
+- Added plugin state manager, storage repositories, diagnostics, logger, self-test, backup/restore, and configuration export/import.
+- Added maintenance reliability documentation and regression tests.

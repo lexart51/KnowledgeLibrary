@@ -1,15 +1,12 @@
-import KnowledgeLibraryPlugin from "../main";
 import { SavedKnowledgeSearch, UniversalSearchDisplayMode, UniversalSearchSortMode } from "./SearchRankingService";
+import { SavedSearchRepository } from "./PluginStorage/SavedSearchRepository";
 
-const SAVED_SEARCHES_KEY = "savedKnowledgeSearches";
 
 export class SavedSearchService {
-  constructor(private readonly plugin: KnowledgeLibraryPlugin) {}
+  constructor(private readonly repository: SavedSearchRepository) {}
 
   async list(): Promise<SavedKnowledgeSearch[]> {
-    const data = await this.plugin.loadData() as Record<string, unknown> | null;
-    const value = data?.[SAVED_SEARCHES_KEY];
-    return Array.isArray(value) ? value as SavedKnowledgeSearch[] : [];
+    return this.repository.list();
   }
 
   async save(search: Omit<SavedKnowledgeSearch, "id" | "createdAt" | "updatedAt"> & { id?: string }): Promise<SavedKnowledgeSearch> {
@@ -34,8 +31,7 @@ export class SavedSearchService {
   }
 
   private async write(searches: SavedKnowledgeSearch[]): Promise<void> {
-    const data = (await this.plugin.loadData() as Record<string, unknown> | null) ?? {};
-    await this.plugin.saveData({ ...data, [SAVED_SEARCHES_KEY]: searches });
+    await this.repository.saveAll(searches);
   }
 }
 

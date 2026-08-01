@@ -4,7 +4,7 @@ KnowledgeLibrary is a professional Obsidian plugin for unified personal knowledg
 
 ## Status
 
-`6.4.0`
+`6.4.1`
 
 ## Development
 
@@ -46,7 +46,7 @@ The production build emits:
 
 ## Deployment
 
-KnowledgeLibrary v6 installs side by side under plugin id and folder `knowledge-library-v6`. Deployment scripts copy only the three production files and back up any existing v6 target before copying.
+KnowledgeLibrary v6 installs side by side under plugin id and folder `knowledge-library-v6`. Deployment scripts copy only the three production files and preserve existing plugin state files in the installed v6 target.
 
 ## Current Plugin Surface
 
@@ -72,8 +72,15 @@ KnowledgeLibrary v6 installs side by side under plugin id and folder `knowledge-
 - Command palette command: `Knowledge Library: Apply migration`.
 - Command palette command: `Knowledge Library: Analyze tags`.
 - Command palette command: `Knowledge Library: Consolidate tag aliases`.
+- Command palette command: `Knowledge Library: Open diagnostics`.
+- Command palette command: `Knowledge Library: Run self diagnostics`.
+- Command palette command: `Knowledge Library: Export plugin configuration`.
+- Command palette command: `Knowledge Library: Import plugin configuration`.
+- Command palette command: `Knowledge Library: Backup plugin state`.
+- Command palette command: `Knowledge Library: Restore plugin state`.
+- Maintenance-safe deployment updates only `main.js`, `manifest.json`, and `styles.css`, preserving plugin state.
 - Command palette command: `Knowledge Library: Repair YouTube thumbnails`.
-- Status bar: `KL 6.4.0`.
+- Status bar: `KL 6.4.1`.
 - Polished native library view with responsive toolbar, unified source/vault/role filters, search, tags, collections, priority, progress filters, sorting, card grid, note/resource actions, external-open actions, quick progress edits, and favorite/completed toggles.
 - Read-only migration analysis and simulation commands for existing vault compatibility.
 - Confirmed safe write workflows for migration backup, migration apply, tag consolidation, and YouTube thumbnail repair.

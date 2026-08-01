@@ -27,6 +27,7 @@ export interface KnowledgeLibraryPluginSettings {
   searchExcerptLength: number;
   searchDefaultGrouping: UniversalSearchDisplayMode;
   searchEnableSavedSearches: boolean;
+  logLevel: "DEBUG" | "INFO" | "WARN" | "ERROR";
 }
 
 export const DEFAULT_VAULT_CONNECTORS: VaultConnector[] = [
@@ -86,7 +87,7 @@ export const DEFAULT_VAULT_CONNECTORS: VaultConnector[] = [
   }
 ];
 export const DEFAULT_SETTINGS: KnowledgeLibraryPluginSettings = {
-  versionLabel: "KL 6.4.0",
+  versionLabel: "KL 6.4.1",
   libraryFolder: "01 - Biblioteca",
   resourcesFolder: "01 - Biblioteca/Recursos",
   includeLegacyNotes: true,
@@ -108,5 +109,6 @@ export const DEFAULT_SETTINGS: KnowledgeLibraryPluginSettings = {
   searchShowExcerpts: true,
   searchExcerptLength: 260,
   searchDefaultGrouping: "compact",
-  searchEnableSavedSearches: true
+  searchEnableSavedSearches: true,
+  logLevel: "WARN"
 };

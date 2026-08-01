@@ -30,3 +30,8 @@ The connector layer is split into:
 ## Universal Search Layer
 
 KnowledgeLibrary 6.4.0 adds `SearchRankingService`, `SearchQueryParser`, and `SearchResultScorer` above the unified index. The native Universal Search view consumes the cached index, applies query filters and deterministic ranking, suppresses duplicates at search time, and opens results through existing active-vault or external Obsidian URI behavior.
+## Maintenance Storage Layer
+
+KnowledgeLibrary 6.4.1 centralizes plugin state access under `src/services/PluginStorage`. `PluginStateManager` is the only layer that calls Obsidian plugin data load/save APIs. Settings, cache, unified index, diagnostics, saved searches, and connectors are accessed through repository classes so future state files and schema migrations can evolve without scattering storage logic.
+
+`LoggerService` provides configurable logging with production debug suppression. `DiagnosticsService` collects read-only runtime health information and runs self diagnostics without touching external vaults.

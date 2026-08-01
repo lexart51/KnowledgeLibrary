@@ -1,7 +1,7 @@
 import { Plugin, TFile } from "obsidian";
 import { registerLibraryCommands } from "./commands/libraryCommands";
 import { DEFAULT_SETTINGS, KnowledgeLibraryPluginSettings } from "./core/settings";
-import { KNOWLEDGE_DASHBOARD_VIEW_TYPE, KNOWLEDGE_LIBRARY_VIEW_TYPE, KNOWLEDGE_UNIVERSAL_SEARCH_VIEW_TYPE } from "./core/viewTypes";
+import { KNOWLEDGE_DASHBOARD_VIEW_TYPE, KNOWLEDGE_DIAGNOSTICS_VIEW_TYPE, KNOWLEDGE_LIBRARY_VIEW_TYPE, KNOWLEDGE_UNIVERSAL_SEARCH_VIEW_TYPE } from "./core/viewTypes";
 import { AddResourceRequest, AddResourceResult, AddResourceService } from "./services/AddResourceService";
 import { MigrationService } from "./services/MigrationService";
 import { CollectionService } from "./services/CollectionService";
@@ -25,6 +25,16 @@ import { UniversalSearchView } from "./ui/UniversalSearchView";
 import { SavedSearchManagementModal } from "./ui/SavedSearchManagementModal";
 import { RibbonService } from "./ui/RibbonService";
 import { StatusBarService } from "./ui/StatusBarService";
+import { DiagnosticsView } from "./ui/DiagnosticsView";
+import { LoggerService } from "./services/LoggerService";
+import { DiagnosticsService } from "./services/DiagnosticsService";
+import { PluginStateManager } from "./services/PluginStorage/StateManager";
+import { SettingsRepository } from "./services/PluginStorage/SettingsRepository";
+import { CacheRepository } from "./services/PluginStorage/CacheRepository";
+import { IndexRepository } from "./services/PluginStorage/IndexRepository";
+import { DiagnosticsRepository } from "./services/PluginStorage/DiagnosticsRepository";
+import { SavedSearchRepository } from "./services/PluginStorage/SavedSearchRepository";
+import { ConnectorRepository } from "./services/PluginStorage/ConnectorRepository";
 
 export default class KnowledgeLibraryPlugin extends Plugin {
   settings: KnowledgeLibraryPluginSettings = DEFAULT_SETTINGS;
@@ -41,6 +51,15 @@ export default class KnowledgeLibraryPlugin extends Plugin {
   relationshipService!: RelationshipService;
   unifiedIndexService!: UnifiedIndexService;
   savedSearchService!: SavedSearchService;
+  stateManager!: PluginStateManager;
+  settingsRepository!: SettingsRepository;
+  cacheRepository!: CacheRepository;
+  indexRepository!: IndexRepository;
+  diagnosticsRepository!: DiagnosticsRepository;
+  savedSearchRepository!: SavedSearchRepository;
+  connectorRepository!: ConnectorRepository;
+  diagnosticsService!: DiagnosticsService;
+  logger!: LoggerService;
   private ribbonService!: RibbonService;
   private statusBarService!: StatusBarService;
 
@@ -57,6 +76,7 @@ export default class KnowledgeLibraryPlugin extends Plugin {
     this.registerView(KNOWLEDGE_LIBRARY_VIEW_TYPE, (leaf) => new KnowledgeLibraryView(leaf, this));
     this.registerView(KNOWLEDGE_DASHBOARD_VIEW_TYPE, (leaf) => new KnowledgeDashboardView(leaf, this));
     this.registerView(KNOWLEDGE_UNIVERSAL_SEARCH_VIEW_TYPE, (leaf) => new UniversalSearchView(leaf, this));
+    this.registerView(KNOWLEDGE_DIAGNOSTICS_VIEW_TYPE, (leaf) => new DiagnosticsView(leaf, this));
     this.addSettingTab(new KnowledgeLibrarySettingTab(this.app, this));
     this.ribbonService.register();
     this.statusBarService.register();
@@ -67,6 +87,7 @@ export default class KnowledgeLibraryPlugin extends Plugin {
     this.app.workspace.detachLeavesOfType(KNOWLEDGE_LIBRARY_VIEW_TYPE);
     this.app.workspace.detachLeavesOfType(KNOWLEDGE_DASHBOARD_VIEW_TYPE);
     this.app.workspace.detachLeavesOfType(KNOWLEDGE_UNIVERSAL_SEARCH_VIEW_TYPE);
+    this.app.workspace.detachLeavesOfType(KNOWLEDGE_DIAGNOSTICS_VIEW_TYPE);
     this.statusBarService?.unload();
   }
 
@@ -118,6 +139,43 @@ export default class KnowledgeLibraryPlugin extends Plugin {
     new CollectionManagementModal(this.app, this.resourceRepository, this.collectionService, () => this.refreshLibraryViews()).open();
   }
 
+  async openDiagnosticsView(): Promise<void> {
+    const existingLeaf = this.app.workspace.getLeavesOfType(KNOWLEDGE_DIAGNOSTICS_VIEW_TYPE)[0];
+    if (existingLeaf) {
+      await this.app.workspace.revealLeaf(existingLeaf);
+      return;
+    }
+    const leaf = this.app.workspace.getLeaf(true);
+    await leaf.setViewState({ type: KNOWLEDGE_DIAGNOSTICS_VIEW_TYPE, active: true });
+    await this.app.workspace.revealLeaf(leaf);
+  }
+
+  async exportPluginConfiguration(): Promise<string> {
+    const exportData = await this.stateManager.exportConfiguration(Object.keys(DEFAULT_SETTINGS));
+    return JSON.stringify(exportData, null, 2);
+  }
+
+  async importPluginConfiguration(payload: string): Promise<void> {
+    const parsed = JSON.parse(payload) as import("./services/PluginStorage/StateManager").PluginConfigurationExport;
+    await this.stateManager.importConfiguration(parsed);
+    await this.loadSettings();
+    this.initializeServices();
+  }
+
+  async backupPluginState(): Promise<string> {
+    const backup = await this.stateManager.backup("Manual plugin state backup");
+    return backup.id;
+  }
+
+  async restorePluginState(backupId: string): Promise<void> {
+    await this.stateManager.restore(backupId);
+    await this.loadSettings();
+    this.initializeServices();
+  }
+
+  async runSelfDiagnostics(): Promise<string> {
+    return this.diagnosticsService.runSelfDiagnostics();
+  }
   async openDashboardView(): Promise<void> {
     const existingLeaf = this.app.workspace.getLeavesOfType(KNOWLEDGE_DASHBOARD_VIEW_TYPE)[0];
     if (existingLeaf) {
@@ -179,19 +237,24 @@ export default class KnowledgeLibraryPlugin extends Plugin {
   }
 
   async loadSettings(): Promise<void> {
-    const data = (await this.loadData()) as Record<string, unknown> | null;
-    const settingsData = { ...(data ?? {}) };
-    delete settingsData.unifiedKnowledgeIndex;
-    this.settings = {
-      ...DEFAULT_SETTINGS,
-      ...settingsData
-    } as typeof this.settings;
+    this.initializeStorage();
+    this.settings = await this.settingsRepository.load(DEFAULT_SETTINGS);
   }
 
   async saveSettings(): Promise<void> {
-    const data = (await this.loadData()) as Record<string, unknown> | null;
-    await this.saveData({ ...(data ?? {}), ...this.settings });
+    await this.settingsRepository.save(this.settings);
     this.initializeServices();
+  }
+
+  private initializeStorage(): void {
+    this.stateManager = new PluginStateManager(this);
+    this.settingsRepository = new SettingsRepository(this.stateManager);
+    this.cacheRepository = new CacheRepository(this.stateManager);
+    this.indexRepository = new IndexRepository(this.stateManager);
+    this.diagnosticsRepository = new DiagnosticsRepository(this.stateManager);
+    this.savedSearchRepository = new SavedSearchRepository(this.stateManager);
+    this.connectorRepository = new ConnectorRepository(this.stateManager);
+    this.logger = new LoggerService(this.settings.logLevel ?? "WARN");
   }
 
   private initializeServices(): void {
@@ -199,8 +262,8 @@ export default class KnowledgeLibraryPlugin extends Plugin {
     this.relationshipService = new RelationshipService();
     this.resourceRepository = new VaultResourceRepository(this.app, this.settings, undefined, undefined, this.tagService, this.collectionService);
     this.addResourceService = new AddResourceService(this.app, this.settings, this.resourceService, this.resourceRepository, this.tagService);
-    this.unifiedIndexService = new UnifiedIndexService(this, undefined, undefined, this.tagService, this.collectionService);
-    this.savedSearchService = new SavedSearchService(this);
+    this.unifiedIndexService = new UnifiedIndexService(this, undefined, undefined, this.tagService, this.collectionService, this.indexRepository);
+    this.savedSearchService = new SavedSearchService(this.savedSearchRepository);
     this.migrationService = new MigrationService(this.app);
     this.safeMigrationService = new SafeMigrationService(this.app, this.settings, this.migrationService, this.tagService);
     this.tagConsolidationService = new TagConsolidationService(this.app, this.tagService);

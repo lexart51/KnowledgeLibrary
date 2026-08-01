@@ -21,6 +21,8 @@ import { VaultConnector } from "../src/models/VaultConnector";
 import { ConversationVaultConnector, DocumentVaultConnector, excerptFromMarkdown, inferConversationPlatform, isMoc } from "../src/providers/VaultConnectorProviders";
 import { CollectionService } from "../src/services/CollectionService";
 import { UnifiedIndexService, UnifiedSearchService, dedupeEntries } from "../src/services/UnifiedIndexService";
+import { PluginStateManager } from "../src/services/PluginStorage/StateManager";
+import { IndexRepository } from "../src/services/PluginStorage/IndexRepository";
 import { VaultAvailabilityService, VaultConnectorService } from "../src/services/VaultConnectorService";
 
 function connector(overrides: Partial<VaultConnector> = {}): VaultConnector {
@@ -173,7 +175,9 @@ describe("Unified index and search", () => {
       loadData: vi.fn(async () => ({})),
       saveData: vi.fn(async () => undefined)
     };
-    const index = await new UnifiedIndexService(plugin as never, undefined, undefined, undefined, new CollectionService()).rebuild();
+    const stateManager = new PluginStateManager(plugin);
+    const indexRepository = new IndexRepository(stateManager);
+    const index = await new UnifiedIndexService(plugin as never, undefined, undefined, undefined, new CollectionService(), indexRepository).rebuild();
     expect(index.entries).toHaveLength(1);
     expect(index.entries[0].tags).toEqual(["ai"]);
     expect(index.connector_statuses[0].available).toBe(false);

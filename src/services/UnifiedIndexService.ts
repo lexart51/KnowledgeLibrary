@@ -6,6 +6,7 @@ import { CollectionService } from "./CollectionService";
 import { TagService } from "./TagService";
 import { StoredResource } from "./VaultResourceRepository";
 import { VaultAvailabilityService, VaultConnectorService } from "./VaultConnectorService";
+import { IndexRepository } from "./PluginStorage/IndexRepository";
 
 export interface UnifiedIndexCounts {
   byConnector: Record<string, number>;
@@ -15,7 +16,6 @@ export interface UnifiedIndexCounts {
   byPlatform: Record<string, number>;
 }
 
-const INDEX_STORAGE_KEY = "unifiedKnowledgeIndex";
 
 export class UnifiedIndexService {
   private providers = {
@@ -30,7 +30,8 @@ export class UnifiedIndexService {
     private readonly connectorService = new VaultConnectorService(),
     private readonly availabilityService = new VaultAvailabilityService(connectorService),
     private readonly tagService = new TagService(),
-    private readonly collectionService = new CollectionService()
+    private readonly collectionService = new CollectionService(),
+    private readonly indexRepository: IndexRepository
   ) {}
 
   async rebuild(): Promise<UnifiedKnowledgeIndex> {
@@ -85,14 +86,11 @@ export class UnifiedIndexService {
   }
 
   async load(): Promise<UnifiedKnowledgeIndex | null> {
-    const data = await this.plugin.loadData() as Record<string, unknown> | null;
-    const value = data?.[INDEX_STORAGE_KEY];
-    return value && typeof value === "object" ? value as UnifiedKnowledgeIndex : null;
+    return this.indexRepository.load();
   }
 
   async save(index: UnifiedKnowledgeIndex): Promise<void> {
-    const data = (await this.plugin.loadData() as Record<string, unknown> | null) ?? {};
-    await this.plugin.saveData({ ...data, [INDEX_STORAGE_KEY]: index });
+    await this.indexRepository.save(index);
   }
 
   counts(index: UnifiedKnowledgeIndex): UnifiedIndexCounts {

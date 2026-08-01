@@ -58,3 +58,8 @@
 - Large unified indexes no longer have to be navigated only as one mixed card grid.
 - Search results are ranked by source-aware relevance and can be filtered with inline query syntax.
 - Duplicate active-vault and connector copies are suppressed at search time without modifying source data.
+## Fixed in 6.4.1
+
+- Windows deployment no longer replaces the plugin folder or removes `data.json`.
+- Plugin state now has schema versioning, migration, backup/restore, and corruption fallback behavior.
+- Diagnostics and self-test reports now make plugin storage, connector, index, and saved-search health visible.

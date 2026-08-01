@@ -37,6 +37,57 @@ export function registerLibraryCommands(plugin: KnowledgeLibraryPlugin): void {
     }
   });
   plugin.addCommand({
+    id: "open-diagnostics",
+    name: "Knowledge Library: Open diagnostics",
+    callback: () => {
+      void plugin.openDiagnosticsView().catch((error) => new Notice(error instanceof Error ? error.message : "Unable to open diagnostics."));
+    }
+  });
+
+  plugin.addCommand({
+    id: "export-plugin-configuration",
+    name: "Knowledge Library: Export plugin configuration",
+    callback: () => {
+      void plugin.exportPluginConfiguration().then((json) => navigator.clipboard.writeText(json).then(() => new Notice("Plugin configuration copied."))).catch((error) => new Notice(error instanceof Error ? error.message : "Unable to export plugin configuration."));
+    }
+  });
+
+  plugin.addCommand({
+    id: "import-plugin-configuration",
+    name: "Knowledge Library: Import plugin configuration",
+    callback: () => {
+      const payload = window.prompt("Paste KnowledgeLibrary configuration JSON");
+      if (!payload) return;
+      void plugin.importPluginConfiguration(payload).then(() => new Notice("Plugin configuration imported.")).catch((error) => new Notice(error instanceof Error ? error.message : "Unable to import plugin configuration."));
+    }
+  });
+
+  plugin.addCommand({
+    id: "backup-plugin-state",
+    name: "Knowledge Library: Backup plugin state",
+    callback: () => {
+      void plugin.backupPluginState().then((id) => new Notice(`Plugin state backup created: ${id}`)).catch((error) => new Notice(error instanceof Error ? error.message : "Unable to back up plugin state."));
+    }
+  });
+
+  plugin.addCommand({
+    id: "restore-plugin-state",
+    name: "Knowledge Library: Restore plugin state",
+    callback: () => {
+      const backupId = window.prompt("Backup id to restore");
+      if (!backupId) return;
+      void plugin.restorePluginState(backupId).then(() => new Notice("Plugin state restored.")).catch((error) => new Notice(error instanceof Error ? error.message : "Unable to restore plugin state."));
+    }
+  });
+
+  plugin.addCommand({
+    id: "run-self-diagnostics",
+    name: "Knowledge Library: Run self diagnostics",
+    callback: () => {
+      void plugin.runSelfDiagnostics().then((report) => navigator.clipboard.writeText(report).then(() => new Notice("Self diagnostics copied."))).catch((error) => new Notice(error instanceof Error ? error.message : "Unable to run self diagnostics."));
+    }
+  });
+  plugin.addCommand({
     id: "manage-vault-connectors",
     name: "Knowledge Library: Manage vault connectors",
     callback: () => plugin.openVaultConnectorsManager()
