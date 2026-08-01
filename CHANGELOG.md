@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Added a unified native Add Resource modal for YouTube, websites, books, vault files, and common file-backed resource types.
+- Added `AddResourceService` to route all wizard creation through `ProviderRegistry`, `ResourceService`, and `VaultResourceRepository`.
+- Added duplicate prevention by YouTube video id, website canonical URL, and vault file path.
+- Added website title extraction through Obsidian `requestUrl` with graceful hostname fallback.
+- Added file extension detection for PDF, PowerPoint, Markdown, image, script, archive, and other resources.
+- Added default-tag and canonical tag handling in the wizard creation flow.
+- Added automatic refresh for open Knowledge Library views and note opening after creation or duplicate detection.
+- Added tests for wizard creation, deduplication, tag canonicalization, file type detection, and oEmbed fallback behavior.
 - Added a read-only `MigrationService` for analyzing existing vault resources.
 - Added a compatibility layer for Video Knowledge Manager notes, Knowledge Library v5 notes, legacy WhatsApp imported notes, and KnowledgeLibrary v6 notes.
 - Added in-memory conversion of compatible legacy resources to `KnowledgeResource`.

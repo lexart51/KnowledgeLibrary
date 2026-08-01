@@ -163,3 +163,74 @@
   text-align: left;
   vertical-align: top;
 }
+
+.knowledge-library-view-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.knowledge-library-add-modal {
+  max-width: 720px;
+  width: min(720px, 92vw);
+}
+
+.knowledge-library-add-form {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.knowledge-library-add-field,
+.knowledge-library-add-book-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.knowledge-library-add-field span {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.knowledge-library-add-field input,
+.knowledge-library-add-field select {
+  width: 100%;
+}
+
+.knowledge-library-add-book-fields {
+  display: contents;
+}
+
+.knowledge-library-add-validation {
+  color: var(--text-error);
+  min-height: 20px;
+  padding-top: 8px;
+}
+
+.knowledge-library-add-progress {
+  color: var(--text-muted);
+  min-height: 20px;
+}
+
+.knowledge-library-add-actions {
+  background: var(--background-primary);
+  border-top: 1px solid var(--background-modifier-border);
+  bottom: 0;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 12px;
+  padding-top: 12px;
+  position: sticky;
+}
+
+.knowledge-library-add-modal .is-hidden {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .knowledge-library-add-form {
+    grid-template-columns: 1fr;
+  }
+}

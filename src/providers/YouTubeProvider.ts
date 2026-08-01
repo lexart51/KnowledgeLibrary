@@ -47,6 +47,7 @@ export class YouTubeProvider implements ResourceProvider {
         metadata: {
           ...input.metadata,
           videoId: details.videoId,
+          thumbnailFallbacks: buildYouTubeThumbnailFallbacks(details.videoId),
           provider: this.id
         }
       },
@@ -73,6 +74,7 @@ export class YouTubeProvider implements ResourceProvider {
       metadata: {
         ...resource.metadata,
         videoId: details.videoId,
+        thumbnailFallbacks: buildYouTubeThumbnailFallbacks(details.videoId),
         provider: this.id
       }
     };
@@ -132,6 +134,18 @@ export function parseYouTubeUrl(input: string): YouTubeVideoDetails | null {
   return {
     videoId,
     canonicalUrl: `https://www.youtube.com/watch?v=${videoId}`,
-    thumbnailUrl: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
+    thumbnailUrl: buildYouTubeThumbnailUrl(videoId, "hqdefault.jpg")
   };
+}
+
+export function buildYouTubeThumbnailFallbacks(videoId: string): string[] {
+  return [
+    buildYouTubeThumbnailUrl(videoId, "hqdefault.jpg"),
+    buildYouTubeThumbnailUrl(videoId, "0.jpg"),
+    buildYouTubeThumbnailUrl(videoId, "mqdefault.jpg")
+  ];
+}
+
+function buildYouTubeThumbnailUrl(videoId: string, fileName: string): string {
+  return `https://img.youtube.com/vi/${videoId}/${fileName}`;
 }

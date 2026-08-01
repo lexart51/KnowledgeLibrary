@@ -1,12 +1,14 @@
-import { Plugin } from "obsidian";
+import { Plugin, TFile } from "obsidian";
 import { registerLibraryCommands } from "./commands/libraryCommands";
 import { DEFAULT_SETTINGS, KnowledgeLibraryPluginSettings } from "./core/settings";
 import { KNOWLEDGE_LIBRARY_VIEW_TYPE } from "./core/viewTypes";
+import { AddResourceRequest, AddResourceResult, AddResourceService } from "./services/AddResourceService";
 import { MigrationService } from "./services/MigrationService";
 import { ResourceService } from "./services/ResourceService";
 import { TagAliasService } from "./services/TagAliasService";
 import { TagService } from "./services/TagService";
 import { VaultResourceRepository } from "./services/VaultResourceRepository";
+import { AddResourceModal } from "./ui/AddResourceModal";
 import { KnowledgeLibrarySettingTab } from "./ui/KnowledgeLibrarySettingTab";
 import { KnowledgeLibraryView } from "./ui/KnowledgeLibraryView";
 import { RibbonService } from "./ui/RibbonService";
@@ -18,6 +20,7 @@ export default class KnowledgeLibraryPlugin extends Plugin {
   tagService!: TagService;
   resourceService!: ResourceService;
   resourceRepository!: VaultResourceRepository;
+  addResourceService!: AddResourceService;
   migrationService!: MigrationService;
   private ribbonService!: RibbonService;
   private statusBarService!: StatusBarService;
@@ -29,6 +32,7 @@ export default class KnowledgeLibraryPlugin extends Plugin {
     this.tagService = new TagService(this.tagAliases);
     this.resourceService = new ResourceService(undefined, this.tagService);
     this.resourceRepository = new VaultResourceRepository(this.app, this.settings, undefined, undefined, this.tagService);
+    this.addResourceService = new AddResourceService(this.app, this.settings, this.resourceService, this.resourceRepository, this.tagService);
     this.migrationService = new MigrationService(this.app);
     this.ribbonService = new RibbonService(this, () => this.openLibraryView());
     this.statusBarService = new StatusBarService(this, this.settings.versionLabel);
@@ -43,6 +47,32 @@ export default class KnowledgeLibraryPlugin extends Plugin {
   onunload(): void {
     this.app.workspace.detachLeavesOfType(KNOWLEDGE_LIBRARY_VIEW_TYPE);
     this.statusBarService?.unload();
+  }
+
+  openAddResourceModal(): void {
+    new AddResourceModal(this.app, this).open();
+  }
+
+  async addResourceFromWizard(request: AddResourceRequest): Promise<AddResourceResult> {
+    const result = await this.addResourceService.addResource(request);
+    await this.refreshLibraryViews();
+    await this.openResourceNote(result.stored.path);
+    return result;
+  }
+
+  async refreshLibraryViews(): Promise<void> {
+    await Promise.all(this.app.workspace.getLeavesOfType(KNOWLEDGE_LIBRARY_VIEW_TYPE).map(async (leaf) => {
+      if (leaf.view instanceof KnowledgeLibraryView) {
+        await leaf.view.refresh();
+      }
+    }));
+  }
+
+  async openResourceNote(path: string): Promise<void> {
+    const file = this.app.vault.getAbstractFileByPath(path);
+    if (file instanceof TFile) {
+      await this.app.workspace.getLeaf(false).openFile(file);
+    }
   }
 
   async openLibraryView(): Promise<void> {
@@ -67,6 +97,7 @@ export default class KnowledgeLibraryPlugin extends Plugin {
   async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
     this.resourceRepository = new VaultResourceRepository(this.app, this.settings, undefined, undefined, this.tagService);
+    this.addResourceService = new AddResourceService(this.app, this.settings, this.resourceService, this.resourceRepository, this.tagService);
     this.migrationService = new MigrationService(this.app);
   }
 }

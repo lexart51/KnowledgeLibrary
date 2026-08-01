@@ -14,6 +14,14 @@ export function registerLibraryCommands(plugin: KnowledgeLibraryPlugin): void {
   });
 
   plugin.addCommand({
+    id: "add-resource",
+    name: "Knowledge Library: Add Resource",
+    callback: () => {
+      plugin.openAddResourceModal();
+    }
+  });
+
+  plugin.addCommand({
     id: "analyze-existing-vault",
     name: "Knowledge Library: Analyze existing vault",
     callback: () => {

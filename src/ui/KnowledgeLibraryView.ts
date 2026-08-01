@@ -67,7 +67,10 @@ export class KnowledgeLibraryView extends ItemView {
     const header = this.containerEl.createDiv({ cls: "knowledge-library-view-header" });
     header.createEl("h2", { text: "Knowledge Library" });
 
-    const refreshButton = header.createEl("button", { text: "Refresh", cls: "knowledge-library-button" });
+    const headerActions = header.createDiv({ cls: "knowledge-library-view-actions" });
+    const addButton = headerActions.createEl("button", { text: "Add", cls: "knowledge-library-button mod-cta" });
+    addButton.addEventListener("click", () => this.plugin.openAddResourceModal());
+    const refreshButton = headerActions.createEl("button", { text: "Refresh", cls: "knowledge-library-button" });
     refreshButton.addEventListener("click", () => void this.refresh());
 
     const controls = this.containerEl.createDiv({ cls: "knowledge-library-controls" });

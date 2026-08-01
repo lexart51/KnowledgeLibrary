@@ -8,7 +8,7 @@
 - [x] Add persistent Markdown resource storage.
 - [x] Build the first native library view.
 - [x] Add migration analysis and compatibility layer.
-- [ ] Add resource creation commands wired to providers.
+- [x] Add unified Add Resource wizard.
 - [ ] Add opt-in migration writer after audit validation.
 - [ ] Define expanded knowledge item metadata models.
 - [ ] Add local indexing and search services.

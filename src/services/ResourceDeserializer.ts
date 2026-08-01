@@ -136,7 +136,20 @@ function metadataFrom(value: unknown): KnowledgeResourceMetadata {
 }
 
 function typeFrom(value: unknown, url: string | null, filePath: string | null, videoId: string | null): KnowledgeResourceType {
-  if (value === "youtube" || value === "website" || value === "file") {
+  if (
+    value === "youtube" ||
+    value === "website" ||
+    value === "pdf" ||
+    value === "book" ||
+    value === "powerpoint" ||
+    value === "markdown" ||
+    value === "image" ||
+    value === "script" ||
+    value === "skill" ||
+    value === "archive" ||
+    value === "file" ||
+    value === "other"
+  ) {
     return value;
   }
 

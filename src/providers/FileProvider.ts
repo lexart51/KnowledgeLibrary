@@ -1,4 +1,5 @@
 import { KnowledgeResource, ResourceInput, ValidationResult } from "../models/KnowledgeResource";
+import { detectResourceTypeFromFilePath, extensionFromPath } from "../utils/fileTypes";
 import { createBaseResource } from "../utils/resources";
 import { ResourceProvider } from "./ResourceProvider";
 
@@ -12,24 +13,38 @@ export class FileProvider implements ResourceProvider {
   async createResource(input: ResourceInput): Promise<KnowledgeResource> {
     const filePath = input.filePath ?? input.url?.replace(/^file:\/\//, "") ?? "";
     const fallbackTitle = filePath.split(/[\\/]/).filter(Boolean).pop() ?? "Local file";
+    const type = detectResourceTypeFromFilePath(filePath, input.type);
+    const extension = extensionFromPath(filePath);
 
     return createBaseResource(
       {
         ...input,
         title: input.title ?? fallbackTitle,
         filePath,
-        source: input.source ?? "file"
+        source: input.source ?? "vault",
+        metadata: {
+          ...input.metadata,
+          extension,
+          provider: this.id
+        }
       },
-      "file",
+      type,
       filePath
     );
   }
 
   normalize(resource: KnowledgeResource): KnowledgeResource {
+    const filePath = resource.filePath?.trim() || null;
     return {
       ...resource,
-      filePath: resource.filePath?.trim() || null,
-      source: resource.source || "file"
+      type: filePath ? detectResourceTypeFromFilePath(filePath, resource.type) : resource.type,
+      filePath,
+      source: resource.source || "vault",
+      metadata: {
+        ...resource.metadata,
+        extension: filePath ? extensionFromPath(filePath) : null,
+        provider: this.id
+      }
     };
   }
 

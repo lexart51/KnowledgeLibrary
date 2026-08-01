@@ -1,4 +1,4 @@
-export type KnowledgeResourceType = "youtube" | "website" | "file";
+export type KnowledgeResourceType = "youtube" | "website" | "pdf" | "book" | "powerpoint" | "markdown" | "image" | "script" | "skill" | "archive" | "file" | "other";
 
 export type KnowledgeResourceStatus = "active" | "archived" | "unavailable";
 
@@ -26,6 +26,7 @@ export interface KnowledgeResource {
 }
 
 export interface ResourceInput {
+  type?: KnowledgeResourceType;
   title?: string;
   creator?: string | null;
   source?: string;

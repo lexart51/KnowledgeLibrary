@@ -41,9 +41,11 @@ The production build emits:
 
 - Ribbon icon: opens the Knowledge Library view.
 - Command palette command: `Knowledge Library: Open Library`.
+- Command palette command: `Knowledge Library: Add Resource`.
 - Status bar: `KL 6.0.0-alpha`.
 - Native library view with search, filters, sorting, card grid, note/resource actions, and favorite/completed toggles.
 - Read-only migration analysis and simulation commands for existing vault compatibility.
+- Unified Add Resource wizard for YouTube, websites, books, and file-backed resources.
 - Settings-driven storage paths:
   - Library folder: `01 - Biblioteca`
   - Resources folder: `01 - Biblioteca/Recursos`
@@ -64,3 +66,4 @@ The production build emits:
 - [Storage](docs/STORAGE.md)
 - [Library View](docs/LIBRARY_VIEW.md)
 - [Migration](docs/MIGRATION.md)
+- [Add Resource](docs/ADD_RESOURCE.md)
