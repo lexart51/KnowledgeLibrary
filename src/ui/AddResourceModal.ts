@@ -31,6 +31,8 @@ export class AddResourceModal extends Modal {
   private isbnInput!: HTMLInputElement;
   private validationEl!: HTMLElement;
   private progressEl!: HTMLElement;
+  private urlValidationEl!: HTMLElement;
+  private fileValidationEl!: HTMLElement;
   private urlField!: HTMLElement;
   private fileField!: HTMLElement;
   private bookFields!: HTMLElement;
@@ -50,27 +52,28 @@ export class AddResourceModal extends Modal {
     this.contentEl.createEl("h2", { text: "Add Resource" });
 
     const form = this.contentEl.createDiv({ cls: "knowledge-library-add-form" });
-    this.typeSelect = this.createSelectField(form, "Type", RESOURCE_TYPES);
-    this.urlField = form.createDiv({ cls: "knowledge-library-add-field" });
-    this.urlInput = this.createInput(this.urlField, "URL");
-    this.fileField = form.createDiv({ cls: "knowledge-library-add-field" });
+    this.typeSelect = this.createSelectField(form, "Type", RESOURCE_TYPES, "Choose resource type");
+    this.urlField = form.createDiv({ cls: "knowledge-library-add-field knowledge-library-add-url-field" });
+    this.urlInput = this.createInput(this.urlField, "URL", "Resource URL");
+    this.urlValidationEl = this.urlField.createDiv({ cls: "knowledge-library-field-validation" });
+    this.fileField = form.createDiv({ cls: "knowledge-library-add-field knowledge-library-file-picker-field" });
     this.fileSelect = this.createFileSelect(this.fileField);
-    this.titleInput = this.createInput(form.createDiv({ cls: "knowledge-library-add-field" }), "Title");
-    this.creatorInput = this.createInput(form.createDiv({ cls: "knowledge-library-add-field" }), "Creator / Author");
+    this.titleInput = this.createInput(form.createDiv({ cls: "knowledge-library-add-field" }), "Title", "Resource title");
+    this.creatorInput = this.createInput(form.createDiv({ cls: "knowledge-library-add-field" }), "Creator / Author", "Creator or author");
     this.tagsInput = this.createTagInput(form.createDiv({ cls: "knowledge-library-add-field" }));
 
     this.bookFields = form.createDiv({ cls: "knowledge-library-add-book-fields" });
-    this.editionInput = this.createInput(this.bookFields.createDiv({ cls: "knowledge-library-add-field" }), "Edition");
-    this.publisherInput = this.createInput(this.bookFields.createDiv({ cls: "knowledge-library-add-field" }), "Publisher");
-    this.isbnInput = this.createInput(this.bookFields.createDiv({ cls: "knowledge-library-add-field" }), "ISBN");
+    this.editionInput = this.createInput(this.bookFields.createDiv({ cls: "knowledge-library-add-field" }), "Edition", "Book edition");
+    this.publisherInput = this.createInput(this.bookFields.createDiv({ cls: "knowledge-library-add-field" }), "Publisher", "Book publisher");
+    this.isbnInput = this.createInput(this.bookFields.createDiv({ cls: "knowledge-library-add-field" }), "ISBN", "Book ISBN");
 
     this.validationEl = this.contentEl.createDiv({ cls: "knowledge-library-add-validation" });
     this.progressEl = this.contentEl.createDiv({ cls: "knowledge-library-add-progress" });
 
     const actions = this.contentEl.createDiv({ cls: "knowledge-library-add-actions" });
-    const cancelButton = actions.createEl("button", { text: "Cancel" });
+    const cancelButton = actions.createEl("button", { text: "Cancel", attr: { "aria-label": "Cancel Add Resource", title: "Cancel" } });
     cancelButton.addEventListener("click", () => this.close());
-    this.addButton = actions.createEl("button", { text: "Add", cls: "mod-cta" });
+    this.addButton = actions.createEl("button", { text: "Add", cls: "mod-cta", attr: { "aria-label": "Add resource", title: "Add resource" } });
     this.addButton.addEventListener("click", () => void this.submit());
 
     this.typeSelect.addEventListener("change", () => this.renderConditionalFields());
@@ -79,19 +82,19 @@ export class AddResourceModal extends Modal {
     this.renderConditionalFields();
   }
 
-  private createSelectField(parent: HTMLElement, labelText: string, options: Array<{ value: string; label: string }>): HTMLSelectElement {
-    const label = parent.createEl("label", { cls: "knowledge-library-add-field" });
+  private createSelectField(parent: HTMLElement, labelText: string, options: Array<{ value: string; label: string }>, ariaLabel: string): HTMLSelectElement {
+    const label = parent.createEl("label", { cls: "knowledge-library-add-field knowledge-library-type-field" });
     label.createSpan({ text: labelText });
-    const select = label.createEl("select");
+    const select = label.createEl("select", { attr: { "aria-label": ariaLabel, title: ariaLabel } });
     for (const option of options) {
       select.createEl("option", { text: option.label, value: option.value });
     }
     return select;
   }
 
-  private createInput(parent: HTMLElement, labelText: string): HTMLInputElement {
+  private createInput(parent: HTMLElement, labelText: string, ariaLabel: string): HTMLInputElement {
     parent.createEl("span", { text: labelText });
-    const input = parent.createEl("input");
+    const input = parent.createEl("input", { attr: { "aria-label": ariaLabel, title: ariaLabel } });
     input.type = "text";
     return input;
   }
@@ -99,7 +102,7 @@ export class AddResourceModal extends Modal {
   private createTagInput(parent: HTMLElement): HTMLInputElement {
     parent.createEl("span", { text: "Tags" });
     const listId = "knowledge-library-tag-options";
-    const input = parent.createEl("input", { attr: { list: listId, placeholder: this.plugin.settings.defaultTag } });
+    const input = parent.createEl("input", { attr: { list: listId, placeholder: this.plugin.settings.defaultTag, "aria-label": "Resource tags", title: "Resource tags" } });
     const datalist = parent.createEl("datalist", { attr: { id: listId } });
     for (const tag of this.plugin.addResourceService.getExistingCanonicalTags()) {
       datalist.createEl("option", { value: tag });
@@ -109,11 +112,12 @@ export class AddResourceModal extends Modal {
 
   private createFileSelect(parent: HTMLElement): HTMLSelectElement {
     parent.createEl("span", { text: "Vault file" });
-    this.fileSearchInput = parent.createEl("input", { attr: { placeholder: "Search filename or folder" } });
+    this.fileSearchInput = parent.createEl("input", { attr: { placeholder: "Search filename or folder", "aria-label": "Search vault files", title: "Search vault files" } });
     this.fileSearchInput.type = "search";
-    const select = parent.createEl("select");
+    const select = parent.createEl("select", { attr: { "aria-label": "Select vault file", title: "Select vault file" } });
     this.fileSearchInput.addEventListener("input", () => this.populateFileSelect(select, this.fileSearchInput.value));
     this.populateFileSelect(select, "");
+    this.fileValidationEl = parent.createDiv({ cls: "knowledge-library-field-validation" });
     return select;
   }
 
@@ -137,7 +141,7 @@ export class AddResourceModal extends Modal {
     const normalizedPath = FileResourceService.normalizeVaultPath(this.initialFilePath);
     const file = this.app.vault.getAbstractFileByPath(normalizedPath);
     if (!(file instanceof TFile) || !FileResourceService.isAllowedFile(file, this.plugin.settings)) {
-      this.validationEl?.setText("Selected file is outside the allowed vault file set.");
+      this.fileValidationEl?.setText("Selected file is outside the allowed vault file set.");
       return;
     }
 
@@ -175,6 +179,8 @@ export class AddResourceModal extends Modal {
 
   private async submit(): Promise<void> {
     this.validationEl.setText("");
+    this.urlValidationEl.setText("");
+    this.fileValidationEl.setText("");
     this.progressEl.setText("Fetching metadata...");
     this.addButton.disabled = true;
 
@@ -193,7 +199,14 @@ export class AddResourceModal extends Modal {
       new Notice(result.duplicate ? "Resource already exists. Opened existing note." : "Resource added.");
       this.close();
     } catch (error) {
-      this.validationEl.setText(error instanceof Error ? error.message : "Unable to add resource.");
+      const message = error instanceof Error ? error.message : "Unable to add resource.";
+      if (message.toLowerCase().includes("url")) {
+        this.urlValidationEl.setText(message);
+      } else if (message.toLowerCase().includes("file")) {
+        this.fileValidationEl.setText(message);
+      } else {
+        this.validationEl.setText(message);
+      }
     } finally {
       this.progressEl.setText("");
       this.addButton.disabled = false;

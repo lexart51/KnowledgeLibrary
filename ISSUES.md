@@ -2,7 +2,7 @@
 
 ## Open
 
-- v6 beta.3 is not deployed to the Obsidian vault yet.
+- v6 rc.1 is not deployed to the Obsidian vault yet.
 - Deployment scripts are prepared but have not been run against the YouTubes vault in this milestone.
 - Migration apply intentionally skips notes requiring manual review; unusual legacy note shapes may need manual cleanup before migration.
 - Tag consolidation updates YAML frontmatter tags only.
@@ -22,3 +22,9 @@
 - Local vault files can be added through a searchable file picker without moving or copying the original file.
 - File resource cards show file metadata, image thumbnails where available, type placeholders, and missing-file state.
 - Duplicate file resources are prevented by normalized vault-relative path and likely moved-file metadata.
+
+## Fixed in 6.0.0-rc.1
+
+- Add Resource modal layout is wider, responsive, and avoids horizontal scrolling.
+- Library toolbar and cards have improved spacing, wrapping, type labels, and action alignment.
+- Settings are grouped with short descriptions.

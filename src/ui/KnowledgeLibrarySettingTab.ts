@@ -15,6 +15,8 @@ export class KnowledgeLibrarySettingTab extends PluginSettingTab {
     containerEl.empty();
     containerEl.createEl("h2", { text: "KnowledgeLibrary" });
 
+    this.createGroup(containerEl, "Storage", "Choose where KnowledgeLibrary reads library notes and writes resource notes.");
+
     new Setting(containerEl)
       .setName("Library folder")
       .setDesc("Top-level folder scanned by KnowledgeLibrary.")
@@ -35,6 +37,8 @@ export class KnowledgeLibrarySettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         }));
 
+    this.createGroup(containerEl, "Migration and safety", "Control read-only legacy compatibility and safety-related migration behavior.");
+
     new Setting(containerEl)
       .setName("Include legacy notes")
       .setDesc("Read legacy resource frontmatter fields without modifying files during reads.")
@@ -44,6 +48,8 @@ export class KnowledgeLibrarySettingTab extends PluginSettingTab {
           this.plugin.settings.includeLegacyNotes = value;
           await this.plugin.saveSettings();
         }));
+
+    this.createGroup(containerEl, "Tags", "Configure tag defaults used by resource creation and tag-aware views.");
 
     new Setting(containerEl)
       .setName("Default tag")
@@ -56,6 +62,7 @@ export class KnowledgeLibrarySettingTab extends PluginSettingTab {
         }));
 
 
+    this.createGroup(containerEl, "File resources", "Configure which vault files can become first-class KnowledgeLibrary resources.");
 
     new Setting(containerEl)
       .setName("Allowed file extensions")
@@ -111,6 +118,8 @@ export class KnowledgeLibrarySettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         }));
 
+    this.createGroup(containerEl, "Display", "Adjust visual density and card details in the library view.");
+
     new Setting(containerEl)
       .setName("Display card density")
       .setDesc("Controls spacing in the library card grid.")
@@ -123,8 +132,13 @@ export class KnowledgeLibrarySettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         }));
   }
-}
 
+  private createGroup(parent: HTMLElement, title: string, description: string): void {
+    const group = parent.createDiv({ cls: "knowledge-library-settings-group" });
+    group.createEl("h3", { text: title });
+    group.createEl("p", { text: description });
+  }
+}
 
 function parseCsv(value: string, fallback: string[]): string[] {
   const values = value.split(",").map((item) => item.trim().replace(/^\./, "").toLowerCase()).filter(Boolean);

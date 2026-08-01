@@ -4,6 +4,14 @@
 
 - No unreleased changes.
 
+## 6.0.0-rc.1
+
+- Polished the Add Resource modal with a wider responsive layout, prominent vault file picker, inline field validation, constrained controls, sticky actions, and accessibility labels.
+- Refined the library layout with responsive toolbar groups, resource-type badges, consistent cards, bottom-aligned actions, improved missing-file state, and preserved vertical scrolling.
+- Grouped settings into Storage, Display, File resources, Tags, and Migration and safety without changing existing setting keys or defaults.
+- Added UI/UX regression tests for modal structure, responsive classes, toolbar wrapping, card classes, accessibility labels, theme-variable CSS, density classes, and scroll behavior.
+- Updated plugin metadata and status bar label to `6.0.0-rc.1`.
+
 ## 6.0.0-beta.3
 
 - Added first-class local vault file resources for PDFs, PowerPoint, Word/Text documents, EPUB books, Markdown, images, scripts, archives, and unknown files.

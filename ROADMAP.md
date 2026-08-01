@@ -1,5 +1,12 @@
 # Roadmap
 
+## v6 Release Candidate
+
+- [x] Polish KnowledgeLibrary v6 UI/UX for `6.0.0-rc.1`.
+- [ ] Install rc.1 into the YouTubes vault for controlled manual testing.
+- [ ] Validate migration dry-run output against the production dataset.
+- [ ] Apply migration only after reviewed backup and simulation reports.
+
 ## v6 Beta
 
 - [x] Prepare beta metadata and side-by-side deployment scripts.
@@ -7,9 +14,6 @@
 - [x] Add tag alias analysis and consolidation.
 - [x] Add YouTube thumbnail repair.
 - [x] Complete local vault file resource support.
-- [ ] Install v6 into the YouTubes vault for controlled manual testing.
-- [ ] Validate migration dry-run output against the production dataset.
-- [ ] Apply migration only after reviewed backup and simulation reports.
 
 ## v6 Alpha
 

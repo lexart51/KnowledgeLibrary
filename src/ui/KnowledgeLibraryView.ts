@@ -72,13 +72,16 @@ export class KnowledgeLibraryView extends ItemView {
     header.createEl("h2", { text: "Knowledge Library" });
 
     const headerActions = header.createDiv({ cls: "knowledge-library-view-actions" });
-    const addButton = headerActions.createEl("button", { text: "Add", cls: "knowledge-library-button mod-cta" });
+    const addButton = headerActions.createEl("button", { text: "Add", cls: "knowledge-library-button mod-cta", attr: { "aria-label": "Add resource", title: "Add resource" } });
     addButton.addEventListener("click", () => this.plugin.openAddResourceModal());
-    const refreshButton = headerActions.createEl("button", { text: "Refresh", cls: "knowledge-library-button" });
+    const refreshButton = headerActions.createEl("button", { text: "Refresh", cls: "knowledge-library-button", attr: { "aria-label": "Refresh library", title: "Refresh library" } });
     refreshButton.addEventListener("click", () => void this.refresh());
 
-    const controls = this.contentEl.createDiv({ cls: "knowledge-library-controls" });
-    const searchInput = controls.createEl("input", { cls: "knowledge-library-search" });
+    const toolbar = this.contentEl.createDiv({ cls: "knowledge-library-toolbar" });
+    const searchGroup = toolbar.createDiv({ cls: "knowledge-library-toolbar-group is-search" });
+    const filterGroup = toolbar.createDiv({ cls: "knowledge-library-toolbar-group is-filters" });
+    const toggleGroup = toolbar.createDiv({ cls: "knowledge-library-toolbar-group is-toggles" });
+    const searchInput = searchGroup.createEl("input", { cls: "knowledge-library-search", attr: { "aria-label": "Search resources", title: "Search resources" } });
     searchInput.type = "search";
     searchInput.placeholder = "Search resources";
     searchInput.addEventListener("input", () => {
@@ -86,32 +89,32 @@ export class KnowledgeLibraryView extends ItemView {
       this.renderCards();
     });
 
-    this.createSelect(controls, "Type", ["all", "youtube", "website", "pdf", "powerpoint", "document", "book", "markdown", "image", "script", "archive", "file", "other"], (value) => {
+    this.createSelect(filterGroup, "Type", ["all", "youtube", "website", "pdf", "powerpoint", "document", "book", "markdown", "image", "script", "skill", "archive", "file", "other"], (value) => {
       this.filters.type = value;
       this.renderCards();
     });
-    this.createSelect(controls, "Tag", () => ["all", ...this.getAllTags()], (value) => {
+    this.createSelect(filterGroup, "Tag", () => ["all", ...this.getAllTags()], (value) => {
       this.filters.tag = value;
       this.renderCards();
     });
-    this.createSelect(controls, "Status", ["all", "active", "archived", "unavailable"], (value) => {
+    this.createSelect(filterGroup, "Status", ["all", "active", "archived", "unavailable"], (value) => {
       this.filters.status = value;
       this.renderCards();
     });
-    this.createSelect(controls, "Sort", ["updated", "title"], (value) => {
+    this.createSelect(filterGroup, "Sort", ["updated", "title"], (value) => {
       this.filters.sort = value as LibraryFilters["sort"];
       this.renderCards();
     });
 
-    this.createCheckbox(controls, "Favorites", (checked) => {
+    this.createCheckbox(toggleGroup, "Favorites", (checked) => {
       this.filters.favoritesOnly = checked;
       this.renderCards();
     });
-    this.createCheckbox(controls, "Completed", (checked) => {
+    this.createCheckbox(toggleGroup, "Completed", (checked) => {
       this.filters.completedOnly = checked;
       this.renderCards();
     });
-    this.createCheckbox(controls, "Missing files", (checked) => {
+    this.createCheckbox(toggleGroup, "Missing files", (checked) => {
       this.filters.missingOnly = checked;
       this.renderCards();
     });
@@ -124,7 +127,7 @@ export class KnowledgeLibraryView extends ItemView {
   private createSelect(parent: HTMLElement, labelText: string, options: string[] | (() => string[]), onChange: (value: string) => void): void {
     const label = parent.createEl("label", { cls: "knowledge-library-control" });
     label.createSpan({ text: labelText });
-    const select = label.createEl("select");
+    const select = label.createEl("select", { attr: { "aria-label": `${labelText} filter`, title: `${labelText} filter` } });
 
     const populate = (): void => {
       select.empty();
@@ -141,7 +144,7 @@ export class KnowledgeLibraryView extends ItemView {
 
   private createCheckbox(parent: HTMLElement, labelText: string, onChange: (checked: boolean) => void): void {
     const label = parent.createEl("label", { cls: "knowledge-library-checkbox" });
-    const checkbox = label.createEl("input");
+    const checkbox = label.createEl("input", { attr: { "aria-label": labelText, title: labelText } });
     checkbox.type = "checkbox";
     label.createSpan({ text: labelText });
     checkbox.addEventListener("change", () => onChange(checkbox.checked));
@@ -188,21 +191,24 @@ export class KnowledgeLibraryView extends ItemView {
 
   private renderCard(parent: HTMLElement, item: StoredResource): void {
     const { resource } = item;
-    const card = parent.createDiv({ cls: `knowledge-library-card is-${resource.type}` });
+    const card = parent.createDiv({ cls: `knowledge-library-card is-${resource.type}`, attr: { "data-resource-type": resource.type } });
     card.toggleClass("is-missing", this.isMissingFile(resource));
     const media = card.createDiv({ cls: "knowledge-library-card-media" });
     this.renderMedia(media, resource);
 
     const body = card.createDiv({ cls: "knowledge-library-card-body" });
-    body.createEl("h3", { text: resource.title });
-    body.createDiv({ text: this.fileCardMeta(resource), cls: "knowledge-library-card-meta" });
+    const badgeRow = body.createDiv({ cls: "knowledge-library-card-badge-row" });
+    badgeRow.createSpan({ text: this.typeIcon(resource), cls: "knowledge-library-type-icon" });
+    badgeRow.createSpan({ text: this.typeLabel(resource), cls: "knowledge-library-type-badge" });
+    body.createEl("h3", { text: resource.title, attr: { title: resource.title } });
+    body.createDiv({ text: this.fileCardMeta(resource), cls: "knowledge-library-card-meta", attr: { title: this.fileCardMeta(resource) } });
     body.createDiv({ text: this.plugin.tagService.normalizeTags(resource.tags).join(" #"), cls: "knowledge-library-card-tags" });
 
     const actions = card.createDiv({ cls: "knowledge-library-card-actions" });
-    this.createActionButton(actions, "Open note", () => void this.openNote(item.path));
-    this.createActionButton(actions, "Open resource", () => void this.openResource(resource));
-    this.createActionButton(actions, resource.favorite ? "Unfavorite" : "Favorite", () => void this.toggleFavorite(item));
-    this.createActionButton(actions, resource.completed ? "Mark incomplete" : "Complete", () => void this.toggleCompleted(item));
+    this.createActionButton(actions, "Open note", `Open note for ${resource.title}`, () => void this.openNote(item.path));
+    this.createActionButton(actions, "Open resource", `Open resource ${resource.title}`, () => void this.openResource(resource));
+    this.createActionButton(actions, resource.favorite ? "Unfavorite" : "Favorite", resource.favorite ? `Unfavorite ${resource.title}` : `Favorite ${resource.title}`, () => void this.toggleFavorite(item));
+    this.createActionButton(actions, resource.completed ? "Mark incomplete" : "Complete", resource.completed ? `Mark ${resource.title} incomplete` : `Mark ${resource.title} complete`, () => void this.toggleCompleted(item));
   }
 
   private renderMedia(parent: HTMLElement, resource: KnowledgeResource): void {
@@ -231,6 +237,8 @@ export class KnowledgeLibraryView extends ItemView {
 
   private typeIcon(resource: KnowledgeResource): string {
     switch (resource.type) {
+      case "youtube": return "YT";
+      case "website": return "WEB";
       case "pdf": return "PDF";
       case "powerpoint": return "PPT";
       case "document": return "DOC";
@@ -238,8 +246,26 @@ export class KnowledgeLibraryView extends ItemView {
       case "markdown": return "MD";
       case "image": return "IMG";
       case "script": return "CODE";
+      case "skill": return "SKILL";
       case "archive": return "ZIP";
-      default: return resource.type.toUpperCase();
+      default: return "OTHER";
+    }
+  }
+
+  private typeLabel(resource: KnowledgeResource): string {
+    switch (resource.type) {
+      case "youtube": return "YouTube";
+      case "website": return "Website";
+      case "pdf": return "PDF";
+      case "powerpoint": return "PowerPoint";
+      case "document": return "Document";
+      case "book": return "Book";
+      case "markdown": return "Markdown";
+      case "image": return "Image";
+      case "script": return "Script";
+      case "skill": return "Skill";
+      case "archive": return "Archive";
+      default: return "Other";
     }
   }
 
@@ -260,8 +286,8 @@ export class KnowledgeLibraryView extends ItemView {
     return parts.join(" | ");
   }
 
-  private createActionButton(parent: HTMLElement, text: string, onClick: () => void): void {
-    const button = parent.createEl("button", { text, cls: "knowledge-library-button" });
+  private createActionButton(parent: HTMLElement, text: string, ariaLabel: string, onClick: () => void): void {
+    const button = parent.createEl("button", { text, cls: "knowledge-library-button", attr: { "aria-label": ariaLabel, title: ariaLabel } });
     button.addEventListener("click", onClick);
   }
 
@@ -328,7 +354,6 @@ export class KnowledgeLibraryView extends ItemView {
     return this.plugin.tagService.normalizeTags(this.resources.flatMap((item) => item.resource.tags)).sort();
   }
 }
-
 
 export function getVaultImageCardSource(resource: KnowledgeResource, app: { vault: { getAbstractFileByPath(path: string): unknown; getResourcePath?: (file: TFile) => string } }): string | null {
   if (resource.type !== "image" || !resource.filePath) {

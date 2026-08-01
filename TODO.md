@@ -1,6 +1,6 @@
 # TODO
 
-- Deploy v6 beta.3 into the YouTubes vault only after confirming the target path.
+- Deploy v6 rc.1 into the YouTubes vault only after confirming the target path.
 - Run migration analysis and review generated counts in Obsidian.
 - Create migration backup before any apply operation.
 - Add richer provider metadata extraction.
@@ -18,3 +18,8 @@
 
 - Completed local vault file resource support with picker, metadata, dedupe, missing-file display, and drag/drop prefill.
 - Added file resource documentation.
+
+## Completed in 6.0.0-rc.1
+
+- Polished Add Resource modal layout, toolbar wrapping, card visual hierarchy, accessibility labels, and settings grouping.
+- Added UI/UX documentation and regression tests.
