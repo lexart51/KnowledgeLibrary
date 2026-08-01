@@ -2,7 +2,7 @@ import { ItemView, Notice, WorkspaceLeaf } from "obsidian";
 import { KNOWLEDGE_DASHBOARD_VIEW_TYPE } from "../core/viewTypes";
 import KnowledgeLibraryPlugin from "../main";
 import { CollectionService } from "../services/CollectionService";
-import { ConnectorStatus } from "../models/VaultConnector";
+import { ConnectorStatus, UnifiedKnowledgeIndex } from "../models/VaultConnector";
 import { StoredResource } from "../services/VaultResourceRepository";
 import { FileResourceService } from "../services/FileResourceService";
 
@@ -48,16 +48,20 @@ export class KnowledgeDashboardView extends ItemView {
   async refresh(): Promise<void> {
     try {
       const resources = await this.plugin.resourceRepository.list();
-      this.render(calculateDashboardStats(resources, this.collectionService, (path) => Boolean(this.app.vault.getAbstractFileByPath(FileResourceService.normalizeVaultPath(path)))));
+      const index = await this.plugin.unifiedIndexService.load();
+      this.render(calculateDashboardStats(resources, this.collectionService, (path) => Boolean(this.app.vault.getAbstractFileByPath(FileResourceService.normalizeVaultPath(path)))), index);
     } catch (error) {
       new Notice(error instanceof Error ? error.message : "Unable to load Knowledge Dashboard.");
     }
   }
 
-  private render(stats: DashboardStats): void {
+  private render(stats: DashboardStats, index: UnifiedKnowledgeIndex | null = null): void {
     this.contentEl.empty();
     this.contentEl.addClass("knowledge-library-dashboard");
-    this.contentEl.createEl("h2", { text: "Knowledge Dashboard" });
+    const header = this.contentEl.createDiv({ cls: "knowledge-library-universal-header" });
+    header.createEl("h2", { text: "Knowledge Dashboard" });
+    const searchButton = header.createEl("button", { text: "Universal Search", cls: "knowledge-library-button mod-cta", attr: { "aria-label": "Open universal search", title: "Open universal search" } });
+    searchButton.addEventListener("click", () => void this.plugin.openUniversalSearch());
     const grid = this.contentEl.createDiv({ cls: "knowledge-library-dashboard-grid" });
     this.metric(grid, "Total resources", stats.total);
     this.metric(grid, "Not started", stats.notStarted);
@@ -71,7 +75,17 @@ export class KnowledgeDashboardView extends ItemView {
     this.section("By role", stats.byRole ?? {});
     this.section("By vault", stats.byVault ?? {});
     this.section("By platform", stats.byPlatform ?? {});
-    this.connectorStatusSection(stats.connectorStatuses ?? []);
+    if (index) {
+      const counts = this.plugin.unifiedIndexService.counts(index);
+      this.section("Unified role counts", counts.byRole);
+      this.section("Connector counts", counts.byConnector);
+      this.unifiedRecentList("Recent conversations", index, "conversations");
+      this.unifiedRecentList("Recent documents", index, "documents");
+      this.unifiedRecentList("Recent resources", index, "resources");
+      this.connectorStatusSection(index.connector_statuses);
+    } else {
+      this.connectorStatusSection(stats.connectorStatuses ?? []);
+    }
     this.resourceList("Recently added", stats.recentlyAdded);
     this.resourceList("Recently updated", stats.recentlyUpdated);
   }
@@ -107,6 +121,15 @@ export class KnowledgeDashboardView extends ItemView {
     refresh.addEventListener("click", () => void this.plugin.refreshUnifiedIndex().then(() => this.refresh()));
     const rebuild = actions.createEl("button", { text: "Rebuild all", cls: "knowledge-library-button", attr: { "aria-label": "Rebuild unified index", title: "Rebuild unified index" } });
     rebuild.addEventListener("click", () => void this.plugin.rebuildUnifiedIndex().then(() => this.refresh()));
+  }
+  private unifiedRecentList(title: string, index: UnifiedKnowledgeIndex, role: string): void {
+    this.contentEl.createEl("h3", { text: title });
+    const list = this.contentEl.createEl("ul", { cls: "knowledge-library-dashboard-list" });
+    const entries = index.entries.filter((entry) => entry.role === role).sort((left, right) => (right.updated_at ?? "").localeCompare(left.updated_at ?? "")).slice(0, 5);
+    for (const entry of entries) {
+      const item = list.createEl("li", { text: `${entry.title} - ${entry.connector_name}` });
+      item.addEventListener("click", () => void this.plugin.openUniversalSearch(`role:${role} ${entry.title}`));
+    }
   }
   private resourceList(title: string, resources: StoredResource[]): void {
     this.contentEl.createEl("h3", { text: title });

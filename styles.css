@@ -732,3 +732,116 @@
     grid-template-columns: 1fr;
   }
 }
+
+.knowledge-library-universal-search-view {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.knowledge-library-universal-header,
+.knowledge-library-universal-toolbar,
+.knowledge-library-role-tabs {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.knowledge-library-universal-header h2 {
+  flex: 1 1 auto;
+  margin: 0;
+  min-width: 180px;
+}
+
+.knowledge-library-universal-toolbar .knowledge-library-search {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.knowledge-library-ecosystem-overview {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.knowledge-library-overview-taxonomy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.knowledge-library-role-tab {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.knowledge-library-universal-results {
+  display: grid;
+  gap: 8px;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.knowledge-library-search-result {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 8px 10px;
+}
+
+.knowledge-library-search-result.is-selected,
+.knowledge-library-search-result:focus-visible,
+.knowledge-library-role-tab:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
+}
+
+.knowledge-library-universal-results.is-comfortable .knowledge-library-search-result {
+  padding: 12px;
+}
+
+.knowledge-library-universal-results.is-grouped-role,
+.knowledge-library-universal-results.is-grouped-vault,
+.knowledge-library-universal-results.is-grouped-source {
+  gap: 10px;
+}
+
+.knowledge-library-search-mark {
+  background: var(--text-highlight-bg);
+  color: var(--text-normal);
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+.knowledge-library-empty-state,
+.knowledge-library-search-diagnostics {
+  color: var(--text-muted);
+  font-size: 12px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.knowledge-library-saved-searches-modal {
+  height: auto;
+  max-height: calc(100vh - 48px);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+@media (max-width: 760px) {
+  .knowledge-library-universal-toolbar .knowledge-library-search,
+  .knowledge-library-universal-toolbar .knowledge-library-control {
+    flex: 1 1 100%;
+  }
+}

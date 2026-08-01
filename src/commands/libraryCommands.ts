@@ -75,6 +75,27 @@ export function registerLibraryCommands(plugin: KnowledgeLibraryPlugin): void {
     name: "Knowledge Library: Search all connected vaults",
     callback: () => plugin.openUnifiedSearch()
   });
+  plugin.addCommand({
+    id: "open-universal-search",
+    name: "Knowledge Library: Open universal search",
+    callback: () => {
+      void plugin.openUniversalSearch().catch((error) => new Notice(error instanceof Error ? error.message : "Unable to open universal search."));
+    }
+  });
+
+  plugin.addCommand({
+    id: "save-current-search",
+    name: "Knowledge Library: Save current search",
+    callback: () => {
+      void plugin.saveCurrentUniversalSearch().catch((error) => new Notice(error instanceof Error ? error.message : "Unable to save current search."));
+    }
+  });
+
+  plugin.addCommand({
+    id: "manage-saved-searches",
+    name: "Knowledge Library: Manage saved searches",
+    callback: () => plugin.manageSavedSearches()
+  });
 
   plugin.addCommand({
     id: "open-unified-dashboard",

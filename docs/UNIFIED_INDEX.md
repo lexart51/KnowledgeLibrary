@@ -16,3 +16,6 @@ The current implementation can fully rebuild the index and records connector sta
 ## Storage Location
 
 The index is stored only in active-vault plugin data/config storage. It is not written into external vault folders.
+## Search Use
+
+Universal Search reads the rebuilt unified index from active-vault plugin data and keeps it in memory while searching. Queries do not rescan external vaults and do not cache full conversation or document content.

@@ -46,3 +46,8 @@
 - Added read-only multi-vault connectors and connector management.
 - Added unified metadata index, unified search, source/vault/role filtering, and connector dashboard status.
 - Added privacy and connector documentation.
+## Completed in 6.4.0
+
+- Added Universal Knowledge Search as a native view.
+- Added deterministic ranking, query filters, duplicate suppression, saved searches, and result highlighting.
+- Added source-aware navigation improvements and dashboard search integration.

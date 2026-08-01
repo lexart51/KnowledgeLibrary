@@ -1,6 +1,7 @@
 import { DEFAULT_ALLOWED_FILE_EXTENSIONS, DEFAULT_EXCLUDED_FILE_FOLDERS } from "../services/FileResourceService";
 import { KnowledgeResourceType } from "../models/KnowledgeResource";
 import { VaultConnector } from "../models/VaultConnector";
+import { UniversalSearchDisplayMode } from "../services/SearchRankingService";
 
 export interface KnowledgeLibraryPluginSettings {
   versionLabel: string;
@@ -15,6 +16,17 @@ export interface KnowledgeLibraryPluginSettings {
   enableDragAndDrop: boolean;
   defaultUnknownFileType: KnowledgeResourceType;
   vaultConnectors: VaultConnector[];
+  defaultSearchDisplayMode: UniversalSearchDisplayMode;
+  searchResultLimit: number;
+  searchDebounceMs: number;
+  searchActiveVaultBoost: number;
+  searchFavoriteBoost: number;
+  searchRecentBoost: number;
+  searchDuplicateSuppression: boolean;
+  searchShowExcerpts: boolean;
+  searchExcerptLength: number;
+  searchDefaultGrouping: UniversalSearchDisplayMode;
+  searchEnableSavedSearches: boolean;
 }
 
 export const DEFAULT_VAULT_CONNECTORS: VaultConnector[] = [
@@ -74,7 +86,7 @@ export const DEFAULT_VAULT_CONNECTORS: VaultConnector[] = [
   }
 ];
 export const DEFAULT_SETTINGS: KnowledgeLibraryPluginSettings = {
-  versionLabel: "KL 6.3.0",
+  versionLabel: "KL 6.4.0",
   libraryFolder: "01 - Biblioteca",
   resourcesFolder: "01 - Biblioteca/Recursos",
   includeLegacyNotes: true,
@@ -85,5 +97,16 @@ export const DEFAULT_SETTINGS: KnowledgeLibraryPluginSettings = {
   showFileSizeOnCards: true,
   enableDragAndDrop: true,
   defaultUnknownFileType: "other",
-  vaultConnectors: DEFAULT_VAULT_CONNECTORS
+  vaultConnectors: DEFAULT_VAULT_CONNECTORS,
+  defaultSearchDisplayMode: "compact",
+  searchResultLimit: 100,
+  searchDebounceMs: 150,
+  searchActiveVaultBoost: 80,
+  searchFavoriteBoost: 60,
+  searchRecentBoost: 40,
+  searchDuplicateSuppression: true,
+  searchShowExcerpts: true,
+  searchExcerptLength: 260,
+  searchDefaultGrouping: "compact",
+  searchEnableSavedSearches: true
 };

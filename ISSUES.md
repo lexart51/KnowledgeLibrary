@@ -53,3 +53,8 @@
 - Independent resource, conversation, and document vaults can now be represented through read-only connectors.
 - Unified search and dashboard can work from active-vault plugin data without writing to external vaults.
 - Missing or offline connector paths are reported without blocking available connectors.
+## Fixed in 6.4.0
+
+- Large unified indexes no longer have to be navigated only as one mixed card grid.
+- Search results are ranked by source-aware relevance and can be filtered with inline query syntax.
+- Duplicate active-vault and connector copies are suppressed at search time without modifying source data.

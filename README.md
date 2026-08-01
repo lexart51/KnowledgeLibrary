@@ -4,7 +4,7 @@ KnowledgeLibrary is a professional Obsidian plugin for unified personal knowledg
 
 ## Status
 
-`6.3.0`
+`6.4.0`
 
 ## Development
 
@@ -62,6 +62,10 @@ KnowledgeLibrary v6 installs side by side under plugin id and folder `knowledge-
 - Command palette command: `Knowledge Library: Rebuild unified index`.
 - Command palette command: `Knowledge Library: Search all connected vaults`.
 - Command palette command: `Knowledge Library: Open unified dashboard`.
+- Command palette command: `Knowledge Library: Open universal search`.
+- Command palette command: `Knowledge Library: Save current search`.
+- Command palette command: `Knowledge Library: Manage saved searches`.
+- Universal Knowledge Search with source-aware ranking, query filters, keyboard navigation, grouped display modes, duplicate suppression, and saved searches.
 - Command palette command: `Knowledge Library: Analyze existing vault`.
 - Command palette command: `Knowledge Library: Simulate migration`.
 - Command palette command: `Knowledge Library: Create migration backup`.
@@ -69,7 +73,7 @@ KnowledgeLibrary v6 installs side by side under plugin id and folder `knowledge-
 - Command palette command: `Knowledge Library: Analyze tags`.
 - Command palette command: `Knowledge Library: Consolidate tag aliases`.
 - Command palette command: `Knowledge Library: Repair YouTube thumbnails`.
-- Status bar: `KL 6.3.0`.
+- Status bar: `KL 6.4.0`.
 - Polished native library view with responsive toolbar, unified source/vault/role filters, search, tags, collections, priority, progress filters, sorting, card grid, note/resource actions, external-open actions, quick progress edits, and favorite/completed toggles.
 - Read-only migration analysis and simulation commands for existing vault compatibility.
 - Confirmed safe write workflows for migration backup, migration apply, tag consolidation, and YouTube thumbnail repair.

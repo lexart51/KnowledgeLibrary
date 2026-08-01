@@ -35,3 +35,6 @@ When a unified index exists, the dashboard also shows:
 - rebuild all action
 
 Unavailable Dropbox-synced or disconnected vault paths are shown as unavailable without blocking counts for available connectors.
+## Universal Search Integration
+
+KnowledgeLibrary 6.4.0 adds a prominent Universal Search action, unified role counts, connector counts, and recent conversations/documents/resources sourced from the cached unified index.

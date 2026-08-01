@@ -27,3 +27,6 @@ The connector layer is split into:
 ## Build
 
 `npm run build` bundles `src/main.ts` to `main.js` and copies `src/styles.css` to `styles.css`, matching the files Obsidian expects at the plugin root.
+## Universal Search Layer
+
+KnowledgeLibrary 6.4.0 adds `SearchRankingService`, `SearchQueryParser`, and `SearchResultScorer` above the unified index. The native Universal Search view consumes the cached index, applies query filters and deterministic ranking, suppresses duplicates at search time, and opens results through existing active-vault or external Obsidian URI behavior.

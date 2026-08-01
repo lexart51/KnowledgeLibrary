@@ -161,6 +161,14 @@ export class KnowledgeLibraryView extends ItemView {
       this.renderCards();
     });
 
+    const roleTabs = this.contentEl.createDiv({ cls: "knowledge-library-role-tabs", attr: { "aria-label": "Role filters" } });
+    for (const [label, role] of [["All", "all"], ["Resources", "resources"], ["Conversations", "conversations"], ["Documents", "documents"]]) {
+      const button = roleTabs.createEl("button", { text: label, cls: "knowledge-library-role-tab", attr: { "aria-label": `Show ${label}`, title: `Show ${label}` } });
+      button.addEventListener("click", () => {
+        this.filters.role = role;
+        this.renderCards();
+      });
+    }
     const scroll = this.contentEl.createDiv({ cls: "knowledge-library-scroll" });
     this.countElement = scroll.createDiv({ cls: "knowledge-library-count" });
     this.gridElement = scroll.createDiv({ cls: `knowledge-library-grid is-${this.plugin.settings.displayCardDensity}` });

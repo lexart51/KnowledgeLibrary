@@ -4,6 +4,15 @@
 
 - No unreleased changes.
 
+## 6.4.0
+
+- Added the native `Universal Knowledge Search` ItemView with debounced input, focused search, keyboard navigation, compact/grouped result modes, matched-term highlighting, and ecosystem overview counts.
+- Added deterministic `SearchRankingService`, `SearchQueryParser`, and `SearchResultScorer` with source-aware boosts, penalties, query filters, and duplicate suppression.
+- Added saved searches stored only in plugin data plus commands to save and manage them.
+- Improved library ecosystem navigation with role tabs and clearer source-aware filtering.
+- Extended the dashboard with a Universal Search action, unified role/connector counts, and recent items by role.
+- Added search settings for display mode, result limit, debounce, ranking boosts, duplicate suppression, excerpts, grouping, and saved searches.
+- Updated plugin metadata and status bar label to `6.4.0`.
 ## 6.3.0
 
 - Added disabled example multi-vault connector configuration for resource, conversation, and document vaults.

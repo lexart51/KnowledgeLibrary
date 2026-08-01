@@ -214,6 +214,27 @@ describe("UI/UX regression contracts", () => {
     expect(css).toContain(".knowledge-library-connectors-modal");
     expect(css).toContain(".knowledge-library-unified-search-modal");
   });
+  it("declares 6.4 universal search UI hooks", () => {
+    const viewTypes = source("src/core/viewTypes.ts");
+    const main = source("src/main.ts");
+    const commands = source("src/commands/libraryCommands.ts");
+    const universal = source("src/ui/UniversalSearchView.ts");
+    const library = source("src/ui/KnowledgeLibraryView.ts");
+    const settings = source("src/ui/KnowledgeLibrarySettingTab.ts");
+    const css = source("src/styles.css");
+
+    expect(viewTypes).toContain("KNOWLEDGE_UNIVERSAL_SEARCH_VIEW_TYPE");
+    expect(main).toContain("UniversalSearchView");
+    expect(commands).toContain("Knowledge Library: Open universal search");
+    expect(commands).toContain("Knowledge Library: Save current search");
+    expect(commands).toContain("Knowledge Library: Manage saved searches");
+    expect(universal).toContain("knowledge-library-universal-results");
+    expect(universal).toContain("role: \"listbox\"");
+    expect(library).toContain("knowledge-library-role-tabs");
+    expect(settings).toContain("Default search display");
+    expect(css).toContain(".knowledge-library-search-result");
+    expect(css).toContain(".knowledge-library-search-mark");
+  });
   it("groups settings into expected sections", () => {
     const settings = source("src/ui/KnowledgeLibrarySettingTab.ts");
 

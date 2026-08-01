@@ -1,11 +1,12 @@
 import { Plugin, TFile } from "obsidian";
 import { registerLibraryCommands } from "./commands/libraryCommands";
 import { DEFAULT_SETTINGS, KnowledgeLibraryPluginSettings } from "./core/settings";
-import { KNOWLEDGE_DASHBOARD_VIEW_TYPE, KNOWLEDGE_LIBRARY_VIEW_TYPE } from "./core/viewTypes";
+import { KNOWLEDGE_DASHBOARD_VIEW_TYPE, KNOWLEDGE_LIBRARY_VIEW_TYPE, KNOWLEDGE_UNIVERSAL_SEARCH_VIEW_TYPE } from "./core/viewTypes";
 import { AddResourceRequest, AddResourceResult, AddResourceService } from "./services/AddResourceService";
 import { MigrationService } from "./services/MigrationService";
 import { CollectionService } from "./services/CollectionService";
 import { UnifiedIndexService } from "./services/UnifiedIndexService";
+import { SavedSearchService } from "./services/SavedSearchService";
 import { RelationshipService } from "./services/RelationshipService";
 import { SafeMigrationService, TagConsolidationService, ThumbnailRepairService } from "./services/MaintenanceServices";
 import { ResourceService } from "./services/ResourceService";
@@ -20,6 +21,8 @@ import { CollectionManagementModal } from "./ui/CollectionManagementModal";
 import { ResourceEditorModal } from "./ui/ResourceEditorModal";
 import { VaultConnectorManagementModal } from "./ui/VaultConnectorManagementModal";
 import { UnifiedSearchModal } from "./ui/UnifiedSearchModal";
+import { UniversalSearchView } from "./ui/UniversalSearchView";
+import { SavedSearchManagementModal } from "./ui/SavedSearchManagementModal";
 import { RibbonService } from "./ui/RibbonService";
 import { StatusBarService } from "./ui/StatusBarService";
 
@@ -37,6 +40,7 @@ export default class KnowledgeLibraryPlugin extends Plugin {
   collectionService!: CollectionService;
   relationshipService!: RelationshipService;
   unifiedIndexService!: UnifiedIndexService;
+  savedSearchService!: SavedSearchService;
   private ribbonService!: RibbonService;
   private statusBarService!: StatusBarService;
 
@@ -52,6 +56,7 @@ export default class KnowledgeLibraryPlugin extends Plugin {
 
     this.registerView(KNOWLEDGE_LIBRARY_VIEW_TYPE, (leaf) => new KnowledgeLibraryView(leaf, this));
     this.registerView(KNOWLEDGE_DASHBOARD_VIEW_TYPE, (leaf) => new KnowledgeDashboardView(leaf, this));
+    this.registerView(KNOWLEDGE_UNIVERSAL_SEARCH_VIEW_TYPE, (leaf) => new UniversalSearchView(leaf, this));
     this.addSettingTab(new KnowledgeLibrarySettingTab(this.app, this));
     this.ribbonService.register();
     this.statusBarService.register();
@@ -61,6 +66,7 @@ export default class KnowledgeLibraryPlugin extends Plugin {
   onunload(): void {
     this.app.workspace.detachLeavesOfType(KNOWLEDGE_LIBRARY_VIEW_TYPE);
     this.app.workspace.detachLeavesOfType(KNOWLEDGE_DASHBOARD_VIEW_TYPE);
+    this.app.workspace.detachLeavesOfType(KNOWLEDGE_UNIVERSAL_SEARCH_VIEW_TYPE);
     this.statusBarService?.unload();
   }
 
@@ -77,12 +83,36 @@ export default class KnowledgeLibraryPlugin extends Plugin {
     new UnifiedSearchModal(this.app, this).open();
   }
 
+  async openUniversalSearch(query = ""): Promise<void> {
+    const existingLeaf = this.app.workspace.getLeavesOfType(KNOWLEDGE_UNIVERSAL_SEARCH_VIEW_TYPE)[0];
+    const leaf = existingLeaf ?? this.app.workspace.getLeaf(true);
+    if (!existingLeaf) {
+      await leaf.setViewState({ type: KNOWLEDGE_UNIVERSAL_SEARCH_VIEW_TYPE, active: true });
+    }
+    await this.app.workspace.revealLeaf(leaf);
+    if (leaf.view instanceof UniversalSearchView && query) {
+      leaf.view.setQuery(query);
+    }
+  }
+
+  manageSavedSearches(): void {
+    new SavedSearchManagementModal(this.app, this).open();
+  }
+  async saveCurrentUniversalSearch(): Promise<void> {
+    const leaf = this.app.workspace.getLeavesOfType(KNOWLEDGE_UNIVERSAL_SEARCH_VIEW_TYPE)[0];
+    if (leaf?.view instanceof UniversalSearchView) {
+      await leaf.view.saveCurrentSearch();
+      return;
+    }
+    await this.openUniversalSearch();
+  }
+
   async refreshUnifiedIndex(): Promise<void> {
     await this.unifiedIndexService.refresh();
   }
 
-  async rebuildUnifiedIndex(): Promise<void> {
-    await this.unifiedIndexService.rebuild();
+  async rebuildUnifiedIndex(): Promise<import("./models/VaultConnector").UnifiedKnowledgeIndex> {
+    return this.unifiedIndexService.rebuild();
   }
   openCollectionsManager(): void {
     new CollectionManagementModal(this.app, this.resourceRepository, this.collectionService, () => this.refreshLibraryViews()).open();
@@ -170,6 +200,7 @@ export default class KnowledgeLibraryPlugin extends Plugin {
     this.resourceRepository = new VaultResourceRepository(this.app, this.settings, undefined, undefined, this.tagService, this.collectionService);
     this.addResourceService = new AddResourceService(this.app, this.settings, this.resourceService, this.resourceRepository, this.tagService);
     this.unifiedIndexService = new UnifiedIndexService(this, undefined, undefined, this.tagService, this.collectionService);
+    this.savedSearchService = new SavedSearchService(this);
     this.migrationService = new MigrationService(this.app);
     this.safeMigrationService = new SafeMigrationService(this.app, this.settings, this.migrationService, this.tagService);
     this.tagConsolidationService = new TagConsolidationService(this.app, this.tagService);

@@ -154,6 +154,95 @@ export class KnowledgeLibrarySettingTab extends PluginSettingTab {
             // Keep invalid partial JSON in the control without saving it.
           }
         }));
+    this.createGroup(containerEl, "Search", "Tune universal search responsiveness, ranking, display, excerpts, and saved searches.");
+
+    new Setting(containerEl)
+      .setName("Default search display")
+      .setDesc("Initial Universal Search result layout.")
+      .addDropdown((dropdown) => dropdown
+        .addOption("compact", "Compact")
+        .addOption("comfortable", "Comfortable")
+        .addOption("grouped-role", "Grouped by role")
+        .addOption("grouped-vault", "Grouped by vault")
+        .addOption("grouped-source", "Grouped by source")
+        .setValue(this.plugin.settings.defaultSearchDisplayMode)
+        .onChange(async (value) => {
+          this.plugin.settings.defaultSearchDisplayMode = value as typeof this.plugin.settings.defaultSearchDisplayMode;
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName("Search result limit")
+      .setDesc("Maximum number of results shown in Universal Search.")
+      .addText((text) => text.setValue(String(this.plugin.settings.searchResultLimit)).onChange(async (value) => {
+        this.plugin.settings.searchResultLimit = boundedNumber(value, 10, 1000, 100);
+        await this.plugin.saveSettings();
+      }));
+
+    new Setting(containerEl)
+      .setName("Search debounce delay")
+      .setDesc("Milliseconds to wait after typing before searching.")
+      .addText((text) => text.setValue(String(this.plugin.settings.searchDebounceMs)).onChange(async (value) => {
+        this.plugin.settings.searchDebounceMs = boundedNumber(value, 0, 1000, 150);
+        await this.plugin.saveSettings();
+      }));
+
+    new Setting(containerEl)
+      .setName("Ranking boosts")
+      .setDesc("Comma-separated boosts for active vault, favorites, and recent items.")
+      .addText((text) => text.setValue([this.plugin.settings.searchActiveVaultBoost, this.plugin.settings.searchFavoriteBoost, this.plugin.settings.searchRecentBoost].join(", ")).onChange(async (value) => {
+        const [active, favorite, recent] = parseCsv(value, ["80", "60", "40"]).map((item) => boundedNumber(item, 0, 500, 0));
+        this.plugin.settings.searchActiveVaultBoost = active;
+        this.plugin.settings.searchFavoriteBoost = favorite;
+        this.plugin.settings.searchRecentBoost = recent;
+        await this.plugin.saveSettings();
+      }));
+
+    new Setting(containerEl)
+      .setName("Duplicate suppression")
+      .setDesc("Hide search-time duplicates that point to the same resource, video, URL, or file path.")
+      .addToggle((toggle) => toggle.setValue(this.plugin.settings.searchDuplicateSuppression).onChange(async (value) => {
+        this.plugin.settings.searchDuplicateSuppression = value;
+        await this.plugin.saveSettings();
+      }));
+
+    new Setting(containerEl)
+      .setName("Show excerpts")
+      .setDesc("Show indexed excerpts in Universal Search results.")
+      .addToggle((toggle) => toggle.setValue(this.plugin.settings.searchShowExcerpts).onChange(async (value) => {
+        this.plugin.settings.searchShowExcerpts = value;
+        await this.plugin.saveSettings();
+      }));
+
+    new Setting(containerEl)
+      .setName("Excerpt length")
+      .setDesc("Maximum characters shown from indexed excerpts.")
+      .addText((text) => text.setValue(String(this.plugin.settings.searchExcerptLength)).onChange(async (value) => {
+        this.plugin.settings.searchExcerptLength = boundedNumber(value, 40, 1000, 260);
+        await this.plugin.saveSettings();
+      }));
+
+    new Setting(containerEl)
+      .setName("Default grouping")
+      .setDesc("Preferred grouping mode for future search surfaces.")
+      .addDropdown((dropdown) => dropdown
+        .addOption("compact", "None")
+        .addOption("grouped-role", "Role")
+        .addOption("grouped-vault", "Vault")
+        .addOption("grouped-source", "Source")
+        .setValue(this.plugin.settings.searchDefaultGrouping)
+        .onChange(async (value) => {
+          this.plugin.settings.searchDefaultGrouping = value as typeof this.plugin.settings.searchDefaultGrouping;
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName("Saved searches")
+      .setDesc("Allow saved Universal Search queries in plugin data.")
+      .addToggle((toggle) => toggle.setValue(this.plugin.settings.searchEnableSavedSearches).onChange(async (value) => {
+        this.plugin.settings.searchEnableSavedSearches = value;
+        await this.plugin.saveSettings();
+      }));
     this.createGroup(containerEl, "Display", "Adjust visual density and card details in the library view.");
 
     new Setting(containerEl)
@@ -179,4 +268,9 @@ export class KnowledgeLibrarySettingTab extends PluginSettingTab {
 function parseCsv(value: string, fallback: string[]): string[] {
   const values = value.split(",").map((item) => item.trim().replace(/^\./, "").toLowerCase()).filter(Boolean);
   return values.length > 0 ? Array.from(new Set(values)) : fallback;
+}
+function boundedNumber(value: string, min: number, max: number, fallback: number): number {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.min(max, Math.max(min, Math.round(parsed)));
 }
