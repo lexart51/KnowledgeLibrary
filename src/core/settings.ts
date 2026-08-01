@@ -91,7 +91,7 @@ export const DEFAULT_VAULT_CONNECTORS: VaultConnector[] = [
   }
 ];
 export const DEFAULT_SETTINGS: KnowledgeLibraryPluginSettings = {
-  versionLabel: "KL 6.5.0-alpha.1",
+  versionLabel: "KL 6.5.0-alpha.2",
   homeShowContinueLearning: true,
   homeShowTimeline: true,
   homeShowTagCloud: true,

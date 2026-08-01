@@ -900,6 +900,13 @@
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
 
+.knowledge-library-home-count-note {
+  color: var(--text-muted);
+  font-size: 12px;
+  grid-column: 1 / -1;
+  overflow-wrap: anywhere;
+}
+
 .knowledge-library-home-nav-button,
 .knowledge-library-home-chip,
 .knowledge-library-home-tag {

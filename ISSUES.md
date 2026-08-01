@@ -63,3 +63,8 @@
 - Windows deployment no longer replaces the plugin folder or removes `data.json`.
 - Plugin state now has schema versioning, migration, backup/restore, and corruption fallback behavior.
 - Diagnostics and self-test reports now make plugin storage, connector, index, and saved-search health visible.
+## Fixed in 6.5.0-alpha.2
+
+- Home sections no longer show duplicate Active vault and YouTubes connector representations of the same YouTube resource.
+- Continue Learning no longer includes every unfinished item when progress is zero and there is no explicit learning signal.
+- Home date labels now distinguish last-opened dates from updated dates and avoid misleading invalid date output.

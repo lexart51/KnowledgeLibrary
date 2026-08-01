@@ -18,7 +18,17 @@ vi.mock("obsidian", () => ({
 import { UnifiedIndexEntry, UnifiedKnowledgeIndex } from "../src/models/VaultConnector";
 import { KnowledgeResource } from "../src/models/KnowledgeResource";
 import { StoredResource } from "../src/services/VaultResourceRepository";
-import { activityTimeline, buildHomeEntries, continueLearningEntries, favoriteCollections, homeOverviewCounts, topTags } from "../src/ui/KnowledgeHomeView";
+import {
+  activityTimeline,
+  buildHomeEntries,
+  continueLearningEntries,
+  favoriteCollections,
+  formatDisplayDate,
+  homeOverviewCounts,
+  isContinueLearningEligible,
+  suppressHomeDuplicates,
+  topTags
+} from "../src/ui/KnowledgeHomeView";
 
 function source(path: string): string {
   return readFileSync(join(process.cwd(), path), "utf8");
@@ -48,8 +58,7 @@ function entry(id: string, overrides: Partial<UnifiedIndexEntry> = {}): UnifiedI
   };
 }
 
-
-function storedResource(id: string): StoredResource {
+function storedResource(id: string, overrides: Partial<KnowledgeResource> = {}): StoredResource {
   const resource: KnowledgeResource = {
     id,
     type: "youtube",
@@ -67,10 +76,12 @@ function storedResource(id: string): StoredResource {
     createdAt: "2026-08-01T10:00:00.000Z",
     updatedAt: "2026-08-01T10:00:00.000Z",
     metadata: {},
-    collections: ["Active"]
+    collections: ["Active"],
+    ...overrides
   };
   return { resource, path: `${id}.md`, legacy: false };
 }
+
 function index(entries: UnifiedIndexEntry[]): UnifiedKnowledgeIndex {
   return {
     schema_version: 1,
@@ -89,15 +100,69 @@ describe("Knowledge Navigator Home helpers", () => {
     const entries = buildHomeEntries([storedResource("active")], index([entry("external", { role: "documents", type: "pdf" })]));
     expect(entries.map((item) => item.id)).toEqual(["active", "external"]);
   });
-  it("builds continue learning from in-progress favorite high-priority and recent items", () => {
-    const results = continueLearningEntries([
-      entry("plain", { updated_at: null }),
-      entry("progress", { progress: 45 }),
-      entry("favorite", { favorite: true }),
-      entry("priority", { priority: "high" })
+
+  it("suppresses Active vault plus YouTubes duplicates and prefers the active resource", () => {
+    const active = storedResource("active-hermes", { metadata: { video_id: "Nc0Atdjg5sE" }, progress: 35 });
+    const external = entry("external-hermes", { metadata: { videoId: "Nc0Atdjg5sE" }, progress: 35 });
+
+    expect(buildHomeEntries([active], index([external])).map((item) => item.id)).toEqual(["active-hermes"]);
+  });
+
+  it("suppresses duplicate YouTube video IDs", () => {
+    const results = suppressHomeDuplicates([
+      entry("old", { metadata: { video_id: "97IO4He9PPc" }, updated_at: "2026-07-30T10:00:00.000Z" }),
+      entry("new", { metadata: { videoId: "97IO4He9PPc" }, updated_at: "2026-08-01T10:00:00.000Z" })
     ]);
 
-    expect(results.map((item) => item.id)).toEqual(["progress", "favorite", "priority"]);
+    expect(results.map((item) => item.id)).toEqual(["new"]);
+  });
+
+  it("filters Continue Learning to explicit learning signals", () => {
+    expect(isContinueLearningEligible(entry("plain", { completed: false, progress: 0 }))).toBe(false);
+    expect(isContinueLearningEligible(entry("progress", { progress: 45 }))).toBe(true);
+    expect(isContinueLearningEligible(entry("completed", { completed: true, progress: 100 }))).toBe(false);
+    expect(isContinueLearningEligible(entry("opened", { progress: 0, metadata: { lastOpened: "2026-08-01T11:00:00.000Z" } }))).toBe(true);
+    expect(isContinueLearningEligible(entry("priority", { progress: 0, priority: "high" }))).toBe(true);
+  });
+
+  it("ranks Continue Learning deterministically and limits the section", () => {
+    const results = continueLearningEntries([
+      entry("favorite", { progress: 20, favorite: true, updated_at: "2026-08-01T09:00:00.000Z" }),
+      entry("priority", { progress: 20, priority: "high", updated_at: "2026-08-01T09:30:00.000Z" }),
+      entry("opened", { progress: 5, metadata: { last_opened: "2026-08-01T12:00:00.000Z" } }),
+      entry("more-progress", { progress: 80, updated_at: "2026-08-01T08:00:00.000Z" })
+    ], 3);
+
+    expect(results.map((item) => item.id)).toEqual(["opened", "more-progress", "priority"]);
+  });
+
+  it("does not duplicate logical entries across Home sections", () => {
+    const duplicateA = entry("a", { metadata: { video_id: "Nc0Atdjg5sE" }, tags: ["ai"], collections: ["Hermes"], progress: 10 });
+    const duplicateB = entry("b", { metadata: { videoId: "Nc0Atdjg5sE" }, tags: ["ai"], collections: ["Hermes"], progress: 10 });
+    const entries = [duplicateA, duplicateB];
+
+    expect(continueLearningEntries(entries).map((item) => item.id)).toHaveLength(1);
+    expect(activityTimeline(entries, new Date("2026-08-01T12:00:00.000Z"))[0]?.entries.map((item) => item.id)).toHaveLength(1);
+    expect(topTags(entries)).toEqual([{ tag: "ai", count: 1, weight: 5 }]);
+    expect(favoriteCollections(entries)).toEqual([{ name: "Hermes", count: 1 }]);
+  });
+
+  it("uses last opened before updated date and hides invalid date labels", () => {
+    expect(formatDisplayDate(entry("opened", { metadata: { opened_at: "2026-08-01T11:00:00.000Z" }, updated_at: "2026-07-01T10:00:00.000Z" }))).toMatch(/^Last opened /);
+    expect(formatDisplayDate(entry("updated", { updated_at: "2026-08-01T10:00:00.000Z" }))).toMatch(/^Updated /);
+    expect(formatDisplayDate(entry("invalid", { updated_at: "not-a-date" }))).toBe("");
+  });
+
+  it("counts unique logical role items", () => {
+    const data = index([
+      entry("resource", { metadata: { video_id: "Nc0Atdjg5sE" } }),
+      entry("resource-copy", { metadata: { videoId: "Nc0Atdjg5sE" } }),
+      entry("conversation", { role: "conversations", connector_name: "Obsidian_Vault", vault_name: "Obsidian_Vault", type: "conversation" }),
+      entry("document", { role: "documents", connector_name: "_Docs", vault_name: "_Docs", type: "pdf" }),
+      entry("active", { origin: "active-vault", connector_id: "active-vault", connector_name: "Active vault", vault_name: "Active vault", role: "active" })
+    ]);
+
+    expect(homeOverviewCounts(suppressHomeDuplicates(data.entries), data)).toMatchObject({ resources: 2, conversations: 1, documents: 1, active: 1, availableConnectors: 1, unavailableConnectors: 1 });
   });
 
   it("builds the top 20 weighted tag cloud", () => {
@@ -114,6 +179,7 @@ describe("Knowledge Navigator Home helpers", () => {
   it("does not render empty timeline groups for old activity", () => {
     expect(activityTimeline([entry("old", { updated_at: "2026-07-01T10:00:00.000Z" })], new Date("2026-08-01T12:00:00.000Z"))).toEqual([]);
   });
+
   it("groups recent activity into Today Yesterday and This Week", () => {
     const groups = activityTimeline([
       entry("today", { updated_at: "2026-08-01T10:00:00.000Z" }),
@@ -123,17 +189,6 @@ describe("Knowledge Navigator Home helpers", () => {
 
     expect(groups.map((group) => group.label)).toEqual(["Today", "Yesterday", "This Week"]);
     expect(groups.map((group) => group.entries[0]?.id)).toEqual(["today", "yesterday", "week"]);
-  });
-
-  it("counts resources conversations documents active vault and connector availability", () => {
-    const data = index([
-      entry("resource"),
-      entry("conversation", { role: "conversations", connector_name: "Obsidian_Vault", vault_name: "Obsidian_Vault", type: "conversation" }),
-      entry("document", { role: "documents", connector_name: "_Docs", vault_name: "_Docs", type: "pdf" }),
-      entry("active", { origin: "active-vault", connector_id: "active-vault", connector_name: "Active vault", vault_name: "Active vault", role: "active" })
-    ]);
-
-    expect(homeOverviewCounts(data.entries, data)).toMatchObject({ resources: 2, conversations: 1, documents: 1, active: 1, availableConnectors: 1, unavailableConnectors: 1 });
   });
 
   it("derives favorite collections without a storage format change", () => {

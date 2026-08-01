@@ -2,6 +2,7 @@ import { ItemView, Notice, WorkspaceLeaf } from "obsidian";
 import { KNOWLEDGE_HOME_VIEW_TYPE } from "../core/viewTypes";
 import KnowledgeLibraryPlugin from "../main";
 import { UnifiedIndexEntry, UnifiedKnowledgeIndex, VaultConnectorRole } from "../models/VaultConnector";
+import { duplicateKeys } from "../services/SearchRankingService";
 import { StoredResource } from "../services/VaultResourceRepository";
 
 export interface HomeOverviewCounts {
@@ -104,6 +105,7 @@ export class KnowledgeHomeView extends ItemView {
 
   private renderQuickNavigation(counts: HomeOverviewCounts): void {
     const nav = this.contentEl.createDiv({ cls: "knowledge-library-home-nav", attr: { "aria-label": "Knowledge navigation" } });
+    nav.createDiv({ text: "Counts show unique logical items.", cls: "knowledge-library-home-count-note", attr: { title: "Counts are duplicate-suppressed logical items, not raw index entries." } });
     this.navButton(nav, "Resources", String(counts.resources), () => void this.plugin.openLibraryView({ role: "resources" }));
     this.navButton(nav, "Conversations", String(counts.conversations), () => void this.plugin.openLibraryView({ role: "conversations" }));
     this.navButton(nav, "Documents", String(counts.documents), () => void this.plugin.openLibraryView({ role: "documents" }));
@@ -183,7 +185,7 @@ export class KnowledgeHomeView extends ItemView {
     main.createDiv({ text: [entry.connector_name, entry.vault_name, entry.type, entry.source_platform].filter(Boolean).join(" | "), cls: "knowledge-library-result-meta" });
     const progress = entry.progress ?? (entry.completed ? 100 : 0);
     row.createDiv({ text: progress > 0 ? `${progress}%` : "", cls: "knowledge-library-home-progress" });
-    row.createDiv({ text: formatShortDate(lastTouched(entry)), cls: "knowledge-library-result-meta" });
+    row.createDiv({ text: formatDisplayDate(entry), cls: "knowledge-library-result-meta" });
     row.createSpan({ text: actionLabel, cls: "knowledge-library-home-row-action" });
     const open = (): void => this.openEntry(entry);
     row.addEventListener("click", open);
@@ -233,9 +235,7 @@ export class KnowledgeHomeView extends ItemView {
 
 export function buildHomeEntries(resources: StoredResource[], index: UnifiedKnowledgeIndex | null): UnifiedIndexEntry[] {
   const activeEntries = resources.map((item) => resourceToHomeEntry(item));
-  if (!index?.entries.length) return activeEntries;
-  const indexedIds = new Set(index.entries.map((entry) => entry.id));
-  return [...activeEntries.filter((entry) => !indexedIds.has(entry.id)), ...index.entries];
+  return suppressHomeDuplicates([...activeEntries, ...(index?.entries ?? [])]);
 }
 
 export function homeOverviewCounts(entries: UnifiedIndexEntry[], index: UnifiedKnowledgeIndex | null = null): HomeOverviewCounts {
@@ -249,20 +249,17 @@ export function homeOverviewCounts(entries: UnifiedIndexEntry[], index: UnifiedK
   };
 }
 
-export function continueLearningEntries(entries: UnifiedIndexEntry[], limit = 6): UnifiedIndexEntry[] {
-  return [...entries]
-    .filter((entry) => {
-      const progress = entry.progress ?? (entry.completed ? 100 : 0);
-      return progress > 0 && progress < 100 || Boolean(entry.favorite) || entry.priority === "high" || Boolean(entry.updated_at);
-    })
-    .sort((left, right) => continueScore(right) - continueScore(left) || lastTouched(right).localeCompare(lastTouched(left)) || left.title.localeCompare(right.title))
+export function continueLearningEntries(entries: UnifiedIndexEntry[], limit = 8): UnifiedIndexEntry[] {
+  return suppressHomeDuplicates(entries)
+    .filter(isContinueLearningEligible)
+    .sort(compareContinueLearning)
     .slice(0, limit);
 }
 
 export function recentByRole(entries: UnifiedIndexEntry[], role: VaultConnectorRole | "active", limit = 5): UnifiedIndexEntry[] {
-  return [...entries]
+  return suppressHomeDuplicates(entries)
     .filter((entry) => entry.role === role || role === "resources" && entry.role === "active")
-    .sort((left, right) => lastTouched(right).localeCompare(lastTouched(left)) || left.title.localeCompare(right.title))
+    .sort((left, right) => compareDateValues(activityDate(right), activityDate(left)) || left.title.localeCompare(right.title))
     .slice(0, limit);
 }
 
@@ -272,8 +269,8 @@ export function activityTimeline(entries: UnifiedIndexEntry[], now = new Date(),
     { label: "Yesterday", entries: [] },
     { label: "This Week", entries: [] }
   ];
-  for (const entry of [...entries].sort((left, right) => lastTouched(right).localeCompare(lastTouched(left)))) {
-    const group = timelineLabel(lastTouched(entry), now);
+  for (const entry of suppressHomeDuplicates(entries).sort((left, right) => activityDate(right).localeCompare(activityDate(left)) || left.title.localeCompare(right.title))) {
+    const group = timelineLabel(activityDate(entry), now);
     const target = groups.find((item) => item.label === group);
     if (target && target.entries.length < limitPerGroup) target.entries.push(entry);
   }
@@ -282,7 +279,7 @@ export function activityTimeline(entries: UnifiedIndexEntry[], now = new Date(),
 
 export function topTags(entries: UnifiedIndexEntry[], limit = 20): HomeTagCloudItem[] {
   const counts = new Map<string, number>();
-  for (const entry of entries) {
+  for (const entry of suppressHomeDuplicates(entries)) {
     for (const tag of entry.tags) {
       counts.set(tag, (counts.get(tag) ?? 0) + 1);
     }
@@ -296,8 +293,9 @@ export function topTags(entries: UnifiedIndexEntry[], limit = 20): HomeTagCloudI
 
 export function favoriteCollections(entries: UnifiedIndexEntry[], limit = 8): Array<{ name: string; count: number }> {
   const counts = new Map<string, number>();
-  const preferred = entries.filter((entry) => entry.favorite || entry.priority === "high" || (entry.progress ?? 0) > 0);
-  for (const entry of preferred.length > 0 ? preferred : entries) {
+  const uniqueEntries = suppressHomeDuplicates(entries);
+  const preferred = uniqueEntries.filter((entry) => entry.favorite || entry.priority === "high" || (entry.progress ?? 0) > 0);
+  for (const entry of preferred.length > 0 ? preferred : uniqueEntries) {
     for (const collection of entry.collections) {
       counts.set(collection, (counts.get(collection) ?? 0) + 1);
     }
@@ -335,13 +333,50 @@ function resourceToHomeEntry(item: StoredResource): UnifiedIndexEntry {
     progress_unit: resource.progress_unit,
     priority: resource.priority,
     source_platform: resource.source,
-    metadata: resource.metadata
+    metadata: { ...resource.metadata, resourceId: resource.id, filePath: resource.filePath, current_position: resource.current_position, total_units: resource.total_units }
   };
 }
 
-function continueScore(entry: UnifiedIndexEntry): number {
-  const progress = entry.progress ?? (entry.completed ? 100 : 0);
-  return (progress > 0 && progress < 100 ? 80 : 0) + (entry.favorite ? 40 : 0) + (entry.priority === "high" ? 30 : 0) + (entry.updated_at ? 10 : 0);
+export function suppressHomeDuplicates(entries: UnifiedIndexEntry[]): UnifiedIndexEntry[] {
+  const byKey = new Map<string, UnifiedIndexEntry>();
+  for (const entry of entries) {
+    const keys = duplicateKeys(entry);
+    const existing = keys.map((key) => byKey.get(key)).find((item): item is UnifiedIndexEntry => Boolean(item));
+    if (!existing || compareHomeDuplicatePreference(entry, existing) < 0) {
+      if (existing) {
+        for (const existingKey of duplicateKeys(existing)) {
+          if (byKey.get(existingKey) === existing) byKey.delete(existingKey);
+        }
+      }
+      for (const key of keys) byKey.set(key, entry);
+    }
+  }
+  return Array.from(new Set(byKey.values()));
+}
+
+export function isContinueLearningEligible(entry: UnifiedIndexEntry): boolean {
+  const progress = normalizedProgress(entry);
+  if (entry.completed || progress >= 100) return false;
+  if (progress > 0 && progress < 100) return true;
+  if (positionStarted(entry)) return true;
+  if (lastOpened(entry)) return true;
+  return entry.priority === "high";
+}
+
+function compareContinueLearning(left: UnifiedIndexEntry, right: UnifiedIndexEntry): number {
+  return compareDateValues(lastOpened(right), lastOpened(left))
+    || normalizedProgress(right) - normalizedProgress(left)
+    || Number(right.priority === "high") - Number(left.priority === "high")
+    || Number(Boolean(right.favorite)) - Number(Boolean(left.favorite))
+    || compareDateValues(right.updated_at, left.updated_at)
+    || left.title.localeCompare(right.title)
+    || left.id.localeCompare(right.id);
+}
+
+function compareHomeDuplicatePreference(left: UnifiedIndexEntry, right: UnifiedIndexEntry): number {
+  return Number(right.origin === "active-vault") - Number(left.origin === "active-vault")
+    || compareDateValues(activityDate(right), activityDate(left))
+    || left.id.localeCompare(right.id);
 }
 
 function timelineLabel(value: string, now: Date): HomeTimelineGroup["label"] | null {
@@ -356,14 +391,61 @@ function timelineLabel(value: string, now: Date): HomeTimelineGroup["label"] | n
   return null;
 }
 
-function lastTouched(entry: UnifiedIndexEntry): string {
-  const metadataLastOpened = typeof entry.metadata.lastOpened === "string" ? entry.metadata.lastOpened : typeof entry.metadata.last_opened === "string" ? entry.metadata.last_opened : null;
-  return metadataLastOpened ?? entry.updated_at ?? entry.created_at ?? "";
+function activityDate(entry: UnifiedIndexEntry): string {
+  return lastOpened(entry) ?? (isValidDate(entry.updated_at) ? entry.updated_at ?? "" : "");
+}
+
+function lastOpened(entry: UnifiedIndexEntry): string | null {
+  const value = firstString(entry.metadata.lastOpened, entry.metadata.last_opened, entry.metadata.opened_at);
+  return isValidDate(value) ? value : null;
+}
+
+export function formatDisplayDate(entry: UnifiedIndexEntry): string {
+  const opened = lastOpened(entry);
+  if (opened) return `Last opened ${formatShortDate(opened)}`;
+  if (isValidDate(entry.updated_at)) return `Updated ${formatShortDate(entry.updated_at ?? "")}`;
+  return "";
 }
 
 function formatShortDate(value: string): string {
-  if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  return new Date(value).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+function normalizedProgress(entry: UnifiedIndexEntry): number {
+  return entry.progress ?? (entry.completed ? 100 : 0);
+}
+
+function positionStarted(entry: UnifiedIndexEntry): boolean {
+  const current = numberValue(entry.metadata.current_position, entry.metadata.currentPosition);
+  const total = numberValue(entry.metadata.total_units, entry.metadata.totalUnits);
+  return current > 0 && total > 0;
+}
+
+function compareDateValues(left: string | null, right: string | null): number {
+  const leftTime = timeValue(left);
+  const rightTime = timeValue(right);
+  return leftTime - rightTime;
+}
+
+function timeValue(value: string | null): number {
+  const time = Date.parse(value ?? "");
+  return Number.isFinite(time) ? time : 0;
+}
+
+function isValidDate(value: string | null): boolean {
+  return Boolean(value && Number.isFinite(Date.parse(value)));
+}
+
+function numberValue(...values: unknown[]): number {
+  for (const value of values) {
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+  }
+  return 0;
+}
+
+function firstString(...values: unknown[]): string | null {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return null;
 }
