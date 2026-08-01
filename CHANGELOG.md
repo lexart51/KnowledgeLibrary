@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Promoted KnowledgeLibrary v6 metadata to `6.0.0-beta.1` with plugin id `knowledge-library-v6`.
+- Added `build:prod` and Windows/Linux deployment scripts that deploy only `main.js`, `manifest.json`, and `styles.css` into a side-by-side v6 plugin folder.
+- Added safe migration backup and apply services with dry-run planning, confirmation, body preservation, canonical frontmatter writes, and Markdown reports.
+- Added tag alias analysis and consolidation with preview, confirmation, duplicate canonical tag prevention, and reports.
+- Added deterministic YouTube thumbnail repair with preview, confirmation, reports, and Hermes video-id test coverage.
+- Added deployment, migration apply, tag manager, and thumbnail repair documentation.
 - Added a unified native Add Resource modal for YouTube, websites, books, vault files, and common file-backed resource types.
 - Added `AddResourceService` to route all wizard creation through `ProviderRegistry`, `ResourceService`, and `VaultResourceRepository`.
 - Added duplicate prevention by YouTube video id, website canonical URL, and vault file path.

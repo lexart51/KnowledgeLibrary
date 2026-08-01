@@ -4,6 +4,7 @@ import { DEFAULT_SETTINGS, KnowledgeLibraryPluginSettings } from "./core/setting
 import { KNOWLEDGE_LIBRARY_VIEW_TYPE } from "./core/viewTypes";
 import { AddResourceRequest, AddResourceResult, AddResourceService } from "./services/AddResourceService";
 import { MigrationService } from "./services/MigrationService";
+import { SafeMigrationService, TagConsolidationService, ThumbnailRepairService } from "./services/MaintenanceServices";
 import { ResourceService } from "./services/ResourceService";
 import { TagAliasService } from "./services/TagAliasService";
 import { TagService } from "./services/TagService";
@@ -22,6 +23,9 @@ export default class KnowledgeLibraryPlugin extends Plugin {
   resourceRepository!: VaultResourceRepository;
   addResourceService!: AddResourceService;
   migrationService!: MigrationService;
+  safeMigrationService!: SafeMigrationService;
+  tagConsolidationService!: TagConsolidationService;
+  thumbnailRepairService!: ThumbnailRepairService;
   private ribbonService!: RibbonService;
   private statusBarService!: StatusBarService;
 
@@ -31,9 +35,7 @@ export default class KnowledgeLibraryPlugin extends Plugin {
     this.tagAliases = new TagAliasService();
     this.tagService = new TagService(this.tagAliases);
     this.resourceService = new ResourceService(undefined, this.tagService);
-    this.resourceRepository = new VaultResourceRepository(this.app, this.settings, undefined, undefined, this.tagService);
-    this.addResourceService = new AddResourceService(this.app, this.settings, this.resourceService, this.resourceRepository, this.tagService);
-    this.migrationService = new MigrationService(this.app);
+    this.initializeServices();
     this.ribbonService = new RibbonService(this, () => this.openLibraryView());
     this.statusBarService = new StatusBarService(this, this.settings.versionLabel);
 
@@ -96,8 +98,15 @@ export default class KnowledgeLibraryPlugin extends Plugin {
 
   async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
+    this.initializeServices();
+  }
+
+  private initializeServices(): void {
     this.resourceRepository = new VaultResourceRepository(this.app, this.settings, undefined, undefined, this.tagService);
     this.addResourceService = new AddResourceService(this.app, this.settings, this.resourceService, this.resourceRepository, this.tagService);
     this.migrationService = new MigrationService(this.app);
+    this.safeMigrationService = new SafeMigrationService(this.app, this.settings, this.migrationService, this.tagService);
+    this.tagConsolidationService = new TagConsolidationService(this.app, this.tagService);
+    this.thumbnailRepairService = new ThumbnailRepairService(this.app);
   }
 }

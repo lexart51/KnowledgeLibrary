@@ -1,5 +1,15 @@
 # Roadmap
 
+## v6 Beta
+
+- [x] Prepare beta metadata and side-by-side deployment scripts.
+- [x] Add safe migration backup and apply workflows.
+- [x] Add tag alias analysis and consolidation.
+- [x] Add YouTube thumbnail repair.
+- [ ] Install v6 into the YouTubes vault for controlled manual testing.
+- [ ] Validate migration dry-run output against the production dataset.
+- [ ] Apply migration only after reviewed backup and simulation reports.
+
 ## v6 Alpha
 
 - [x] Establish plugin architecture and build pipeline.
@@ -9,10 +19,6 @@
 - [x] Build the first native library view.
 - [x] Add migration analysis and compatibility layer.
 - [x] Add unified Add Resource wizard.
-- [ ] Add opt-in migration writer after audit validation.
-- [ ] Define expanded knowledge item metadata models.
-- [ ] Add local indexing and search services.
-- [ ] Expand canonical tag normalization.
 
 ## Later
 

@@ -4,7 +4,7 @@ KnowledgeLibrary is a professional Obsidian plugin for unified personal knowledg
 
 ## Status
 
-`6.0.0-alpha`
+`6.0.0-beta.1`
 
 ## Development
 
@@ -26,6 +26,12 @@ Build the plugin:
 npm run build
 ```
 
+Production build:
+
+```bash
+npm run build:prod
+```
+
 Type-check:
 
 ```bash
@@ -35,28 +41,34 @@ npx tsc --noEmit
 The production build emits:
 
 - `main.js`
+- `manifest.json`
 - `styles.css`
+
+## Deployment
+
+KnowledgeLibrary v6 installs side by side under plugin id and folder `knowledge-library-v6`. Deployment scripts copy only the three production files and back up any existing v6 target before copying.
 
 ## Current Plugin Surface
 
 - Ribbon icon: opens the Knowledge Library view.
 - Command palette command: `Knowledge Library: Open Library`.
 - Command palette command: `Knowledge Library: Add Resource`.
-- Status bar: `KL 6.0.0-alpha`.
+- Command palette command: `Knowledge Library: Analyze existing vault`.
+- Command palette command: `Knowledge Library: Simulate migration`.
+- Command palette command: `Knowledge Library: Create migration backup`.
+- Command palette command: `Knowledge Library: Apply migration`.
+- Command palette command: `Knowledge Library: Analyze tags`.
+- Command palette command: `Knowledge Library: Consolidate tag aliases`.
+- Command palette command: `Knowledge Library: Repair YouTube thumbnails`.
+- Status bar: `KL 6.0.0-beta.1`.
 - Native library view with search, filters, sorting, card grid, note/resource actions, and favorite/completed toggles.
 - Read-only migration analysis and simulation commands for existing vault compatibility.
+- Confirmed safe write workflows for migration backup, migration apply, tag consolidation, and YouTube thumbnail repair.
 - Unified Add Resource wizard for YouTube, websites, books, and file-backed resources.
 - Settings-driven storage paths:
   - Library folder: `01 - Biblioteca`
   - Resources folder: `01 - Biblioteca/Recursos`
 - Markdown resource notes with YAML frontmatter.
-- Canonical tag aliases:
-  - `ia` -> `ai`
-  - `artificial-intelligence` -> `ai`
-  - `artificial intelligence` -> `ai`
-  - `routeros` -> `mikrotik`
-  - `win11` -> `windows`
-  - `windows11` -> `windows`
 
 ## Documentation
 
@@ -66,4 +78,8 @@ The production build emits:
 - [Storage](docs/STORAGE.md)
 - [Library View](docs/LIBRARY_VIEW.md)
 - [Migration](docs/MIGRATION.md)
+- [Migration Apply](docs/MIGRATION_APPLY.md)
+- [Tag Manager](docs/TAG_MANAGER.md)
+- [Thumbnail Repair](docs/THUMBNAIL_REPAIR.md)
 - [Add Resource](docs/ADD_RESOURCE.md)
+- [Deployment](docs/DEPLOYMENT.md)
