@@ -1,7 +1,8 @@
 # TODO
 
-- Add automated tests for tag canonicalization.
 - Add settings UI for alias management.
 - Add library view registration.
-- Add data models for knowledge resources.
+- Add persistent storage for resources.
+- Add resource import command wiring.
+- Add richer provider metadata extraction.
 - Add release packaging checks.
