@@ -34,3 +34,7 @@ Handles local file inputs through `filePath` or `file://` URLs. It uses the file
 ## ResourceService
 
 `ResourceService` coordinates provider selection, resource creation, provider normalization, tag normalization, validation, and in-memory cache insertion.
+
+## Compatibility Layer
+
+The migration compatibility layer is separate from provider creation. It reads historical note formats, detects their legacy origin, and converts compatible notes into `KnowledgeResource` records in memory without modifying source notes.

@@ -43,6 +43,7 @@ The production build emits:
 - Command palette command: `Knowledge Library: Open Library`.
 - Status bar: `KL 6.0.0-alpha`.
 - Native library view with search, filters, sorting, card grid, note/resource actions, and favorite/completed toggles.
+- Read-only migration analysis and simulation commands for existing vault compatibility.
 - Settings-driven storage paths:
   - Library folder: `01 - Biblioteca`
   - Resources folder: `01 - Biblioteca/Recursos`
@@ -62,3 +63,4 @@ The production build emits:
 - [Providers](docs/PROVIDERS.md)
 - [Storage](docs/STORAGE.md)
 - [Library View](docs/LIBRARY_VIEW.md)
+- [Migration](docs/MIGRATION.md)

@@ -120,3 +120,46 @@
 .knowledge-library-button {
   font-size: 12px;
 }
+
+.knowledge-library-report {
+  max-height: 75vh;
+  overflow: auto;
+}
+
+.knowledge-library-report-summary {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  margin: 12px 0 16px;
+}
+
+.knowledge-library-report-metric {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px;
+}
+
+.knowledge-library-report-metric span {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.knowledge-library-report-metric strong {
+  font-size: 20px;
+}
+
+.knowledge-library-report-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.knowledge-library-report-table th,
+.knowledge-library-report-table td {
+  border-bottom: 1px solid var(--background-modifier-border);
+  padding: 6px 8px;
+  text-align: left;
+  vertical-align: top;
+}

@@ -135,12 +135,12 @@ function metadataFrom(value: unknown): KnowledgeResourceMetadata {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as KnowledgeResourceMetadata) : {};
 }
 
-function typeFrom(value: unknown, url: string | null, filePath: string | null): KnowledgeResourceType {
+function typeFrom(value: unknown, url: string | null, filePath: string | null, videoId: string | null): KnowledgeResourceType {
   if (value === "youtube" || value === "website" || value === "file") {
     return value;
   }
 
-  if (url?.includes("youtube.com") || url?.includes("youtu.be")) {
+  if (videoId || url?.includes("youtube.com") || url?.includes("youtu.be")) {
     return "youtube";
   }
 
@@ -154,16 +154,16 @@ function statusFrom(value: unknown): KnowledgeResourceStatus {
 export class ResourceDeserializer {
   deserialize(markdown: string, pathSeed = "resource"): DeserializedResourceNote | null {
     const { frontmatter, body } = splitFrontmatter(markdown);
-    const url = stringOrNull(frontmatter.url);
-    const filePath = stringOrNull(frontmatter.file_path) ?? stringOrNull(frontmatter.filePath);
     const legacyVideoId = stringOrNull(frontmatter.video_id);
+    const url = stringOrNull(frontmatter.url) ?? (legacyVideoId ? `https://www.youtube.com/watch?v=${legacyVideoId}` : null);
+    const filePath = stringOrNull(frontmatter.file_path) ?? stringOrNull(frontmatter.filePath);
     const metadata = metadataFrom(frontmatter.metadata);
 
     if (legacyVideoId && !metadata.videoId) {
       metadata.videoId = legacyVideoId;
     }
 
-    const type = typeFrom(frontmatter.type, url, filePath);
+    const type = typeFrom(frontmatter.type, url, filePath, legacyVideoId);
     const id = stringOrDefault(frontmatter.resource_id, createResourceId(`${type}:${legacyVideoId ?? url ?? filePath ?? pathSeed}`));
     const title = stringOrDefault(frontmatter.title, "Untitled resource");
     const createdAt = stringOrDefault(frontmatter.created_at ?? frontmatter.date_added ?? frontmatter.date_shared, new Date(0).toISOString());
@@ -182,7 +182,7 @@ export class ResourceDeserializer {
         source: stringOrDefault(frontmatter.source, type),
         url,
         filePath,
-        thumbnail: stringOrNull(frontmatter.thumbnail) ?? stringOrNull(frontmatter.image),
+        thumbnail: stringOrNull(frontmatter.thumbnail) ?? stringOrNull(frontmatter.image) ?? (legacyVideoId ? `https://img.youtube.com/vi/${legacyVideoId}/hqdefault.jpg` : null),
         tags: tagsFrom(frontmatter.tags),
         status: statusFrom(frontmatter.status),
         favorite: booleanOrDefault(frontmatter.favorite, false),
@@ -198,4 +198,3 @@ export class ResourceDeserializer {
     };
   }
 }
-

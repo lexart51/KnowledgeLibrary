@@ -2,6 +2,7 @@ import { Plugin } from "obsidian";
 import { registerLibraryCommands } from "./commands/libraryCommands";
 import { DEFAULT_SETTINGS, KnowledgeLibraryPluginSettings } from "./core/settings";
 import { KNOWLEDGE_LIBRARY_VIEW_TYPE } from "./core/viewTypes";
+import { MigrationService } from "./services/MigrationService";
 import { ResourceService } from "./services/ResourceService";
 import { TagAliasService } from "./services/TagAliasService";
 import { TagService } from "./services/TagService";
@@ -17,6 +18,7 @@ export default class KnowledgeLibraryPlugin extends Plugin {
   tagService!: TagService;
   resourceService!: ResourceService;
   resourceRepository!: VaultResourceRepository;
+  migrationService!: MigrationService;
   private ribbonService!: RibbonService;
   private statusBarService!: StatusBarService;
 
@@ -27,6 +29,7 @@ export default class KnowledgeLibraryPlugin extends Plugin {
     this.tagService = new TagService(this.tagAliases);
     this.resourceService = new ResourceService(undefined, this.tagService);
     this.resourceRepository = new VaultResourceRepository(this.app, this.settings, undefined, undefined, this.tagService);
+    this.migrationService = new MigrationService(this.app);
     this.ribbonService = new RibbonService(this, () => this.openLibraryView());
     this.statusBarService = new StatusBarService(this, this.settings.versionLabel);
 
@@ -64,5 +67,6 @@ export default class KnowledgeLibraryPlugin extends Plugin {
   async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
     this.resourceRepository = new VaultResourceRepository(this.app, this.settings, undefined, undefined, this.tagService);
+    this.migrationService = new MigrationService(this.app);
   }
 }
