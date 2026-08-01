@@ -2,7 +2,7 @@
 
 ## Open
 
-- KnowledgeLibrary 6.2.0 is not deployed to the Obsidian vault yet.
+- KnowledgeLibrary 6.3.0 is not deployed to the Obsidian vault yet.
 - Deployment scripts are prepared but have not been run against the YouTubes vault in this milestone.
 - Migration apply intentionally skips notes requiring manual review; unusual legacy note shapes may need manual cleanup before migration.
 - Tag consolidation updates YAML frontmatter tags only.
@@ -46,3 +46,10 @@
 - The library can now organize resources into collections without separate database files.
 - Cards, filters, sorting, and dashboard now account for progress, priority, collections, and missing files.
 - Relationships can be edited safely while tolerating missing target resources.
+
+
+## Fixed in 6.3.0
+
+- Independent resource, conversation, and document vaults can now be represented through read-only connectors.
+- Unified search and dashboard can work from active-vault plugin data without writing to external vaults.
+- Missing or offline connector paths are reported without blocking available connectors.

@@ -628,3 +628,107 @@
     grid-template-columns: 1fr;
   }
 }
+
+.knowledge-library-card.is-external {
+  border-style: dashed;
+}
+
+.knowledge-library-source-badge,
+.knowledge-library-external-badge {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  padding: 3px 6px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.knowledge-library-external-badge {
+  color: var(--interactive-accent);
+}
+
+.knowledge-library-connectors-modal,
+.knowledge-library-unified-search-modal {
+  height: auto;
+  max-height: calc(100vh - 48px);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.knowledge-library-connector-list,
+.knowledge-library-unified-results {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.knowledge-library-connector-row,
+.knowledge-library-unified-result,
+.knowledge-library-connector-status-row {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px;
+}
+
+.knowledge-library-connector-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.knowledge-library-connector-fields {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-width: 0;
+}
+
+.knowledge-library-connector-fields label,
+.knowledge-library-connector-fields input,
+.knowledge-library-connector-fields select,
+.knowledge-library-unified-search-modal input {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+  width: 100%;
+}
+
+.knowledge-library-connector-actions,
+.knowledge-library-unified-result-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.knowledge-library-connector-status,
+.knowledge-library-result-meta {
+  color: var(--text-muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.knowledge-library-result-title {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.knowledge-library-result-excerpt {
+  color: var(--text-normal);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .knowledge-library-connector-row,
+  .knowledge-library-connector-fields {
+    grid-template-columns: 1fr;
+  }
+}

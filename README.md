@@ -4,7 +4,7 @@ KnowledgeLibrary is a professional Obsidian plugin for unified personal knowledg
 
 ## Status
 
-`6.2.0`
+`6.3.0`
 
 ## Development
 
@@ -56,6 +56,12 @@ KnowledgeLibrary v6 installs side by side under plugin id and folder `knowledge-
 - Command palette command: `Knowledge Library: Manage collections`.
 - Command palette command: `Knowledge Library: Edit selected resource`.
 - Command palette command: `Knowledge Library: Open Dashboard`.
+- Command palette command: `Knowledge Library: Manage vault connectors`.
+- Command palette command: `Knowledge Library: Test vault connectors`.
+- Command palette command: `Knowledge Library: Refresh unified index`.
+- Command palette command: `Knowledge Library: Rebuild unified index`.
+- Command palette command: `Knowledge Library: Search all connected vaults`.
+- Command palette command: `Knowledge Library: Open unified dashboard`.
 - Command palette command: `Knowledge Library: Analyze existing vault`.
 - Command palette command: `Knowledge Library: Simulate migration`.
 - Command palette command: `Knowledge Library: Create migration backup`.
@@ -63,8 +69,8 @@ KnowledgeLibrary v6 installs side by side under plugin id and folder `knowledge-
 - Command palette command: `Knowledge Library: Analyze tags`.
 - Command palette command: `Knowledge Library: Consolidate tag aliases`.
 - Command palette command: `Knowledge Library: Repair YouTube thumbnails`.
-- Status bar: `KL 6.2.0`.
-- Polished native library view with responsive toolbar, search, tags, collections, priority, progress filters, sorting, card grid, note/resource actions, quick progress edits, and favorite/completed toggles.
+- Status bar: `KL 6.3.0`.
+- Polished native library view with responsive toolbar, unified source/vault/role filters, search, tags, collections, priority, progress filters, sorting, card grid, note/resource actions, external-open actions, quick progress edits, and favorite/completed toggles.
 - Read-only migration analysis and simulation commands for existing vault compatibility.
 - Confirmed safe write workflows for migration backup, migration apply, tag consolidation, and YouTube thumbnail repair.
 - Specialized Add Resource wizard for YouTube, websites, PDFs, books, PowerPoint, Word/Text documents, Markdown, images, scripts, skills, archives, and other resources, all using the shared creation pipeline.
@@ -72,10 +78,16 @@ KnowledgeLibrary v6 installs side by side under plugin id and folder `knowledge-
   - Library folder: `01 - Biblioteca`
   - Resources folder: `01 - Biblioteca/Recursos`
 - Markdown resource notes with YAML frontmatter for resource identity, tags, collections, progress, priority, relationships, and provider metadata.
+- Read-only multi-vault connectors and a unified metadata index for resource, conversation, and document vaults.
 
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md)
+- [Multi-Vault](docs/MULTI_VAULT.md)
+- [Connectors](docs/CONNECTORS.md)
+- [Unified Index](docs/UNIFIED_INDEX.md)
+- [Unified Search](docs/UNIFIED_SEARCH.md)
+- [Privacy](docs/PRIVACY.md)
 - [Resource Model](docs/RESOURCE_MODEL.md)
 - [Providers](docs/PROVIDERS.md)
 - [Storage](docs/STORAGE.md)

@@ -1,6 +1,7 @@
 import { ItemView, Notice, TFile, WorkspaceLeaf } from "obsidian";
 import { KNOWLEDGE_LIBRARY_VIEW_TYPE } from "../core/viewTypes";
 import { KnowledgeResource } from "../models/KnowledgeResource";
+import { UnifiedIndexEntry } from "../models/VaultConnector";
 import KnowledgeLibraryPlugin from "../main";
 import { FileResourceService, formatFileSize } from "../services/FileResourceService";
 import { StoredResource } from "../services/VaultResourceRepository";
@@ -11,6 +12,9 @@ interface LibraryFilters {
   type: string;
   tag: string;
   status: string;
+  source: string;
+  vault: string;
+  role: string;
   collection: string;
   priority: string;
   progress: string;
@@ -25,6 +29,9 @@ const INITIAL_FILTERS: LibraryFilters = {
   type: "all",
   tag: "all",
   status: "all",
+  source: "all",
+  vault: "all",
+  role: "all",
   collection: "all",
   priority: "all",
   progress: "all",
@@ -37,6 +44,8 @@ const INITIAL_FILTERS: LibraryFilters = {
 export class KnowledgeLibraryView extends ItemView {
   private filters: LibraryFilters = { ...INITIAL_FILTERS };
   private resources: StoredResource[] = [];
+  private unifiedEntries: UnifiedIndexEntry[] = [];
+  private unavailableConnectorCount = 0;
   private gridElement: HTMLElement | null = null;
   private countElement: HTMLElement | null = null;
 
@@ -63,6 +72,9 @@ export class KnowledgeLibraryView extends ItemView {
   async refresh(): Promise<void> {
     try {
       this.resources = await this.plugin.resourceRepository.list();
+      const index = await this.plugin.unifiedIndexService.load();
+      this.unifiedEntries = index?.entries.filter((entry) => entry.origin === "external") ?? [];
+      this.unavailableConnectorCount = index?.connector_statuses.filter((status) => status.connector.enabled && !status.available).length ?? 0;
       this.renderCards();
     } catch (error) {
       new Notice(error instanceof Error ? error.message : "Unable to refresh Knowledge Library.");
@@ -95,7 +107,19 @@ export class KnowledgeLibraryView extends ItemView {
       this.renderCards();
     });
 
-    this.createSelect(filterGroup, "Type", ["all", "youtube", "website", "pdf", "powerpoint", "document", "book", "markdown", "image", "script", "skill", "archive", "file", "other"], (value) => {
+    this.createSelect(filterGroup, "Source", () => ["all", "Active vault", ...this.getAllConnectors()], (value) => {
+      this.filters.source = value;
+      this.renderCards();
+    });
+    this.createSelect(filterGroup, "Vault", () => ["all", ...this.getAllVaults()], (value) => {
+      this.filters.vault = value;
+      this.renderCards();
+    });
+    this.createSelect(filterGroup, "Role", () => ["all", ...this.getAllRoles()], (value) => {
+      this.filters.role = value;
+      this.renderCards();
+    });
+    this.createSelect(filterGroup, "Type", () => ["all", ...this.getAllTypes()], (value) => {
       this.filters.type = value;
       this.renderCards();
     });
@@ -174,11 +198,17 @@ export class KnowledgeLibraryView extends ItemView {
     }
 
     const filtered = this.getFilteredResources();
-    this.countElement.setText(`${filtered.length} item${filtered.length === 1 ? "" : "s"}`);
+    const external = this.getFilteredExternalEntries();
+    const total = filtered.length + external.length;
+    const connectorWarning = this.unavailableConnectorCount > 0 ? ` | ${this.unavailableConnectorCount} connector${this.unavailableConnectorCount === 1 ? "" : "s"} unavailable` : "";
+    this.countElement.setText(`${total} item${total === 1 ? "" : "s"}${connectorWarning}`);
     this.gridElement.empty();
 
     for (const item of filtered) {
       this.renderCard(this.gridElement, item);
+    }
+    for (const entry of external) {
+      this.renderExternalCard(this.gridElement, entry);
     }
   }
 
@@ -190,6 +220,9 @@ export class KnowledgeLibraryView extends ItemView {
     return this.resources
       .filter(({ resource }) => {
         const matchesSearch = !search || [resource.title, resource.creator, resource.source, resource.url, resource.filePath].some((value) => value?.toLowerCase().includes(search));
+        const matchesSource = this.filters.source === "all" || this.filters.source === "Active vault";
+        const matchesVault = this.filters.vault === "all" || this.filters.vault === "Active vault";
+        const matchesRole = this.filters.role === "all" || this.filters.role === "active";
         const matchesType = this.filters.type === "all" || resource.type === this.filters.type;
         const resourceTags = this.plugin.tagService.normalizeTags(resource.tags);
         const matchesTag = selectedTag === "all" || resourceTags.includes(selectedTag);
@@ -205,7 +238,7 @@ export class KnowledgeLibraryView extends ItemView {
         const matchesFavorite = !this.filters.favoritesOnly || resource.favorite;
         const matchesCompleted = !this.filters.completedOnly || resource.completed;
         const matchesMissing = !this.filters.missingOnly || this.isMissingFile(resource);
-        return matchesSearch && matchesType && matchesTag && matchesCollection && matchesPriority && matchesProgress && matchesStatus && matchesFavorite && matchesCompleted && matchesMissing;
+        return matchesSearch && matchesSource && matchesVault && matchesRole && matchesType && matchesTag && matchesCollection && matchesPriority && matchesProgress && matchesStatus && matchesFavorite && matchesCompleted && matchesMissing;
       })
       .sort((left, right) => {
         if (this.filters.sort === "title") {
@@ -226,6 +259,31 @@ export class KnowledgeLibraryView extends ItemView {
       });
   }
 
+
+  private getFilteredExternalEntries(): UnifiedIndexEntry[] {
+    const search = this.filters.search.trim().toLowerCase();
+    const selectedTag = this.filters.tag === "all" ? "all" : this.plugin.tagService.normalizeTags([this.filters.tag])[0];
+    const selectedCollection = this.filters.collection === "all" ? "all" : this.plugin.collectionService.normalizeCollectionName(this.filters.collection).toLowerCase();
+
+    return this.unifiedEntries.filter((entry) => {
+      const matchesSearch = !search || [entry.title, entry.creator, entry.connector_name, entry.vault_name, entry.source_platform, entry.excerpt, entry.path].some((value) => value?.toLowerCase().includes(search));
+      const matchesSource = this.filters.source === "all" || entry.connector_name === this.filters.source;
+      const matchesVault = this.filters.vault === "all" || entry.vault_name === this.filters.vault;
+      const matchesRole = this.filters.role === "all" || entry.role === this.filters.role;
+      const matchesType = this.filters.type === "all" || entry.type === this.filters.type;
+      const matchesTag = selectedTag === "all" || entry.tags.includes(selectedTag);
+      const matchesCollection = selectedCollection === "all" || entry.collections.some((collection) => collection.toLowerCase() === selectedCollection);
+      const progress = entry.progress ?? (entry.completed ? 100 : 0);
+      const matchesPriority = this.filters.priority === "all" || (entry.priority ?? "normal") === this.filters.priority;
+      const matchesProgress = this.filters.progress === "all"
+        || (this.filters.progress === "not started" && progress <= 0)
+        || (this.filters.progress === "in progress" && progress > 0 && progress < 100)
+        || (this.filters.progress === "completed" && (entry.completed || progress >= 100));
+      const matchesFavorite = !this.filters.favoritesOnly || entry.favorite;
+      const matchesCompleted = !this.filters.completedOnly || entry.completed;
+      return matchesSearch && matchesSource && matchesVault && matchesRole && matchesType && matchesTag && matchesCollection && matchesPriority && matchesProgress && matchesFavorite && matchesCompleted && !this.filters.missingOnly;
+    });
+  }
   private renderCard(parent: HTMLElement, item: StoredResource): void {
     const { resource } = item;
     const card = parent.createDiv({ cls: `knowledge-library-card is-${resource.type}`, attr: { "data-resource-type": resource.type } });
@@ -281,6 +339,34 @@ export class KnowledgeLibraryView extends ItemView {
       return `${resource.current_position}/${resource.total_units} ${resource.progress_unit ?? "units"} (${progress}%)`;
     }
     return `${progress}%`;
+  }
+
+  private renderExternalCard(parent: HTMLElement, entry: UnifiedIndexEntry): void {
+    const card = parent.createDiv({ cls: `knowledge-library-card is-${entry.type} is-external`, attr: { "data-resource-type": entry.type, "data-connector-id": entry.connector_id } });
+    card.createDiv({ cls: "knowledge-library-card-media" }).createDiv({ text: "EXT", cls: "knowledge-library-placeholder" });
+    const body = card.createDiv({ cls: "knowledge-library-card-body" });
+    const badgeRow = body.createDiv({ cls: "knowledge-library-card-badge-row" });
+    badgeRow.createSpan({ text: entry.type.toUpperCase(), cls: "knowledge-library-type-badge" });
+    badgeRow.createSpan({ text: entry.connector_name, cls: "knowledge-library-source-badge" });
+    badgeRow.createSpan({ text: "External", cls: "knowledge-library-external-badge" });
+    body.createEl("h3", { text: entry.title, attr: { title: entry.title } });
+    body.createDiv({ text: `${entry.vault_name} | ${entry.role} | ${entry.path}`, cls: "knowledge-library-card-meta" });
+    body.createDiv({ text: entry.excerpt, cls: "knowledge-library-card-meta" });
+    const collections = this.plugin.collectionService.normalizeCollections(entry.collections);
+    if (collections.length > 0) {
+      const row = body.createDiv({ cls: "knowledge-library-collection-badges" });
+      for (const collection of collections) row.createSpan({ text: collection, cls: "knowledge-library-collection-badge" });
+    }
+    const actions = card.createDiv({ cls: "knowledge-library-card-actions" });
+    this.createActionButton(actions, "Open external", `Open external resource ${entry.title}`, () => this.openExternalEntry(entry));
+  }
+
+  private openExternalEntry(entry: UnifiedIndexEntry): void {
+    if (entry.open_uri.startsWith("obsidian://")) {
+      window.open(entry.open_uri, "_blank");
+      return;
+    }
+    new Notice(entry.open_uri || entry.path);
   }
   private renderMedia(parent: HTMLElement, resource: KnowledgeResource): void {
     const imageSource = getVaultImageCardSource(resource, this.app);
@@ -444,11 +530,48 @@ export class KnowledgeLibraryView extends ItemView {
     await this.refresh();
   }
   private getAllTags(): string[] {
-    return this.plugin.tagService.normalizeTags(this.resources.flatMap((item) => item.resource.tags)).sort();
+    return this.plugin.tagService.normalizeTags([
+      ...this.resources.flatMap((item) => item.resource.tags),
+      ...this.unifiedEntries.flatMap((entry) => entry.tags)
+    ]).sort();
   }
 
   private getAllCollections(): string[] {
-    return this.plugin.collectionService.normalizeCollections(this.resources.flatMap((item) => item.resource.collections ?? []));
+    return this.plugin.collectionService.normalizeCollections([
+      ...this.resources.flatMap((item) => item.resource.collections ?? []),
+      ...this.unifiedEntries.flatMap((entry) => entry.collections)
+    ]);
+  }
+
+  private getAllConnectors(): string[] {
+    return Array.from(new Set(this.unifiedEntries.map((entry) => entry.connector_name))).sort();
+  }
+
+  private getAllVaults(): string[] {
+    return Array.from(new Set(["Active vault", ...this.unifiedEntries.map((entry) => entry.vault_name)])).sort();
+  }
+
+  private getAllRoles(): string[] {
+    return Array.from(new Set(["active", ...this.unifiedEntries.map((entry) => String(entry.role))])).sort();
+  }
+
+  private getAllTypes(): string[] {
+    return Array.from(new Set([
+      "youtube",
+      "website",
+      "pdf",
+      "powerpoint",
+      "document",
+      "book",
+      "markdown",
+      "image",
+      "script",
+      "skill",
+      "archive",
+      "file",
+      "other",
+      ...this.unifiedEntries.map((entry) => entry.type)
+    ])).sort();
   }
 }
 

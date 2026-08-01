@@ -2,6 +2,7 @@ import { ItemView, Notice, WorkspaceLeaf } from "obsidian";
 import { KNOWLEDGE_DASHBOARD_VIEW_TYPE } from "../core/viewTypes";
 import KnowledgeLibraryPlugin from "../main";
 import { CollectionService } from "../services/CollectionService";
+import { ConnectorStatus } from "../models/VaultConnector";
 import { StoredResource } from "../services/VaultResourceRepository";
 import { FileResourceService } from "../services/FileResourceService";
 
@@ -17,6 +18,10 @@ export interface DashboardStats {
   missingFiles: number;
   recentlyAdded: StoredResource[];
   recentlyUpdated: StoredResource[];
+  connectorStatuses?: ConnectorStatus[];
+  byRole?: Record<string, number>;
+  byVault?: Record<string, number>;
+  byPlatform?: Record<string, number>;
 }
 
 export class KnowledgeDashboardView extends ItemView {
@@ -63,6 +68,10 @@ export class KnowledgeDashboardView extends ItemView {
     this.metric(grid, "Missing files", stats.missingFiles);
     this.section("By type", stats.byType);
     this.section("By collection", stats.byCollection);
+    this.section("By role", stats.byRole ?? {});
+    this.section("By vault", stats.byVault ?? {});
+    this.section("By platform", stats.byPlatform ?? {});
+    this.connectorStatusSection(stats.connectorStatuses ?? []);
     this.resourceList("Recently added", stats.recentlyAdded);
     this.resourceList("Recently updated", stats.recentlyUpdated);
   }
@@ -81,6 +90,24 @@ export class KnowledgeDashboardView extends ItemView {
     }
   }
 
+
+  private connectorStatusSection(statuses: ConnectorStatus[]): void {
+    this.contentEl.createEl("h3", { text: "Connector status" });
+    const list = this.contentEl.createDiv({ cls: "knowledge-library-management-list" });
+    for (const status of statuses) {
+      const row = list.createDiv({ cls: "knowledge-library-connector-status-row" });
+      row.createDiv({ text: status.connector.displayName, cls: "knowledge-library-management-name" });
+      row.createDiv({ text: status.available ? "Available" : "Unavailable", cls: "knowledge-library-card-meta" });
+      row.createDiv({ text: `${status.indexedItemCount} indexed`, cls: "knowledge-library-card-meta" });
+      row.createDiv({ text: status.lastScanAt ?? "Never scanned", cls: "knowledge-library-card-meta" });
+      row.createDiv({ text: status.error ?? "", cls: "knowledge-library-card-meta" });
+    }
+    const actions = this.contentEl.createDiv({ cls: "knowledge-library-view-actions" });
+    const refresh = actions.createEl("button", { text: "Refresh connectors", cls: "knowledge-library-button", attr: { "aria-label": "Refresh connectors", title: "Refresh connectors" } });
+    refresh.addEventListener("click", () => void this.plugin.refreshUnifiedIndex().then(() => this.refresh()));
+    const rebuild = actions.createEl("button", { text: "Rebuild all", cls: "knowledge-library-button", attr: { "aria-label": "Rebuild unified index", title: "Rebuild unified index" } });
+    rebuild.addEventListener("click", () => void this.plugin.rebuildUnifiedIndex().then(() => this.refresh()));
+  }
   private resourceList(title: string, resources: StoredResource[]): void {
     this.contentEl.createEl("h3", { text: title });
     const list = this.contentEl.createEl("ul", { cls: "knowledge-library-dashboard-list" });

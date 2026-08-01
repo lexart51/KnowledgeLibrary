@@ -5,7 +5,8 @@
 - [x] Polish KnowledgeLibrary v6 UI/UX for `6.0.0-rc.1`.
 - [x] Implement specialized Add Resource forms for `6.1.0`.
 - [x] Add collections, progress tracking, relationships, and dashboard for `6.2.0`.
-- [ ] Install 6.2.0 into the YouTubes vault for controlled manual testing.
+- [x] Add read-only multi-vault connectors and unified index for `6.3.0`.
+- [ ] Install 6.3.0 into the YouTubes vault for controlled manual testing.
 - [ ] Validate migration dry-run output against the production dataset.
 - [ ] Apply migration only after reviewed backup and simulation reports.
 

@@ -5,6 +5,7 @@ import { KNOWLEDGE_DASHBOARD_VIEW_TYPE, KNOWLEDGE_LIBRARY_VIEW_TYPE } from "./co
 import { AddResourceRequest, AddResourceResult, AddResourceService } from "./services/AddResourceService";
 import { MigrationService } from "./services/MigrationService";
 import { CollectionService } from "./services/CollectionService";
+import { UnifiedIndexService } from "./services/UnifiedIndexService";
 import { RelationshipService } from "./services/RelationshipService";
 import { SafeMigrationService, TagConsolidationService, ThumbnailRepairService } from "./services/MaintenanceServices";
 import { ResourceService } from "./services/ResourceService";
@@ -17,6 +18,8 @@ import { KnowledgeLibraryView } from "./ui/KnowledgeLibraryView";
 import { KnowledgeDashboardView } from "./ui/KnowledgeDashboardView";
 import { CollectionManagementModal } from "./ui/CollectionManagementModal";
 import { ResourceEditorModal } from "./ui/ResourceEditorModal";
+import { VaultConnectorManagementModal } from "./ui/VaultConnectorManagementModal";
+import { UnifiedSearchModal } from "./ui/UnifiedSearchModal";
 import { RibbonService } from "./ui/RibbonService";
 import { StatusBarService } from "./ui/StatusBarService";
 
@@ -33,6 +36,7 @@ export default class KnowledgeLibraryPlugin extends Plugin {
   thumbnailRepairService!: ThumbnailRepairService;
   collectionService!: CollectionService;
   relationshipService!: RelationshipService;
+  unifiedIndexService!: UnifiedIndexService;
   private ribbonService!: RibbonService;
   private statusBarService!: StatusBarService;
 
@@ -65,6 +69,21 @@ export default class KnowledgeLibraryPlugin extends Plugin {
   }
 
 
+  openVaultConnectorsManager(): void {
+    new VaultConnectorManagementModal(this.app, this).open();
+  }
+
+  openUnifiedSearch(): void {
+    new UnifiedSearchModal(this.app, this).open();
+  }
+
+  async refreshUnifiedIndex(): Promise<void> {
+    await this.unifiedIndexService.refresh();
+  }
+
+  async rebuildUnifiedIndex(): Promise<void> {
+    await this.unifiedIndexService.rebuild();
+  }
   openCollectionsManager(): void {
     new CollectionManagementModal(this.app, this.resourceRepository, this.collectionService, () => this.refreshLibraryViews()).open();
   }
@@ -130,14 +149,18 @@ export default class KnowledgeLibraryPlugin extends Plugin {
   }
 
   async loadSettings(): Promise<void> {
+    const data = (await this.loadData()) as Record<string, unknown> | null;
+    const settingsData = { ...(data ?? {}) };
+    delete settingsData.unifiedKnowledgeIndex;
     this.settings = {
       ...DEFAULT_SETTINGS,
-      ...(await this.loadData())
-    };
+      ...settingsData
+    } as typeof this.settings;
   }
 
   async saveSettings(): Promise<void> {
-    await this.saveData(this.settings);
+    const data = (await this.loadData()) as Record<string, unknown> | null;
+    await this.saveData({ ...(data ?? {}), ...this.settings });
     this.initializeServices();
   }
 
@@ -146,6 +169,7 @@ export default class KnowledgeLibraryPlugin extends Plugin {
     this.relationshipService = new RelationshipService();
     this.resourceRepository = new VaultResourceRepository(this.app, this.settings, undefined, undefined, this.tagService, this.collectionService);
     this.addResourceService = new AddResourceService(this.app, this.settings, this.resourceService, this.resourceRepository, this.tagService);
+    this.unifiedIndexService = new UnifiedIndexService(this, undefined, undefined, this.tagService, this.collectionService);
     this.migrationService = new MigrationService(this.app);
     this.safeMigrationService = new SafeMigrationService(this.app, this.settings, this.migrationService, this.tagService);
     this.tagConsolidationService = new TagConsolidationService(this.app, this.tagService);

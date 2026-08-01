@@ -1,6 +1,6 @@
 # TODO
 
-- Deploy KnowledgeLibrary 6.2.0 into the YouTubes vault only after confirming the target path.
+- Deploy KnowledgeLibrary 6.3.0 into the YouTubes vault only after confirming the target path.
 - Run migration analysis and review generated counts in Obsidian.
 - Create migration backup before any apply operation.
 - Add richer provider metadata extraction.
@@ -39,3 +39,10 @@
 - Added collections, progress tracking, priority, resource relationships, and dashboard.
 - Added collection management and selected-resource editing commands.
 - Added regression coverage for new organization and tracking services.
+
+
+## Completed in 6.3.0
+
+- Added read-only multi-vault connectors and connector management.
+- Added unified metadata index, unified search, source/vault/role filtering, and connector dashboard status.
+- Added privacy and connector documentation.

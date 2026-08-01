@@ -1,5 +1,6 @@
 import { DEFAULT_ALLOWED_FILE_EXTENSIONS, DEFAULT_EXCLUDED_FILE_FOLDERS } from "../services/FileResourceService";
 import { KnowledgeResourceType } from "../models/KnowledgeResource";
+import { VaultConnector } from "../models/VaultConnector";
 
 export interface KnowledgeLibraryPluginSettings {
   versionLabel: string;
@@ -13,10 +14,67 @@ export interface KnowledgeLibraryPluginSettings {
   showFileSizeOnCards: boolean;
   enableDragAndDrop: boolean;
   defaultUnknownFileType: KnowledgeResourceType;
+  vaultConnectors: VaultConnector[];
 }
 
+export const DEFAULT_VAULT_CONNECTORS: VaultConnector[] = [
+  {
+    id: "youtube-resources",
+    displayName: "YouTubes",
+    role: "resources",
+    windowsPath: "D:/Dropbox/Cursos Livros Instrucoes/YouTubes",
+    linuxPath: "",
+    vaultName: "YouTubes",
+    enabled: false,
+    includePatterns: ["**/*.md"],
+    excludePatterns: [],
+    preferredNoteType: "resource",
+    icon: "library",
+    colorToken: "var(--interactive-accent)",
+    defaultCollections: ["Knowledge Resources"],
+    enableDefaultCollections: false,
+    lastScanAt: null,
+    lastError: null
+  },
+  {
+    id: "conversation-archive",
+    displayName: "Obsidian_Vault",
+    role: "conversations",
+    windowsPath: "D:/Dropbox/Obsidian_Vault",
+    linuxPath: "",
+    vaultName: "Obsidian_Vault",
+    enabled: false,
+    includePatterns: ["**/*.md"],
+    excludePatterns: [],
+    preferredNoteType: "conversation",
+    icon: "messages-square",
+    colorToken: "var(--text-accent)",
+    defaultCollections: ["Conversation Archive"],
+    enableDefaultCollections: false,
+    lastScanAt: null,
+    lastError: null
+  },
+  {
+    id: "document-archive",
+    displayName: "_Docs",
+    role: "documents",
+    windowsPath: "D:/Dropbox/_Docs",
+    linuxPath: "",
+    vaultName: "_Docs",
+    enabled: false,
+    includePatterns: ["**/*.md", "**/*.pdf", "**/*.docx", "**/*.pptx", "**/*.txt"],
+    excludePatterns: [],
+    preferredNoteType: "document",
+    icon: "files",
+    colorToken: "var(--text-muted)",
+    defaultCollections: ["Document Archive"],
+    enableDefaultCollections: false,
+    lastScanAt: null,
+    lastError: null
+  }
+];
 export const DEFAULT_SETTINGS: KnowledgeLibraryPluginSettings = {
-  versionLabel: "KL 6.2.0",
+  versionLabel: "KL 6.3.0",
   libraryFolder: "01 - Biblioteca",
   resourcesFolder: "01 - Biblioteca/Recursos",
   includeLegacyNotes: true,
@@ -26,5 +84,6 @@ export const DEFAULT_SETTINGS: KnowledgeLibraryPluginSettings = {
   excludedFileFolders: DEFAULT_EXCLUDED_FILE_FOLDERS,
   showFileSizeOnCards: true,
   enableDragAndDrop: true,
-  defaultUnknownFileType: "other"
+  defaultUnknownFileType: "other",
+  vaultConnectors: DEFAULT_VAULT_CONNECTORS
 };

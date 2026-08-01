@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting } from "obsidian";
+import { App, Notice, PluginSettingTab, Setting } from "obsidian";
 import KnowledgeLibraryPlugin from "../main";
 import { DEFAULT_ALLOWED_FILE_EXTENSIONS, DEFAULT_EXCLUDED_FILE_FOLDERS } from "../services/FileResourceService";
 
@@ -118,6 +118,42 @@ export class KnowledgeLibrarySettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         }));
 
+    this.createGroup(containerEl, "Vault connectors", "Configure read-only external vault connectors for the unified knowledge index. Removing a connector only removes configuration.");
+
+    new Setting(containerEl)
+      .setName("Manage vault connectors")
+      .setDesc("Add, edit, enable, disable, test, and remove connector configurations without modifying external vaults.")
+      .addButton((button) => button
+        .setButtonText("Manage")
+        .onClick(() => this.plugin.openVaultConnectorsManager()));
+
+    new Setting(containerEl)
+      .setName("Test vault connectors")
+      .setDesc("Checks configured connector paths and reports missing, offline, or inaccessible folders.")
+      .addButton((button) => button
+        .setButtonText("Test")
+        .onClick(async () => {
+          const index = await this.plugin.unifiedIndexService.rebuild();
+          const available = index.connector_statuses.filter((status) => status.available).length;
+          new Notice(`${available}/${index.connector_statuses.length} connectors available.`);
+        }));
+
+    new Setting(containerEl)
+      .setName("Connector JSON")
+      .setDesc("Advanced connector configuration. External vault content remains read-only.")
+      .addTextArea((text) => text
+        .setValue(JSON.stringify(this.plugin.settings.vaultConnectors, null, 2))
+        .onChange(async (value) => {
+          try {
+            const parsed = JSON.parse(value) as unknown;
+            if (Array.isArray(parsed)) {
+              this.plugin.settings.vaultConnectors = parsed as typeof this.plugin.settings.vaultConnectors;
+              await this.plugin.saveSettings();
+            }
+          } catch {
+            // Keep invalid partial JSON in the control without saving it.
+          }
+        }));
     this.createGroup(containerEl, "Display", "Adjust visual density and card details in the library view.");
 
     new Setting(containerEl)

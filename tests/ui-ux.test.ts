@@ -192,6 +192,28 @@ describe("UI/UX regression contracts", () => {
     expect(commands).toContain("Knowledge Library: Open Dashboard");
     expect(dashboard).toContain("calculateDashboardStats");
   });
+  it("declares 6.3 unified connector UI hooks", () => {
+    const view = source("src/ui/KnowledgeLibraryView.ts");
+    const commands = source("src/commands/libraryCommands.ts");
+    const dashboard = source("src/ui/KnowledgeDashboardView.ts");
+    const settings = source("src/ui/KnowledgeLibrarySettingTab.ts");
+    const css = source("src/styles.css");
+
+    expect(view).toContain('this.createSelect(filterGroup, "Source"');
+    expect(view).toContain('this.createSelect(filterGroup, "Vault"');
+    expect(view).toContain('this.createSelect(filterGroup, "Role"');
+    expect(view).toContain("knowledge-library-source-badge");
+    expect(view).toContain("knowledge-library-external-badge");
+    expect(view).toContain("getFilteredExternalEntries");
+    expect(commands).toContain("Knowledge Library: Manage vault connectors");
+    expect(commands).toContain("Knowledge Library: Search all connected vaults");
+    expect(commands).toContain("Knowledge Library: Rebuild unified index");
+    expect(dashboard).toContain("connectorStatusSection");
+    expect(settings).toContain("Vault connectors");
+    expect(css).toContain(".knowledge-library-card.is-external");
+    expect(css).toContain(".knowledge-library-connectors-modal");
+    expect(css).toContain(".knowledge-library-unified-search-modal");
+  });
   it("groups settings into expected sections", () => {
     const settings = source("src/ui/KnowledgeLibrarySettingTab.ts");
 

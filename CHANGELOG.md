@@ -4,6 +4,16 @@
 
 - No unreleased changes.
 
+## 6.3.0
+
+- Added disabled example multi-vault connector configuration for resource, conversation, and document vaults.
+- Added read-only connector services, path availability checks, resource/conversation/document connector providers, and Obsidian URI generation.
+- Added unified index and search services that combine active-vault resources with external metadata references while tolerating connector failures.
+- Extended the library with source, vault, and role filters plus external resource cards and open actions.
+- Extended the dashboard with connector status, indexed counts, errors, role/vault/platform counts, and refresh/rebuild actions.
+- Added connector management settings and commands for managing, testing, refreshing, rebuilding, searching, and opening the unified dashboard.
+- Added multi-vault, connectors, unified index, unified search, and privacy documentation.
+- Updated plugin metadata and status bar label to `6.3.0`.
 ## 6.2.0
 
 - Added optional resource frontmatter for collections, progress tracking, priority, and typed related-resource relationships.

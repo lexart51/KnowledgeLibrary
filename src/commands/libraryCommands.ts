@@ -36,6 +36,55 @@ export function registerLibraryCommands(plugin: KnowledgeLibraryPlugin): void {
       });
     }
   });
+  plugin.addCommand({
+    id: "manage-vault-connectors",
+    name: "Knowledge Library: Manage vault connectors",
+    callback: () => plugin.openVaultConnectorsManager()
+  });
+
+  plugin.addCommand({
+    id: "test-vault-connectors",
+    name: "Knowledge Library: Test vault connectors",
+    callback: () => {
+      void plugin.unifiedIndexService.rebuild().then((index) => {
+        const enabled = index.connector_statuses.filter((status) => status.connector.enabled).length;
+        const available = index.connector_statuses.filter((status) => status.connector.enabled && status.available).length;
+        new Notice(`${available}/${enabled} enabled vault connectors available.`);
+      }).catch((error) => new Notice(error instanceof Error ? error.message : "Unable to test vault connectors."));
+    }
+  });
+
+  plugin.addCommand({
+    id: "refresh-unified-index",
+    name: "Knowledge Library: Refresh unified index",
+    callback: () => {
+      void plugin.refreshUnifiedIndex().then(() => plugin.refreshLibraryViews()).catch((error) => new Notice(error instanceof Error ? error.message : "Unable to refresh unified index."));
+    }
+  });
+
+  plugin.addCommand({
+    id: "rebuild-unified-index",
+    name: "Knowledge Library: Rebuild unified index",
+    callback: () => {
+      void plugin.rebuildUnifiedIndex().then(() => plugin.refreshLibraryViews()).catch((error) => new Notice(error instanceof Error ? error.message : "Unable to rebuild unified index."));
+    }
+  });
+
+  plugin.addCommand({
+    id: "search-connected-vaults",
+    name: "Knowledge Library: Search all connected vaults",
+    callback: () => plugin.openUnifiedSearch()
+  });
+
+  plugin.addCommand({
+    id: "open-unified-dashboard",
+    name: "Knowledge Library: Open unified dashboard",
+    callback: () => {
+      void plugin.openDashboardView().catch((error) => {
+        new Notice(error instanceof Error ? error.message : "Unable to open unified dashboard.");
+      });
+    }
+  });
 
   plugin.addCommand({
     id: "analyze-existing-vault",

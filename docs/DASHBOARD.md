@@ -1,8 +1,8 @@
 # Dashboard
 
-KnowledgeLibrary 6.2.0 adds a lightweight dashboard opened with `Knowledge Library: Open Dashboard`.
+KnowledgeLibrary 6.2.0 added a lightweight dashboard opened with `Knowledge Library: Open Dashboard`. KnowledgeLibrary 6.3.0 extends the same dashboard for the unified knowledge ecosystem.
 
-The dashboard reads existing vault resource notes only. It does not call AI services, fetch external metadata, or write data.
+The dashboard reads existing active-vault resource notes and cached unified-index metadata. It does not call AI services, fetch external metadata, write to external vaults, or cache full conversation/document contents.
 
 ## Metrics
 
@@ -19,3 +19,19 @@ The dashboard shows:
 - missing files
 - recently added resources
 - recently updated resources
+
+## Connector Status
+
+When a unified index exists, the dashboard also shows:
+
+- connector availability
+- indexed item count per connector
+- last successful scan
+- connector errors
+- counts by role
+- counts by vault
+- counts by conversation platform
+- refresh connector action
+- rebuild all action
+
+Unavailable Dropbox-synced or disconnected vault paths are shown as unavailable without blocking counts for available connectors.
