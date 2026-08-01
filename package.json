@@ -1,0 +1,25 @@
+{
+  "name": "knowledge-library",
+  "version": "6.0.0-alpha",
+  "description": "KnowledgeLibrary v6 Obsidian plugin.",
+  "main": "main.js",
+  "scripts": {
+    "build": "node esbuild.config.mjs production",
+    "dev": "node esbuild.config.mjs"
+  },
+  "keywords": [
+    "obsidian",
+    "obsidian-plugin",
+    "knowledge-management"
+  ],
+  "author": "KnowledgeLibrary",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^24.1.0",
+    "builtin-modules": "^5.0.0",
+    "esbuild": "^0.25.8",
+    "obsidian": "^1.8.7",
+    "tslib": "^2.8.1",
+    "typescript": "^5.8.3"
+  }
+}
