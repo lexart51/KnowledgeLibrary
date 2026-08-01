@@ -30,7 +30,7 @@ export interface PluginConfigurationExport {
 }
 
 export const CURRENT_STATE_VERSION = 1;
-export const CURRENT_PLUGIN_VERSION = "6.5.0-alpha.2";
+export const CURRENT_PLUGIN_VERSION = "6.5.0-alpha.3";
 export const CURRENT_VERSION_LABEL = `KL ${CURRENT_PLUGIN_VERSION}`;
 
 export class PluginStateManager {

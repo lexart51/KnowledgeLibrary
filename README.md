@@ -4,7 +4,7 @@ KnowledgeLibrary is a professional Obsidian plugin for unified personal knowledg
 
 ## Status
 
-`6.5.0-alpha.1`
+`6.5.0-alpha.3`
 
 ## Development
 
@@ -52,6 +52,7 @@ KnowledgeLibrary v6 installs side by side under plugin id and folder `knowledge-
 
 - Ribbon icon: opens the configured default startup page, which defaults to Knowledge Library Home.
 - Command palette command: `Knowledge Library: Home`.
+- Command palette command: `Knowledge Library: Open topic page`.
 - Command palette command: `Knowledge Library: Open Library`.
 - Command palette command: `Knowledge Library: Add Resource`.
 - Command palette command: `Knowledge Library: Manage collections`.
@@ -66,8 +67,8 @@ KnowledgeLibrary v6 installs side by side under plugin id and folder `knowledge-
 - Command palette command: `Knowledge Library: Open universal search`.
 - Command palette command: `Knowledge Library: Save current search`.
 - Command palette command: `Knowledge Library: Manage saved searches`.
-- Knowledge Navigator Home with search-first navigation, Continue Learning, recent activity, recent resources/conversations/documents, favorite collections, and most-used tags.
-- Universal Knowledge Search with source-aware ranking, query filters, keyboard navigation, grouped display modes, duplicate suppression, and saved searches.
+- Knowledge Navigator Home with search-first navigation, Continue Learning, recent activity, recent resources/conversations/documents, Popular Topics, favorite collections, and most-used tags.
+- Universal Knowledge Search with source-aware ranking, query filters, keyboard navigation, Topic results, grouped display modes, duplicate suppression, and saved searches.
 - Command palette command: `Knowledge Library: Analyze existing vault`.
 - Command palette command: `Knowledge Library: Simulate migration`.
 - Command palette command: `Knowledge Library: Create migration backup`.
@@ -82,7 +83,7 @@ KnowledgeLibrary v6 installs side by side under plugin id and folder `knowledge-
 - Command palette command: `Knowledge Library: Restore plugin state`.
 - Maintenance-safe deployment updates only `main.js`, `manifest.json`, and `styles.css`, preserving plugin state.
 - Command palette command: `Knowledge Library: Repair YouTube thumbnails`.
-- Status bar: `KL 6.4.1`.
+- Status bar: `KL 6.5.0-alpha.3`.
 - Polished native library view with responsive toolbar, unified source/vault/role filters, search, tags, collections, priority, progress filters, sorting, card grid, note/resource actions, external-open actions, quick progress edits, and favorite/completed toggles.
 - Read-only migration analysis and simulation commands for existing vault compatibility.
 - Confirmed safe write workflows for migration backup, migration apply, tag consolidation, and YouTube thumbnail repair.
@@ -92,6 +93,7 @@ KnowledgeLibrary v6 installs side by side under plugin id and folder `knowledge-
   - Resources folder: `01 - Biblioteca/Recursos`
 - Markdown resource notes with YAML frontmatter for resource identity, tags, collections, progress, priority, relationships, and provider metadata.
 - Read-only multi-vault connectors and a unified metadata index for resource, conversation, and document vaults.
+- Topic Pages for automatically discovered subjects across tags, collections, titles, aliases, relationships, and indexed metadata.
 
 ## Documentation
 
@@ -115,6 +117,9 @@ KnowledgeLibrary v6 installs side by side under plugin id and folder `knowledge-
 - [Progress](docs/PROGRESS.md)
 - [Relationships](docs/RELATIONSHIPS.md)
 - [Dashboard](docs/DASHBOARD.md)
+- [Topics](docs/TOPICS.md)
+- [Topic Discovery](docs/TOPIC_DISCOVERY.md)
+- [Related Topics](docs/RELATED_TOPICS.md)
 - [File Resources](docs/FILE_RESOURCES.md)
 - [File Picker](docs/FILE_PICKER.md)
 - [Drag And Drop](docs/DRAG_AND_DROP.md)

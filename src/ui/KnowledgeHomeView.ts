@@ -3,6 +3,7 @@ import { KNOWLEDGE_HOME_VIEW_TYPE } from "../core/viewTypes";
 import KnowledgeLibraryPlugin from "../main";
 import { UnifiedIndexEntry, UnifiedKnowledgeIndex, VaultConnectorRole } from "../models/VaultConnector";
 import { duplicateKeys } from "../services/SearchRankingService";
+import { TopicService, TopicSummary } from "../services/TopicService";
 import { StoredResource } from "../services/VaultResourceRepository";
 
 export interface HomeOverviewCounts {
@@ -78,6 +79,9 @@ export class KnowledgeHomeView extends ItemView {
     this.renderEntrySection("Recent Resources", recentByRole(entries, "resources"), "Open");
     this.renderEntrySection("Recent Conversations", recentByRole(entries, "conversations"), "Open");
     this.renderEntrySection("Recent Documents", recentByRole(entries, "documents"), "Open");
+    if (this.plugin.settings.enableTopicPages) {
+      this.renderTopicSection(popularTopics(entries, this.plugin.settings.defaultTopicSort));
+    }
     this.renderCollectionSection(favoriteCollections(entries));
     if (this.plugin.settings.homeShowTagCloud) {
       this.renderTagCloud(topTags(entries));
@@ -152,6 +156,21 @@ export class KnowledgeHomeView extends ItemView {
     }
   }
 
+
+  private renderTopicSection(topics: TopicSummary[]): void {
+    const section = this.section("Popular Topics");
+    const chips = section.createDiv({ cls: "knowledge-library-home-chip-row" });
+    if (topics.length === 0) {
+      chips.createDiv({ text: "No topics yet.", cls: "knowledge-library-empty-state" });
+      return;
+    }
+    for (const topic of topics) {
+      const chip = chips.createEl("button", { cls: "knowledge-library-home-chip", attr: { "aria-label": `Open topic ${topic.name}`, title: `Open topic ${topic.name}` } });
+      chip.createSpan({ text: topic.name });
+      chip.createSpan({ text: `${topic.entries.length} items`, cls: "knowledge-library-result-meta" });
+      chip.addEventListener("click", () => void this.plugin.openTopicPage(topic.name));
+    }
+  }
   private renderCollectionSection(collections: Array<{ name: string; count: number }>): void {
     const section = this.section("Favorite Collections");
     const chips = section.createDiv({ cls: "knowledge-library-home-chip-row" });
@@ -161,7 +180,7 @@ export class KnowledgeHomeView extends ItemView {
     }
     for (const collection of collections) {
       const chip = chips.createEl("button", { text: `${collection.name} ${collection.count}`, cls: "knowledge-library-home-chip", attr: { "aria-label": `Open collection ${collection.name}`, title: `Open collection ${collection.name}` } });
-      chip.addEventListener("click", () => void this.plugin.openLibraryView({ collection: collection.name }));
+      chip.addEventListener("click", () => void this.plugin.openTopicPage(collection.name));
     }
   }
 
@@ -174,7 +193,7 @@ export class KnowledgeHomeView extends ItemView {
     }
     for (const tag of tags) {
       const chip = cloud.createEl("button", { text: `#${tag.tag}`, cls: `knowledge-library-home-tag is-weight-${tag.weight}`, attr: { "aria-label": `Open tag ${tag.tag}`, title: `Open tag ${tag.tag}` } });
-      chip.addEventListener("click", () => void this.plugin.openLibraryView({ tag: tag.tag }));
+      chip.addEventListener("click", () => void this.plugin.openTopicPage(tag.tag));
     }
   }
 
@@ -306,6 +325,10 @@ export function favoriteCollections(entries: UnifiedIndexEntry[], limit = 8): Ar
     .map(([name, count]) => ({ name, count }));
 }
 
+
+export function popularTopics(entries: UnifiedIndexEntry[], sortMode = "popular", limit = 8): TopicSummary[] {
+  return new TopicService().popularTopics(entries, limit).sort((left, right) => sortMode === "title" ? left.name.localeCompare(right.name) : sortMode === "recent" ? (right.updated_at ?? "").localeCompare(left.updated_at ?? "") || left.name.localeCompare(right.name) : right.score - left.score || left.name.localeCompare(right.name));
+}
 function resourceToHomeEntry(item: StoredResource): UnifiedIndexEntry {
   const { resource } = item;
   return {

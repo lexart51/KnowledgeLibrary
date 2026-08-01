@@ -4,6 +4,20 @@
 
 - No unreleased changes.
 
+## 6.5.0-alpha.3
+
+- Added automatically discovered Topic Pages as the central navigation surface for subjects across resources, conversations, documents, collections, timelines, related topics, recent activity, and Continue Learning.
+- Added Topic navigation from Home Popular Topics, Library card actions, tag/collection chips, and Universal Search Topic results.
+- Added in-memory related-topic calculation from existing metadata only, with no AI, network calls, external writes, migrations, or connector architecture changes.
+- Added Topic settings for enablement, default sort, related-topic depth, and timeline length.
+- Updated plugin metadata and status bar label to `6.5.0-alpha.3`.
+
+## 6.5.0-alpha.2
+
+- Applied shared duplicate suppression to Home sections so active-vault resources and connector copies appear as one logical item.
+- Narrowed Continue Learning to explicit learning signals: partial progress, valid position, recent opens, or high-priority unfinished items.
+- Added clearer date labels and logical-item count clarification on Home.
+- Updated plugin metadata and status bar label to `6.5.0-alpha.2`.
 ## 6.5.0-alpha.1
 
 - Added `Knowledge Library: Home` as the navigation-first landing view.

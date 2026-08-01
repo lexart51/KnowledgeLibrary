@@ -4,6 +4,7 @@ import { KnowledgeResource } from "../models/KnowledgeResource";
 import { UnifiedIndexEntry } from "../models/VaultConnector";
 import KnowledgeLibraryPlugin from "../main";
 import { FileResourceService, formatFileSize } from "../services/FileResourceService";
+import { discoverTopicCandidates, primaryTopicForEntry } from "../services/TopicService";
 import { StoredResource } from "../services/VaultResourceRepository";
 import { getYouTubeThumbnailFallbacks } from "./thumbnailFallbacks";
 
@@ -318,6 +319,8 @@ export class KnowledgeLibraryView extends ItemView {
     const actions = card.createDiv({ cls: "knowledge-library-card-actions" });
     this.createActionButton(actions, "Open note", `Open note for ${resource.title}`, () => void this.openNote(item.path));
     this.createActionButton(actions, "Open resource", `Open resource ${resource.title}`, () => void this.openResource(resource));
+    const topic = this.primaryTopicForResource(resource);
+    if (topic && this.plugin.settings.enableTopicPages) this.createActionButton(actions, "Open Topic", `Open topic ${topic}`, () => void this.plugin.openTopicPage(topic));
     this.createActionButton(actions, resource.favorite ? "Unfavorite" : "Favorite", resource.favorite ? `Unfavorite ${resource.title}` : `Favorite ${resource.title}`, () => void this.toggleFavorite(item));
     this.createActionButton(actions, resource.completed ? "Mark incomplete" : "Complete", resource.completed ? `Mark ${resource.title} incomplete` : `Mark ${resource.title} complete`, () => void this.toggleCompleted(item));
     this.createActionButton(actions, "Progress", `Edit progress for ${resource.title}`, () => void this.quickEditProgress(item));
@@ -331,7 +334,8 @@ export class KnowledgeLibraryView extends ItemView {
     }
     const row = parent.createDiv({ cls: "knowledge-library-collection-badges" });
     for (const collection of collections) {
-      row.createSpan({ text: collection, cls: "knowledge-library-collection-badge" });
+      const badge = row.createEl("button", { text: collection, cls: "knowledge-library-collection-badge", attr: { "aria-label": `Open topic ${collection}`, title: `Open topic ${collection}` } });
+      badge.addEventListener("click", () => void this.plugin.openTopicPage(collection));
     }
   }
 
@@ -368,12 +372,44 @@ export class KnowledgeLibraryView extends ItemView {
     const collections = this.plugin.collectionService.normalizeCollections(entry.collections);
     if (collections.length > 0) {
       const row = body.createDiv({ cls: "knowledge-library-collection-badges" });
-      for (const collection of collections) row.createSpan({ text: collection, cls: "knowledge-library-collection-badge" });
+      for (const collection of collections) {
+        const badge = row.createEl("button", { text: collection, cls: "knowledge-library-collection-badge", attr: { "aria-label": `Open topic ${collection}`, title: `Open topic ${collection}` } });
+        badge.addEventListener("click", () => void this.plugin.openTopicPage(collection));
+      }
     }
     const actions = card.createDiv({ cls: "knowledge-library-card-actions" });
     this.createActionButton(actions, "Open external", `Open external resource ${entry.title}`, () => this.openExternalEntry(entry));
+    const topic = primaryTopicForEntry(entry);
+    if (topic && this.plugin.settings.enableTopicPages) this.createActionButton(actions, "Open Topic", `Open topic ${topic}`, () => void this.plugin.openTopicPage(topic));
   }
 
+
+  private primaryTopicForResource(resource: KnowledgeResource): string | null {
+    return discoverTopicCandidates({
+      id: resource.id,
+      origin: "active-vault",
+      connector_id: "active-vault",
+      connector_name: "Active vault",
+      vault_name: "Active vault",
+      role: "active",
+      type: resource.type,
+      title: resource.title,
+      creator: resource.creator,
+      path: resource.filePath ?? resource.id,
+      url: resource.url,
+      open_uri: resource.filePath ?? resource.id,
+      tags: resource.tags,
+      collections: resource.collections ?? [],
+      excerpt: String(resource.metadata.description ?? ""),
+      created_at: resource.createdAt,
+      updated_at: resource.updatedAt,
+      completed: resource.completed,
+      favorite: resource.favorite,
+      progress: resource.progress,
+      priority: resource.priority,
+      metadata: resource.metadata
+    })[0] ?? null;
+  }
   private openExternalEntry(entry: UnifiedIndexEntry): void {
     if (entry.open_uri.startsWith("obsidian://")) {
       window.open(entry.open_uri, "_blank");

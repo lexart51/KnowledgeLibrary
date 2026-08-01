@@ -1041,3 +1041,109 @@
     text-align: left;
   }
 }
+
+.knowledge-library-topic-view {
+  display: grid;
+  gap: 14px;
+  height: 100%;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.knowledge-library-topic-header {
+  align-items: start;
+  border-bottom: 1px solid var(--background-modifier-border);
+  display: grid;
+  gap: 12px;
+  grid-template-columns: auto minmax(0, 1fr);
+  padding-bottom: 12px;
+}
+
+.knowledge-library-topic-icon {
+  align-items: center;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  color: var(--text-accent);
+  display: flex;
+  font-size: 13px;
+  font-weight: 700;
+  min-height: 44px;
+  justify-content: center;
+  padding: 8px;
+}
+
+.knowledge-library-topic-title {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.knowledge-library-topic-title h2 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.knowledge-library-topic-stats,
+.knowledge-library-topic-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  min-width: 0;
+}
+
+.knowledge-library-topic-section {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.knowledge-library-topic-section h3,
+.knowledge-library-topic-inline-group h4 {
+  margin: 0;
+}
+
+.knowledge-library-topic-inline-group {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.knowledge-library-topic-entry,
+.knowledge-library-topic-timeline-row {
+  align-items: center;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  color: var(--text-normal);
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-width: 0;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.knowledge-library-topic-timeline-row {
+  grid-template-columns: auto auto minmax(0, 1fr);
+}
+
+.knowledge-library-topic-entry:focus-visible,
+.knowledge-library-topic-timeline-row:focus-visible,
+.knowledge-library-search-result.is-topic:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
+}
+
+.knowledge-library-search-result.is-topic {
+  border-left: 3px solid var(--interactive-accent);
+}
+
+@media (max-width: 760px) {
+  .knowledge-library-topic-header,
+  .knowledge-library-topic-timeline-row {
+    grid-template-columns: 1fr;
+  }
+}

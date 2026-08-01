@@ -1,7 +1,7 @@
 import { Plugin, TFile } from "obsidian";
 import { registerLibraryCommands } from "./commands/libraryCommands";
 import { DEFAULT_SETTINGS, KnowledgeLibraryPluginSettings } from "./core/settings";
-import { KNOWLEDGE_DASHBOARD_VIEW_TYPE, KNOWLEDGE_DIAGNOSTICS_VIEW_TYPE, KNOWLEDGE_HOME_VIEW_TYPE, KNOWLEDGE_LIBRARY_VIEW_TYPE, KNOWLEDGE_UNIVERSAL_SEARCH_VIEW_TYPE } from "./core/viewTypes";
+import { KNOWLEDGE_DASHBOARD_VIEW_TYPE, KNOWLEDGE_DIAGNOSTICS_VIEW_TYPE, KNOWLEDGE_HOME_VIEW_TYPE, KNOWLEDGE_LIBRARY_VIEW_TYPE, KNOWLEDGE_TOPIC_VIEW_TYPE, KNOWLEDGE_UNIVERSAL_SEARCH_VIEW_TYPE } from "./core/viewTypes";
 import { AddResourceRequest, AddResourceResult, AddResourceService } from "./services/AddResourceService";
 import { MigrationService } from "./services/MigrationService";
 import { CollectionService } from "./services/CollectionService";
@@ -23,6 +23,7 @@ import { ResourceEditorModal } from "./ui/ResourceEditorModal";
 import { VaultConnectorManagementModal } from "./ui/VaultConnectorManagementModal";
 import { UnifiedSearchModal } from "./ui/UnifiedSearchModal";
 import { UniversalSearchView } from "./ui/UniversalSearchView";
+import { KnowledgeTopicView } from "./ui/KnowledgeTopicView";
 import { SavedSearchManagementModal } from "./ui/SavedSearchManagementModal";
 import { RibbonService } from "./ui/RibbonService";
 import { StatusBarService } from "./ui/StatusBarService";
@@ -76,6 +77,7 @@ export default class KnowledgeLibraryPlugin extends Plugin {
 
     this.registerView(KNOWLEDGE_HOME_VIEW_TYPE, (leaf) => new KnowledgeHomeView(leaf, this));
     this.registerView(KNOWLEDGE_LIBRARY_VIEW_TYPE, (leaf) => new KnowledgeLibraryView(leaf, this));
+    this.registerView(KNOWLEDGE_TOPIC_VIEW_TYPE, (leaf) => new KnowledgeTopicView(leaf, this));
     this.registerView(KNOWLEDGE_DASHBOARD_VIEW_TYPE, (leaf) => new KnowledgeDashboardView(leaf, this));
     this.registerView(KNOWLEDGE_UNIVERSAL_SEARCH_VIEW_TYPE, (leaf) => new UniversalSearchView(leaf, this));
     this.registerView(KNOWLEDGE_DIAGNOSTICS_VIEW_TYPE, (leaf) => new DiagnosticsView(leaf, this));
@@ -88,6 +90,7 @@ export default class KnowledgeLibraryPlugin extends Plugin {
   onunload(): void {
     this.app.workspace.detachLeavesOfType(KNOWLEDGE_HOME_VIEW_TYPE);
     this.app.workspace.detachLeavesOfType(KNOWLEDGE_LIBRARY_VIEW_TYPE);
+    this.app.workspace.detachLeavesOfType(KNOWLEDGE_TOPIC_VIEW_TYPE);
     this.app.workspace.detachLeavesOfType(KNOWLEDGE_DASHBOARD_VIEW_TYPE);
     this.app.workspace.detachLeavesOfType(KNOWLEDGE_UNIVERSAL_SEARCH_VIEW_TYPE);
     this.app.workspace.detachLeavesOfType(KNOWLEDGE_DIAGNOSTICS_VIEW_TYPE);
@@ -252,6 +255,22 @@ export default class KnowledgeLibraryPlugin extends Plugin {
     await this.openHomeView();
   }
 
+
+  async openTopicPage(topicName = ""): Promise<void> {
+    if (!this.settings.enableTopicPages) {
+      await this.openUniversalSearch(topicName);
+      return;
+    }
+    const existingLeaf = this.app.workspace.getLeavesOfType(KNOWLEDGE_TOPIC_VIEW_TYPE)[0];
+    const leaf = existingLeaf ?? this.app.workspace.getLeaf(true);
+    if (!existingLeaf) {
+      await leaf.setViewState({ type: KNOWLEDGE_TOPIC_VIEW_TYPE, active: true });
+    }
+    await this.app.workspace.revealLeaf(leaf);
+    if (leaf.view instanceof KnowledgeTopicView) {
+      await leaf.view.setTopic(topicName);
+    }
+  }
   async openHomeView(): Promise<void> {
     const existingLeaf = this.app.workspace.getLeavesOfType(KNOWLEDGE_HOME_VIEW_TYPE)[0];
     const leaf = existingLeaf ?? this.app.workspace.getLeaf(true);

@@ -233,8 +233,8 @@ describe("Knowledge Navigator Home source contracts", () => {
     expect(home).toContain('this.navButton(nav, "Resources"');
     expect(home).toContain('this.navButton(nav, "Conversations"');
     expect(home).toContain('this.navButton(nav, "Documents"');
-    expect(home).toContain("openLibraryView({ collection: collection.name })");
-    expect(home).toContain("openLibraryView({ tag: tag.tag })");
+    expect(home).toContain("openTopicPage(collection.name)");
+    expect(home).toContain("openTopicPage(tag.tag)");
     expect(library).toContain("setFilters(filters: Partial<LibraryFilters>)");
   });
 

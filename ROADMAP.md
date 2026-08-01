@@ -9,7 +9,8 @@
 - [x] Add universal search, source-aware ranking, saved searches, and ecosystem navigation for `6.4.0`.
 - [x] Stabilize deployment, state preservation, diagnostics, backup/restore, and logging for `6.4.1`.
 - [x] Add Knowledge Navigator Home for `6.5.0-alpha.1`.
-- [ ] Install 6.5.0-alpha.1 into the YouTubes vault for controlled manual testing.
+- [x] Add Topic Pages for `6.5.0-alpha.3`.
+- [ ] Install 6.5.0-alpha.3 into the YouTubes vault for controlled manual testing.
 - [ ] Validate migration dry-run output against the production dataset.
 - [ ] Apply migration only after reviewed backup and simulation reports.
 

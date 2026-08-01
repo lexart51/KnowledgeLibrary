@@ -19,7 +19,7 @@ export class KnowledgeLibrarySettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Show Continue Learning")
-      .setDesc("Show in-progress, favorite, high-priority, and recently updated items on Home.")
+      .setDesc("Show unfinished items with explicit learning signals on Home.")
       .addToggle((toggle) => toggle
         .setValue(this.plugin.settings.homeShowContinueLearning)
         .onChange(async (value) => {
@@ -61,6 +61,47 @@ export class KnowledgeLibrarySettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         }));
 
+
+    this.createGroup(containerEl, "Topics", "Configure automatically discovered topic pages and topic-oriented navigation.");
+
+    new Setting(containerEl)
+      .setName("Enable Topic Pages")
+      .setDesc("Allow tags, collections, search results, and cards to open Knowledge Topic pages.")
+      .addToggle((toggle) => toggle
+        .setValue(this.plugin.settings.enableTopicPages)
+        .onChange(async (value) => {
+          this.plugin.settings.enableTopicPages = value;
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName("Default Topic Sort")
+      .setDesc("Default order for topic lists and the Topic picker.")
+      .addDropdown((dropdown) => dropdown
+        .addOption("popular", "Popular")
+        .addOption("recent", "Recent")
+        .addOption("title", "Title")
+        .setValue(this.plugin.settings.defaultTopicSort)
+        .onChange(async (value) => {
+          this.plugin.settings.defaultTopicSort = value === "recent" || value === "title" ? value : "popular";
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName("Related Topics depth")
+      .setDesc("Maximum number of related topics shown on a Topic page.")
+      .addText((text) => text.setValue(String(this.plugin.settings.relatedTopicsDepth)).onChange(async (value) => {
+        this.plugin.settings.relatedTopicsDepth = boundedNumber(value, 1, 24, 8);
+        await this.plugin.saveSettings();
+      }));
+
+    new Setting(containerEl)
+      .setName("Timeline length")
+      .setDesc("Maximum number of chronological topic activity rows.")
+      .addText((text) => text.setValue(String(this.plugin.settings.topicTimelineLength)).onChange(async (value) => {
+        this.plugin.settings.topicTimelineLength = boundedNumber(value, 5, 100, 20);
+        await this.plugin.saveSettings();
+      }));
     this.createGroup(containerEl, "Storage", "Choose where KnowledgeLibrary reads library notes and writes resource notes.");
 
     new Setting(containerEl)
