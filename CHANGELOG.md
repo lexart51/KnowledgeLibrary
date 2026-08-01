@@ -4,6 +4,13 @@
 
 - No unreleased changes.
 
+## 6.1.0
+
+- Replaced the generic Add Resource form with specialized forms for YouTube, websites, PDFs, books, PowerPoint, Word/Text documents, Markdown, images, scripts, skills, archives, and other resources.
+- Kept a single Add Resource modal shell and shared AddResourceService, ProviderRegistry, ResourceService, and VaultResourceRepository creation pipeline.
+- Added natural-height modal behavior so the footer follows visible form content and the modal scrolls vertically only when needed.
+- Added type-specific validation, optional manual metadata disclosures for YouTube and Website, and focused file metadata fields for local vault file resources.
+- Updated plugin metadata and status bar label to `6.1.0`.
 ## 6.0.0-rc.2
 
 - Fixed Add Resource modal horizontal overflow by using viewport-safe modal sizing, shrink-safe grid columns, full-width rows, and vertical-only modal scrolling.

@@ -3,7 +3,8 @@
 ## v6 Release Candidate
 
 - [x] Polish KnowledgeLibrary v6 UI/UX for `6.0.0-rc.1`.
-- [ ] Install rc.1 into the YouTubes vault for controlled manual testing.
+- [x] Implement specialized Add Resource forms for `6.1.0`.
+- [ ] Install 6.1.0 into the YouTubes vault for controlled manual testing.
 - [ ] Validate migration dry-run output against the production dataset.
 - [ ] Apply migration only after reviewed backup and simulation reports.
 

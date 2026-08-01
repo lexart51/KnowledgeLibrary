@@ -1,6 +1,6 @@
 # UI/UX
 
-Version `6.0.0-rc.1` focuses on polish for the Knowledge Library view, Add Resource modal, toolbar, cards, and settings screen. It does not change repository, migration, provider, or resource model behavior.
+Version `6.1.0` keeps the polished Knowledge Library view and replaces the generic Add Resource form with specialized type-specific forms. It does not change repository, migration, provider, or resource model behavior beyond passing optional form metadata through the existing AddResourceService request.
 
 ## Add Resource Modal
 
@@ -25,3 +25,7 @@ Settings are grouped into Storage, Migration and safety, Tags, File resources, a
 ## 6.0.0-rc.2 Modal Overflow Hotfix
 
 The Add Resource modal now uses `width: min(960px, calc(100vw - 48px))` and `max-width: calc(100vw - 48px)`. The modal scrolls vertically only, its grid columns use `minmax(0, 1fr)`, and full-width rows such as Tags, validation, file picker, and actions span both columns. At narrow widths the form switches to one column at `760px`.
+
+## 6.1.0 Specialized Forms
+
+YouTube and Website forms are minimal by default and expose manual Title/Creator fields only through an optional disclosure. File-backed resources reuse the searchable vault file picker and expose type-specific metadata fields for PDFs, books, presentations, documents, Markdown, images, scripts, skills, archives, and generic resources. Switching type preserves common Tags and Notes while clearing incompatible source fields safely.

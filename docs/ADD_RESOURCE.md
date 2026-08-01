@@ -1,6 +1,6 @@
 # Add Resource Wizard
 
-Milestone 4 adds the first complete resource creation workflow through `Knowledge Library: Add Resource`.
+Version 6.1.0 replaces the generic Add Resource form with specialized type-specific forms while preserving the unified creation pipeline.
 
 ## Supported Types
 
@@ -9,6 +9,7 @@ Milestone 4 adds the first complete resource creation workflow through `Knowledg
 - PDF
 - Book
 - PowerPoint
+- Word/Text Document
 - Markdown
 - Image
 - Script
@@ -20,34 +21,39 @@ Milestone 4 adds the first complete resource creation workflow through `Knowledg
 
 The modal only collects input. Creation runs through the shared pipeline:
 
-1. `AddResourceModal` collects validated user input.
-2. `AddResourceService` canonicalizes tags and checks duplicates.
-3. `ResourceService` selects a provider through `ProviderRegistry`.
-4. The selected provider creates and normalizes the `KnowledgeResource`.
-5. `VaultResourceRepository` persists the Markdown resource note.
-6. Open Knowledge Library views refresh and the resource note opens.
+1. `AddResourceModal` collects validated user input in centralized typed state.
+2. Type-specific renderers show only the fields relevant to the selected resource type.
+3. `AddResourceService` canonicalizes tags, carries optional metadata, and checks duplicates.
+4. `ResourceService` selects a provider through `ProviderRegistry`.
+5. The selected provider creates and normalizes the `KnowledgeResource`.
+6. `VaultResourceRepository` persists the Markdown resource note.
+7. Open Knowledge Library views refresh and the resource note opens.
 
 ## YouTube
 
-YouTube links accept `youtube.com`, `youtu.be`, `shorts`, `embed`, `live`, and mobile links. Tracking and playlist noise such as `pp`, `si`, `feature`, `t`, and list parameters are ignored because the provider extracts only the canonical 11-character video id and writes `https://www.youtube.com/watch?v=...`.
+The YouTube form shows Type, YouTube URL, Tags, and Notes. Title and Creator are filled by provider metadata when available and are hidden by default. The `Edit metadata manually` disclosure reveals manual Title and Creator fields when needed.
 
-The provider uses Obsidian `requestUrl` to call YouTube oEmbed for title and creator. If oEmbed fails, the resource remains active and falls back to a deterministic title and thumbnail.
-
-Duplicates are prevented by YouTube video id.
+YouTube links accept `youtube.com`, `youtu.be`, `shorts`, `embed`, `live`, and mobile links. Duplicates are prevented by YouTube video id.
 
 ## Websites
 
-Website links accept HTTP and HTTPS URLs. The provider removes common tracking parameters, fetches the page with Obsidian `requestUrl`, extracts the `<title>` when available, and falls back to the hostname.
+The Website form shows Type, Website URL, Tags, and Notes. Manual Title and Creator/Publisher fields are available in the metadata disclosure. The provider attempts page title extraction before saving and falls back to hostname when needed.
 
 Duplicates are prevented by canonical URL.
 
-## Files
+## File-Based Resources
 
-File-based resources select an existing vault file. The original file is preserved; only a Markdown resource note is created. Type detection uses file extension for PDFs, PowerPoint files, Markdown, images, scripts, archives, and generic files.
+PDF, PowerPoint, Word/Text Document, Markdown, Image, Script, Skill, ZIP/Archive, and file-backed Other resources use the searchable vault file picker as the primary control. The original file is preserved; only a Markdown resource note is created.
+
+Each file-based form exposes only relevant metadata fields. Images show a local preview when Obsidian can provide a vault resource URL. Scripts show selected filename and extension and prefill language from extension when available.
 
 ## Books
 
-Books can be represented by a local vault file or external URL. The wizard captures title, creator/author, edition, publisher, and ISBN. No external book API is used yet.
+Books can use a local vault PDF/EPUB file or an external URL. The form requires at least one source and captures title, author, publisher, edition, and ISBN. No external book metadata API is used yet.
+
+## Type Switching
+
+Changing type preserves common Tags and Notes, clears incompatible URL or file fields safely, and can recompute the detected file type when a selected file remains relevant.
 
 ## Tags
 

@@ -1,6 +1,6 @@
 {
   "name": "knowledge-library-v6",
-  "version": "6.0.0-rc.2",
+  "version": "6.1.0",
   "description": "KnowledgeLibrary v6 Obsidian plugin.",
   "main": "main.js",
   "scripts": {

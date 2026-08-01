@@ -2,11 +2,11 @@
 
 ## Open
 
-- v6 rc.2 is not deployed to the Obsidian vault yet.
+- KnowledgeLibrary 6.1.0 is not deployed to the Obsidian vault yet.
 - Deployment scripts are prepared but have not been run against the YouTubes vault in this milestone.
 - Migration apply intentionally skips notes requiring manual review; unusual legacy note shapes may need manual cleanup before migration.
 - Tag consolidation updates YAML frontmatter tags only.
-- Thumbnail repair depends on a usable YouTube video id in URL or metadata. Newly observed YouTube thumbnail rendering issues remain open for a later milestone and were not changed in Milestone 6.
+- Thumbnail repair depends on a usable YouTube video id in URL or metadata. Newly observed YouTube thumbnail rendering issues remain open for a later milestone and were not changed in the 6.1.0 specialized forms milestone.
 - Website title extraction is best-effort and falls back to hostname when fetching fails or no `<title>` is available.
 - Book creation stores supplied metadata only; no external book metadata API is used yet.
 - The frontmatter parser supports the plugin's canonical YAML shape and simple legacy fields; complex arbitrary YAML should be migrated cautiously.
@@ -34,3 +34,9 @@
 - Add Resource modal content no longer exceeds the visible modal width.
 - Two-column fields shrink correctly and switch to one column on narrow screens.
 - The resource type select is constrained to its field and does not create horizontal overflow.
+
+## Fixed in 6.1.0
+
+- Add Resource now shows specialized fields for each supported resource type instead of one generic form.
+- YouTube and Website forms keep metadata fields hidden unless manual editing is requested.
+- Add Resource modal height now follows visible content and avoids artificial empty space.

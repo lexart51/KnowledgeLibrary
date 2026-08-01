@@ -20,6 +20,19 @@ export interface AddResourceRequest {
   edition?: string;
   publisher?: string;
   isbn?: string;
+  notes?: string;
+  category?: string;
+  presentationDate?: string;
+  documentDate?: string;
+  sourceProject?: string;
+  description?: string;
+  language?: string;
+  project?: string;
+  entryPoint?: string;
+  platform?: string;
+  version?: string;
+  archiveFormat?: string;
+  resourceSubtype?: string;
 }
 
 export interface AddResourceResult {
@@ -65,11 +78,24 @@ export class AddResourceService {
 
   private toResourceInput(request: AddResourceRequest): ResourceInput {
     const tags = this.getCanonicalTags(parseTagInput(request.tags ?? []));
-    const metadata = {
-      edition: request.edition?.trim() || undefined,
-      publisher: request.publisher?.trim() || undefined,
-      isbn: request.isbn?.trim() || undefined
-    };
+    const metadata = compactMetadata({
+      edition: request.edition,
+      publisher: request.publisher,
+      isbn: request.isbn,
+      notes: request.notes,
+      category: request.category,
+      presentationDate: request.presentationDate,
+      documentDate: request.documentDate,
+      sourceProject: request.sourceProject,
+      description: request.description,
+      language: request.language,
+      project: request.project,
+      entryPoint: request.entryPoint,
+      platform: request.platform,
+      version: request.version,
+      archiveFormat: request.archiveFormat,
+      resourceSubtype: request.resourceSubtype
+    });
 
     if (request.kind === "youtube" || request.kind === "website" || (request.kind === "book" && request.url)) {
       return {
@@ -153,4 +179,12 @@ function required(value: string | undefined | null, message: string): string {
 
 function mapKindToType(kind: AddResourceKind): KnowledgeResourceType {
   return kind === "archive" ? "archive" : kind;
+}
+
+function compactMetadata(values: Record<string, string | undefined>): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(values)
+      .map(([key, value]) => [key, value?.trim()] as const)
+      .filter((entry): entry is readonly [string, string] => Boolean(entry[1]))
+  );
 }
