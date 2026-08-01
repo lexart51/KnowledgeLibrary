@@ -5,3 +5,118 @@
 .knowledge-library-ribbon {
   color: var(--interactive-accent);
 }
+
+.knowledge-library-view {
+  padding: 16px;
+}
+
+.knowledge-library-view-header {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.knowledge-library-view-header h2 {
+  font-size: 20px;
+  margin: 0;
+}
+
+.knowledge-library-controls {
+  align-items: end;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(180px, 2fr) repeat(auto-fit, minmax(120px, 1fr));
+  margin-bottom: 12px;
+}
+
+.knowledge-library-control,
+.knowledge-library-checkbox {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  gap: 4px;
+}
+
+.knowledge-library-checkbox {
+  align-items: center;
+  flex-direction: row;
+  min-height: 30px;
+}
+
+.knowledge-library-search,
+.knowledge-library-control select {
+  width: 100%;
+}
+
+.knowledge-library-count {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.knowledge-library-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+.knowledge-library-grid.is-compact {
+  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+
+.knowledge-library-card {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.knowledge-library-card-media {
+  aspect-ratio: 16 / 9;
+  background: var(--background-secondary);
+  display: grid;
+  place-items: center;
+}
+
+.knowledge-library-card-media img {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.knowledge-library-placeholder {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.knowledge-library-card-body {
+  padding: 10px;
+}
+
+.knowledge-library-card-body h3 {
+  font-size: 15px;
+  line-height: 1.3;
+  margin: 0 0 6px;
+}
+
+.knowledge-library-card-meta,
+.knowledge-library-card-tags {
+  color: var(--text-muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.knowledge-library-card-actions {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 0 10px 10px;
+}
+
+.knowledge-library-button {
+  font-size: 12px;
+}

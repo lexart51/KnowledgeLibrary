@@ -5,9 +5,11 @@
 - [x] Establish plugin architecture and build pipeline.
 - [x] Create the resource core and provider engine.
 - [x] Add initial YouTube, website, and file providers.
+- [x] Add persistent Markdown resource storage.
+- [x] Build the first native library view.
+- [ ] Add resource creation commands wired to providers.
 - [ ] Define expanded knowledge item metadata models.
 - [ ] Add local indexing and search services.
-- [ ] Design the first library view.
 - [ ] Expand canonical tag normalization.
 
 ## Later

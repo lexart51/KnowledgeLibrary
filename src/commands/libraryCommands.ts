@@ -6,7 +6,9 @@ export function registerLibraryCommands(plugin: KnowledgeLibraryPlugin): void {
     id: "open-library",
     name: "Knowledge Library: Open Library",
     callback: () => {
-      new Notice("Knowledge Library opened.");
+      void plugin.openLibraryView().catch((error) => {
+        new Notice(error instanceof Error ? error.message : "Unable to open Knowledge Library.");
+      });
     }
   });
 }

@@ -14,10 +14,22 @@ Install dependencies:
 npm install
 ```
 
+Run tests:
+
+```bash
+npm test
+```
+
 Build the plugin:
 
 ```bash
 npm run build
+```
+
+Type-check:
+
+```bash
+npx tsc --noEmit
 ```
 
 The production build emits:
@@ -27,9 +39,14 @@ The production build emits:
 
 ## Current Plugin Surface
 
-- Ribbon icon: opens the Knowledge Library entry point.
+- Ribbon icon: opens the Knowledge Library view.
 - Command palette command: `Knowledge Library: Open Library`.
 - Status bar: `KL 6.0.0-alpha`.
+- Native library view with search, filters, sorting, card grid, note/resource actions, and favorite/completed toggles.
+- Settings-driven storage paths:
+  - Library folder: `01 - Biblioteca`
+  - Resources folder: `01 - Biblioteca/Recursos`
+- Markdown resource notes with YAML frontmatter.
 - Canonical tag aliases:
   - `ia` -> `ai`
   - `artificial-intelligence` -> `ai`
@@ -37,3 +54,11 @@ The production build emits:
   - `routeros` -> `mikrotik`
   - `win11` -> `windows`
   - `windows11` -> `windows`
+
+## Documentation
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Resource Model](docs/RESOURCE_MODEL.md)
+- [Providers](docs/PROVIDERS.md)
+- [Storage](docs/STORAGE.md)
+- [Library View](docs/LIBRARY_VIEW.md)
