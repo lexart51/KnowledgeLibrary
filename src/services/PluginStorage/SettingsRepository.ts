@@ -6,7 +6,7 @@ export class SettingsRepository {
 
   async load(defaults: KnowledgeLibraryPluginSettings): Promise<KnowledgeLibraryPluginSettings> {
     const state = await this.stateManager.loadState();
-    return { ...defaults, ...state } as KnowledgeLibraryPluginSettings;
+    return { ...defaults, ...state, versionLabel: defaults.versionLabel } as KnowledgeLibraryPluginSettings;
   }
 
   async save(settings: KnowledgeLibraryPluginSettings): Promise<void> {

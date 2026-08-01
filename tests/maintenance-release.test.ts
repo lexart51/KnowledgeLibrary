@@ -63,6 +63,17 @@ describe("plugin state manager", () => {
     expect(state.custom_future_field).toEqual({ keep: true });
   });
 
+  it("migrates stale persisted status bar labels", async () => {
+    const host = memoryHost({ state_version: 1, plugin_version: "6.4.0", versionLabel: "KL 6.4.0", custom_future_field: { keep: true } });
+    const manager = new PluginStateManager(host);
+    const state = await manager.loadState();
+    expect(state.plugin_version).toBe("6.4.1");
+    expect(state.versionLabel).toBe("KL 6.4.1");
+    expect(state.custom_future_field).toEqual({ keep: true });
+    expect((host.state() as { versionLabel: string }).versionLabel).toBe("KL 6.4.1");
+  });
+
+
   it("backs up and restores state", async () => {
     const host = memoryHost({ state_version: 1, plugin_version: "6.4.1", libraryFolder: "A" });
     const manager = new PluginStateManager(host);
@@ -97,6 +108,8 @@ describe("plugin storage repositories", () => {
     const manager = new PluginStateManager(host);
     await new SettingsRepository(manager).save({ ...DEFAULT_SETTINGS, libraryFolder: "Updated" });
     expect((await new SettingsRepository(manager).load(DEFAULT_SETTINGS)).libraryFolder).toBe("Updated");
+    await manager.saveState({ ...DEFAULT_SETTINGS, versionLabel: "KL 6.4.0" });
+    expect((await new SettingsRepository(manager).load(DEFAULT_SETTINGS)).versionLabel).toBe("KL 6.4.1");
     await new IndexRepository(manager).save({ schema_version: 1, rebuilt_at: "now", entries: [], connector_statuses: [], errors: [] });
     expect((await new IndexRepository(manager).load())?.rebuilt_at).toBe("now");
     await new SavedSearchRepository(manager).saveAll([{ id: "s", name: "S", query: "q", displayMode: "compact", sortMode: "relevance", createdAt: "now", updatedAt: "now" }]);

@@ -31,6 +31,7 @@ export interface PluginConfigurationExport {
 
 export const CURRENT_STATE_VERSION = 1;
 export const CURRENT_PLUGIN_VERSION = "6.4.1";
+export const CURRENT_VERSION_LABEL = `KL ${CURRENT_PLUGIN_VERSION}`;
 
 export class PluginStateManager {
   private lastState: PluginStateEnvelope | null = null;
@@ -43,7 +44,8 @@ export class PluginStateManager {
       const raw = await this.host.loadData();
       const migrated = this.migrate(this.validate(raw));
       this.lastState = migrated;
-      if (migrated.state_version !== (raw as { state_version?: unknown } | null)?.state_version || migrated.plugin_version !== (raw as { plugin_version?: unknown } | null)?.plugin_version) {
+      const rawEnvelope = raw as { state_version?: unknown; plugin_version?: unknown; versionLabel?: unknown } | null;
+      if (migrated.state_version !== rawEnvelope?.state_version || migrated.plugin_version !== rawEnvelope?.plugin_version || migrated.versionLabel !== rawEnvelope?.versionLabel) {
         await this.saveState(migrated);
       }
       return migrated;
@@ -132,11 +134,11 @@ export class PluginStateManager {
     if (!current.state_version || current.state_version < 1) {
       current = { ...current, state_version: 1 };
     }
-    return { ...current, state_version: CURRENT_STATE_VERSION, plugin_version: CURRENT_PLUGIN_VERSION };
+    return { ...current, state_version: CURRENT_STATE_VERSION, plugin_version: CURRENT_PLUGIN_VERSION, versionLabel: CURRENT_VERSION_LABEL };
   }
 
   private defaults(): PluginStateEnvelope {
-    return { state_version: CURRENT_STATE_VERSION, plugin_version: CURRENT_PLUGIN_VERSION };
+    return { state_version: CURRENT_STATE_VERSION, plugin_version: CURRENT_PLUGIN_VERSION, versionLabel: CURRENT_VERSION_LABEL };
   }
 
   private async safeSave(state: PluginStateEnvelope): Promise<void> {
