@@ -48,7 +48,7 @@ function fakeApp(files: Record<string, string>) {
 describe("SafeMigrationService", () => {
   it("supports dry-run migration without modifying notes", async () => {
     const { app, writes, created } = fakeApp({
-      "YouTubes/hermes.md": `---\ntitle: Hermes\nvideo_id: Nc0Atdjg5sE\nchannel: Hermes\nimage: https://img.youtube.com/vi/Nc0Atdjg5sE/hqdefault.jpg\nwatched: true\ntags:\n  - ia\n---\nUser body`
+      "YouTubes/hermes.md": `---\ntitle: Hermes\nvideo_id: Nc0Atdjg5sE\nchannel: Hermes\nimage: https://i.ytimg.com/vi/Nc0Atdjg5sE/hqdefault.jpg\nwatched: true\ntags:\n  - ia\n---\nUser body`
     });
 
     const report = await new SafeMigrationService(app as never, DEFAULT_SETTINGS).applyMigration(true);
@@ -60,7 +60,7 @@ describe("SafeMigrationService", () => {
 
   it("applies migration to frontmatter while preserving markdown body", async () => {
     const { app, store } = fakeApp({
-      "YouTubes/hermes.md": `---\ntitle: Hermes\nvideo_id: Nc0Atdjg5sE\nchannel: Hermes\nimage: https://img.youtube.com/vi/Nc0Atdjg5sE/hqdefault.jpg\nwatched: true\ntags:\n  - ia\n---\n## Notes\nKeep this`
+      "YouTubes/hermes.md": `---\ntitle: Hermes\nvideo_id: Nc0Atdjg5sE\nchannel: Hermes\nimage: https://i.ytimg.com/vi/Nc0Atdjg5sE/hqdefault.jpg\nwatched: true\ntags:\n  - ia\n---\n## Notes\nKeep this`
     });
 
     await new SafeMigrationService(app as never, DEFAULT_SETTINGS).applyMigration(false);
@@ -102,12 +102,12 @@ describe("ThumbnailRepairService", () => {
 
     const service = new ThumbnailRepairService(app as never);
     expect(await service.analyze()).toEqual([
-      { path: "Hermes/one.md", videoId: "Nc0Atdjg5sE", thumbnail: "https://img.youtube.com/vi/Nc0Atdjg5sE/hqdefault.jpg" },
-      { path: "Hermes/two.md", videoId: "97IO4He9PPc", thumbnail: "https://img.youtube.com/vi/97IO4He9PPc/hqdefault.jpg" }
+      { path: "Hermes/one.md", videoId: "Nc0Atdjg5sE", thumbnail: "https://i.ytimg.com/vi/Nc0Atdjg5sE/hqdefault.jpg" },
+      { path: "Hermes/two.md", videoId: "97IO4He9PPc", thumbnail: "https://i.ytimg.com/vi/97IO4He9PPc/hqdefault.jpg" }
     ]);
 
     await service.repair(false);
-    expect(store.get("Hermes/one.md")).toContain("thumbnail: \"https://img.youtube.com/vi/Nc0Atdjg5sE/hqdefault.jpg\"");
-    expect(store.get("Hermes/two.md")).toContain("thumbnail: \"https://img.youtube.com/vi/97IO4He9PPc/hqdefault.jpg\"");
+    expect(store.get("Hermes/one.md")).toContain("thumbnail: \"https://i.ytimg.com/vi/Nc0Atdjg5sE/hqdefault.jpg\"");
+    expect(store.get("Hermes/two.md")).toContain("thumbnail: \"https://i.ytimg.com/vi/97IO4He9PPc/hqdefault.jpg\"");
   });
 });

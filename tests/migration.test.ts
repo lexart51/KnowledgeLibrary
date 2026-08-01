@@ -38,6 +38,20 @@ describe("CompatibilityLayer", () => {
     expect(result.resource?.metadata.videoId).toBe("dQw4w9WgXcQ");
   });
 
+  it("canonicalizes legacy tags during in-memory migration reads", () => {
+    const result = new CompatibilityLayer().convert("YouTubes/video.md", `---
+title: Vkm Video
+video_id: dQw4w9WgXcQ
+tags:
+  - ia
+  - AI
+  - unrelated
+---
+Notes`);
+
+    expect(result.resource?.tags).toEqual(["ai", "unrelated"]);
+  });
+
   it("detects Knowledge Library v5 notes", () => {
     const result = new CompatibilityLayer().convert("Knowledge Library v5/item.md", `---\ntitle: V5\nkl_version: 5\nurl: https://example.com/resource\n---\nBody`);
 

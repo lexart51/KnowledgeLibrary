@@ -61,10 +61,10 @@ export class KnowledgeLibraryView extends ItemView {
   }
 
   private renderShell(): void {
-    this.containerEl.empty();
-    this.containerEl.addClass("knowledge-library-view");
+    this.contentEl.empty();
+    this.contentEl.addClass("knowledge-library-view");
 
-    const header = this.containerEl.createDiv({ cls: "knowledge-library-view-header" });
+    const header = this.contentEl.createDiv({ cls: "knowledge-library-view-header" });
     header.createEl("h2", { text: "Knowledge Library" });
 
     const headerActions = header.createDiv({ cls: "knowledge-library-view-actions" });
@@ -73,7 +73,7 @@ export class KnowledgeLibraryView extends ItemView {
     const refreshButton = headerActions.createEl("button", { text: "Refresh", cls: "knowledge-library-button" });
     refreshButton.addEventListener("click", () => void this.refresh());
 
-    const controls = this.containerEl.createDiv({ cls: "knowledge-library-controls" });
+    const controls = this.contentEl.createDiv({ cls: "knowledge-library-controls" });
     const searchInput = controls.createEl("input", { cls: "knowledge-library-search" });
     searchInput.type = "search";
     searchInput.placeholder = "Search resources";
@@ -108,8 +108,9 @@ export class KnowledgeLibraryView extends ItemView {
       this.renderCards();
     });
 
-    this.countElement = this.containerEl.createDiv({ cls: "knowledge-library-count" });
-    this.gridElement = this.containerEl.createDiv({ cls: `knowledge-library-grid is-${this.plugin.settings.displayCardDensity}` });
+    const scroll = this.contentEl.createDiv({ cls: "knowledge-library-scroll" });
+    this.countElement = scroll.createDiv({ cls: "knowledge-library-count" });
+    this.gridElement = scroll.createDiv({ cls: `knowledge-library-grid is-${this.plugin.settings.displayCardDensity}` });
   }
 
   private createSelect(parent: HTMLElement, labelText: string, options: string[] | (() => string[]), onChange: (value: string) => void): void {
@@ -154,12 +155,14 @@ export class KnowledgeLibraryView extends ItemView {
 
   private getFilteredResources(): StoredResource[] {
     const search = this.filters.search.trim().toLowerCase();
+    const selectedTag = this.filters.tag === "all" ? "all" : this.plugin.tagService.normalizeTags([this.filters.tag])[0];
 
     return this.resources
       .filter(({ resource }) => {
         const matchesSearch = !search || [resource.title, resource.creator, resource.source, resource.url, resource.filePath].some((value) => value?.toLowerCase().includes(search));
         const matchesType = this.filters.type === "all" || resource.type === this.filters.type;
-        const matchesTag = this.filters.tag === "all" || resource.tags.includes(this.filters.tag);
+        const resourceTags = this.plugin.tagService.normalizeTags(resource.tags);
+        const matchesTag = selectedTag === "all" || resourceTags.includes(selectedTag);
         const matchesStatus = this.filters.status === "all" || resource.status === this.filters.status;
         const matchesFavorite = !this.filters.favoritesOnly || resource.favorite;
         const matchesCompleted = !this.filters.completedOnly || resource.completed;
@@ -183,7 +186,7 @@ export class KnowledgeLibraryView extends ItemView {
     const body = card.createDiv({ cls: "knowledge-library-card-body" });
     body.createEl("h3", { text: resource.title });
     body.createDiv({ text: resource.creator ?? resource.source, cls: "knowledge-library-card-meta" });
-    body.createDiv({ text: resource.tags.join(" #"), cls: "knowledge-library-card-tags" });
+    body.createDiv({ text: this.plugin.tagService.normalizeTags(resource.tags).join(" #"), cls: "knowledge-library-card-tags" });
 
     const actions = card.createDiv({ cls: "knowledge-library-card-actions" });
     this.createActionButton(actions, "Open note", () => void this.openNote(item.path));
@@ -193,14 +196,16 @@ export class KnowledgeLibraryView extends ItemView {
   }
 
   private renderMedia(parent: HTMLElement, resource: KnowledgeResource): void {
-    if (resource.thumbnail) {
-      const image = parent.createEl("img", { attr: { src: resource.thumbnail, alt: "" } });
-      const fallbacks = resource.type === "youtube" ? getYouTubeThumbnailFallbacks(resource.thumbnail, resource.url) : [];
-      let fallbackIndex = 0;
+    const videoId = typeof resource.metadata.videoId === "string" ? resource.metadata.videoId : null;
+    const candidates = resource.type === "youtube" ? getYouTubeThumbnailFallbacks(resource.thumbnail, resource.url, videoId) : resource.thumbnail ? [resource.thumbnail] : [];
+
+    if (candidates.length > 0) {
+      const image = parent.createEl("img", { attr: { src: candidates[0], alt: "" } });
+      let fallbackIndex = 1;
       image.addEventListener("error", () => {
-        const next = fallbacks[fallbackIndex];
+        const next = candidates[fallbackIndex];
         fallbackIndex += 1;
-        if (next && image.src !== next) {
+        if (next) {
           image.src = next;
         } else {
           image.remove();
@@ -245,6 +250,6 @@ export class KnowledgeLibraryView extends ItemView {
   }
 
   private getAllTags(): string[] {
-    return Array.from(new Set(this.resources.flatMap((item) => item.resource.tags))).sort();
+    return this.plugin.tagService.normalizeTags(this.resources.flatMap((item) => item.resource.tags)).sort();
   }
 }

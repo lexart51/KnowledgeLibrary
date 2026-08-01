@@ -1,7 +1,7 @@
 {
   "id": "knowledge-library-v6",
   "name": "KnowledgeLibrary v6",
-  "version": "6.0.0-beta.1",
+  "version": "6.0.0-beta.2",
   "minAppVersion": "1.5.0",
   "description": "A unified personal knowledge management plugin for videos, PDFs, books, websites, documents, and AI-powered resources.",
   "author": "KnowledgeLibrary",

@@ -147,5 +147,5 @@ export function buildYouTubeThumbnailFallbacks(videoId: string): string[] {
 }
 
 function buildYouTubeThumbnailUrl(videoId: string, fileName: string): string {
-  return `https://img.youtube.com/vi/${videoId}/${fileName}`;
+  return `https://i.ytimg.com/vi/${videoId}/${fileName}`;
 }

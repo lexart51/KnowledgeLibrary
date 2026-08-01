@@ -20,7 +20,7 @@ describe("YouTubeProvider", () => {
     });
 
     expect(resource.url).toBe("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-    expect(resource.thumbnail).toBe("https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg");
+    expect(resource.thumbnail).toBe("https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg");
     expect(resource.title).toBe("YouTube Video dQw4w9WgXcQ");
     expect(resource.status).toBe("active");
     expect(resource.metadata.videoId).toBe("dQw4w9WgXcQ");
@@ -36,6 +36,18 @@ describe("YouTubeProvider", () => {
 describe("TagService", () => {
   it("merges ia into ai", () => {
     const tags = new TagService().normalizeTags(["ia"]);
+
+    expect(tags).toEqual(["ai"]);
+  });
+
+  it("merges ia and ai into one canonical tag", () => {
+    const tags = new TagService().normalizeTags(["ia", "ai"]);
+
+    expect(tags).toEqual(["ai"]);
+  });
+
+  it("canonicalizes mixed-case aliases", () => {
+    const tags = new TagService().normalizeTags(["IA", "Ai", "Artificial Intelligence"]);
 
     expect(tags).toEqual(["ai"]);
   });

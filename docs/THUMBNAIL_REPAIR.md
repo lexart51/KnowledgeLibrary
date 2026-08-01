@@ -15,7 +15,7 @@ Repair uses the YouTube video id already present in the resource URL or metadata
 The repaired thumbnail uses:
 
 ```text
-https://img.youtube.com/vi/<videoId>/hqdefault.jpg
+https://i.ytimg.com/vi/<videoId>/hqdefault.jpg
 ```
 
 The resource metadata also stores fallback candidates for `hqdefault.jpg`, `0.jpg`, and `mqdefault.jpg`.

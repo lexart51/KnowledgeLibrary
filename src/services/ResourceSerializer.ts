@@ -1,4 +1,5 @@
 import { KnowledgeResource } from "../models/KnowledgeResource";
+import { TagService } from "./TagService";
 
 export interface SerializedResourceNote {
   frontmatter: Record<string, unknown>;
@@ -47,6 +48,8 @@ function serializeValue(key: string, value: unknown): string[] {
 }
 
 export class ResourceSerializer {
+  constructor(private readonly tagService = new TagService()) {}
+
   serialize(resource: KnowledgeResource, preservedMarkdown = ""): string {
     const frontmatter = this.toFrontmatter(resource);
     const yaml = Object.entries(frontmatter).flatMap(([key, value]) => serializeValue(key, value)).join("\n");
@@ -66,7 +69,7 @@ export class ResourceSerializer {
       url: resource.url,
       file_path: resource.filePath,
       thumbnail: resource.thumbnail,
-      tags: resource.tags,
+      tags: this.tagService.normalizeTags(resource.tags),
       status: resource.status,
       favorite: resource.favorite,
       completed: resource.completed,

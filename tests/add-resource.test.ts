@@ -27,7 +27,7 @@ function baseResource(overrides: Partial<KnowledgeResource> = {}): KnowledgeReso
     source: "YouTube",
     url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     filePath: null,
-    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
     tags: ["ai"],
     status: "active",
     favorite: false,
@@ -83,9 +83,9 @@ describe("AddResourceService", () => {
     expect(result.resource.status).toBe("active");
     expect(result.resource.tags).toEqual(["knowledge-library", "ai"]);
     expect(result.resource.metadata.thumbnailFallbacks).toEqual([
-      "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
-      "https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg",
-      "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg"
+      "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+      "https://i.ytimg.com/vi/dQw4w9WgXcQ/0.jpg",
+      "https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg"
     ]);
   });
 

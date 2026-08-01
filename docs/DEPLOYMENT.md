@@ -6,7 +6,7 @@ KnowledgeLibrary v6 beta deploys side by side with existing v5 installs.
 
 - Plugin id: `knowledge-library-v6`
 - Plugin folder: `knowledge-library-v6`
-- Version: `6.0.0-beta.1`
+- Version: `6.0.0-beta.2`
 
 The deployment scripts refuse v5 folder names such as `knowledge-library` and `knowledge-library-v5`.
 

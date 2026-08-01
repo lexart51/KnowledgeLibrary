@@ -1,5 +1,7 @@
 import { KnowledgeResource, KnowledgeResourceMetadata, KnowledgeResourceStatus, KnowledgeResourceType } from "../models/KnowledgeResource";
+import { buildYouTubeThumbnailFallbacks } from "../providers/YouTubeProvider";
 import { createResourceId } from "../utils/ids";
+import { TagService } from "./TagService";
 
 export interface DeserializedResourceNote {
   resource: KnowledgeResource;
@@ -165,6 +167,8 @@ function statusFrom(value: unknown): KnowledgeResourceStatus {
 }
 
 export class ResourceDeserializer {
+  constructor(private readonly tagService = new TagService()) {}
+
   deserialize(markdown: string, pathSeed = "resource"): DeserializedResourceNote | null {
     const { frontmatter, body } = splitFrontmatter(markdown);
     const legacyVideoId = stringOrNull(frontmatter.video_id);
@@ -195,8 +199,8 @@ export class ResourceDeserializer {
         source: stringOrDefault(frontmatter.source, type),
         url,
         filePath,
-        thumbnail: stringOrNull(frontmatter.thumbnail) ?? stringOrNull(frontmatter.image) ?? (legacyVideoId ? `https://img.youtube.com/vi/${legacyVideoId}/hqdefault.jpg` : null),
-        tags: tagsFrom(frontmatter.tags),
+        thumbnail: stringOrNull(frontmatter.thumbnail) ?? stringOrNull(frontmatter.image) ?? (legacyVideoId ? buildYouTubeThumbnailFallbacks(legacyVideoId)[0] : null),
+        tags: this.tagService.normalizeTags(tagsFrom(frontmatter.tags)),
         status: statusFrom(frontmatter.status),
         favorite: booleanOrDefault(frontmatter.favorite, false),
         completed: booleanOrDefault(frontmatter.completed, booleanOrDefault(frontmatter.watched, false)),

@@ -50,6 +50,19 @@ async function writeReport(app: App, folder: string, name: string, content: stri
   return path;
 }
 
+
+function tagsFromFrontmatter(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.filter((tag): tag is string => typeof tag === "string");
+  }
+
+  if (typeof value === "string") {
+    return value.split(",").map((tag) => tag.trim()).filter(Boolean);
+  }
+
+  return [];
+}
+
 function markdownReport(title: string, report: WriteOperationReport): string {
   const lines = [`# ${title}`, "", `Generated: ${new Date().toISOString()}`, `Dry run: ${report.dryRun}`, ""];
   for (const [heading, values] of [
@@ -184,9 +197,10 @@ export class TagConsolidationService {
       if (!parsed) {
         continue;
       }
-      const after = this.tagService.normalizeTags(parsed.resource.tags);
-      if (parsed.resource.tags.join("\u0000") !== after.join("\u0000")) {
-        replacements.push({ path: file.path, before: parsed.resource.tags, after });
+      const before = tagsFromFrontmatter(parsed.frontmatter.tags);
+      const after = this.tagService.normalizeTags(before);
+      if (before.join("\u0000") !== after.join("\u0000")) {
+        replacements.push({ path: file.path, before, after });
       }
     }
     return replacements;

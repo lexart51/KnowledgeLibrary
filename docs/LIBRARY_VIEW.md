@@ -1,6 +1,6 @@
 # Library View
 
-The first Knowledge Library view is a native Obsidian `ItemView` registered as `knowledge-library-view`.
+The first Knowledge Library view is a native Obsidian `ItemView` registered as `knowledge-library-view`. It renders inside Obsidian `contentEl` and uses a dedicated `.knowledge-library-scroll` content area so large libraries can scroll vertically through all cards.
 
 ## Entry Points
 
@@ -29,10 +29,11 @@ Each card includes actions to open the note, open the external resource, toggle 
 
 ## YouTube Thumbnail Fallbacks
 
-The view renders `resource.thumbnail` first. If loading fails, YouTube resources try provider-generated thumbnails in order:
+The view renders `resource.thumbnail` first. If loading fails, YouTube resources try provider-generated thumbnails in order, without duplicate URLs:
 
-1. `hqdefault.jpg`
-2. `0.jpg`
-3. `mqdefault.jpg`
+1. Current `resource.thumbnail` value
+2. `https://i.ytimg.com/vi/<video_id>/hqdefault.jpg`
+3. `https://i.ytimg.com/vi/<video_id>/0.jpg`
+4. `https://i.ytimg.com/vi/<video_id>/mqdefault.jpg`
 
 If all image candidates fail, the card shows the placeholder.

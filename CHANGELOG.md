@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- No unreleased changes.
+
+## 6.0.0-beta.2
+
+- Fixed the Knowledge Library `ItemView` to render through Obsidian `contentEl` and use a dedicated scroll container for large card grids.
+- Fixed YouTube card thumbnails to render `resource.thumbnail` first, then advance through `i.ytimg.com` candidates on image load failures.
+- Consolidated legacy `ia` tags into canonical `ai` across creation, reads, filtering, analysis, migration apply, consolidation, and serialization.
+- Updated plugin metadata and status bar label to `6.0.0-beta.2`.
+
+## 6.0.0-beta.1
+
 - Promoted KnowledgeLibrary v6 metadata to `6.0.0-beta.1` with plugin id `knowledge-library-v6`.
 - Added `build:prod` and Windows/Linux deployment scripts that deploy only `main.js`, `manifest.json`, and `styles.css` into a side-by-side v6 plugin folder.
 - Added safe migration backup and apply services with dry-run planning, confirmation, body preservation, canonical frontmatter writes, and Markdown reports.

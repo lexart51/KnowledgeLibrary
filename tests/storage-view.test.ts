@@ -21,7 +21,7 @@ function resource(overrides: Partial<KnowledgeResource> = {}): KnowledgeResource
     source: "YouTube",
     url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     filePath: null,
-    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
     tags: ["ai", "video"],
     status: "active",
     favorite: true,
@@ -47,6 +47,14 @@ describe("ResourceSerializer and ResourceDeserializer", () => {
     expect(parsed?.legacy).toBe(false);
   });
 
+  it("serializes canonical tags and never saves ia beside ai", () => {
+    const markdown = new ResourceSerializer().serialize(resource({ tags: ["ia", "ai", "unrelated"] }));
+
+    expect(markdown).toContain("  - ai");
+    expect(markdown).toContain("  - unrelated");
+    expect(markdown).not.toContain("  - ia");
+  });
+
   it("converts legacy frontmatter without requiring writes", () => {
     const parsed = new ResourceDeserializer().deserialize(`---\ntitle: Legacy Video\nurl: https://youtu.be/dQw4w9WgXcQ\nvideo_id: dQw4w9WgXcQ\nchannel: Legacy Channel\nimage: https://example.com/legacy.jpg\nwatched: true\ndate_added: 2025-05-01\ntags:\n  - IA\n---\nLegacy body`);
 
@@ -55,6 +63,7 @@ describe("ResourceSerializer and ResourceDeserializer", () => {
     expect(parsed?.resource.completed).toBe(true);
     expect(parsed?.resource.createdAt).toBe("2025-05-01");
     expect(parsed?.resource.metadata.videoId).toBe("dQw4w9WgXcQ");
+    expect(parsed?.resource.tags).toEqual(["ai"]);
     expect(parsed?.legacy).toBe(true);
     expect(parsed?.body.trim()).toBe("Legacy body");
   });
@@ -79,9 +88,34 @@ describe("VaultResourceRepository helpers", () => {
 describe("YouTube thumbnail fallbacks", () => {
   it("generates hqdefault, 0, and mqdefault fallback URLs", () => {
     expect(getYouTubeThumbnailFallbacks(null, "https://youtu.be/dQw4w9WgXcQ")).toEqual([
-      "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
-      "https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg",
-      "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg"
+      "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+      "https://i.ytimg.com/vi/dQw4w9WgXcQ/0.jpg",
+      "https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg"
+    ]);
+  });
+
+  it("starts newly created YouTube resources with the resource thumbnail and deduplicated fallbacks", () => {
+    expect(getYouTubeThumbnailFallbacks(
+      "https://i.ytimg.com/vi/Nc0Atdjg5sE/hqdefault.jpg",
+      "https://www.youtube.com/watch?v=Nc0Atdjg5sE",
+      "Nc0Atdjg5sE"
+    )).toEqual([
+      "https://i.ytimg.com/vi/Nc0Atdjg5sE/hqdefault.jpg",
+      "https://i.ytimg.com/vi/Nc0Atdjg5sE/0.jpg",
+      "https://i.ytimg.com/vi/Nc0Atdjg5sE/mqdefault.jpg"
+    ]);
+  });
+
+  it("keeps legacy YouTube thumbnails first before Hermes fallback candidates", () => {
+    expect(getYouTubeThumbnailFallbacks(
+      "https://example.com/legacy.jpg",
+      "https://www.youtube.com/watch?v=97IO4He9PPc",
+      "97IO4He9PPc"
+    )).toEqual([
+      "https://example.com/legacy.jpg",
+      "https://i.ytimg.com/vi/97IO4He9PPc/hqdefault.jpg",
+      "https://i.ytimg.com/vi/97IO4He9PPc/0.jpg",
+      "https://i.ytimg.com/vi/97IO4He9PPc/mqdefault.jpg"
     ]);
   });
 });
