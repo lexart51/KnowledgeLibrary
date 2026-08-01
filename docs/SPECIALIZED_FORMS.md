@@ -32,6 +32,10 @@ The modal does not duplicate persistence logic for any resource type.
 
 Switching resource type preserves common tags and notes. Fields that cannot apply to the new type, such as URL for file-only resources or file path for web-only resources, are cleared safely. When a file is already selected and the selected type is file-based, extension detection can recompute the most specific type.
 
+## Collections and Progress
+
+Each specialized form includes shared Collections, Priority, and Progress controls. Collection input supports multiple comma-separated collection names and creates new collections by assigning them to the saved resource.
+
 ## Validation
 
 Validation is type-specific and appears next to the relevant field. URL-only resources require a URL. File-only resources require a vault file. Book and Other require either a vault file or URL.

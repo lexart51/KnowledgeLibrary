@@ -15,9 +15,12 @@ The view includes:
 - Type filter
 - Tag filter
 - Status filter
+- Collection filter
+- Priority filter
+- Progress filter for not started, in progress, and completed
 - Favorites filter
 - Completed filter
-- Sort by recently updated or title
+- Sort by progress, priority, recently added, recently updated, or title
 - Refresh button
 - Visible item count
 
@@ -25,7 +28,7 @@ The view includes:
 
 Resources render in a card grid. Cards show a thumbnail for image-backed resources, YouTube thumbnails when available, or a compact placeholder for non-image resources.
 
-Each card includes actions to open the note, open the external resource, toggle favorite, and toggle completed.
+Each card includes type and priority badges, collection badges, a compact progress bar when progress is greater than zero, and actions to open the note, open the external resource, toggle favorite, toggle completed, and quick-edit progress.
 
 ## YouTube Thumbnail Fallbacks
 
@@ -37,3 +40,7 @@ The view renders `resource.thumbnail` first. If loading fails, YouTube resources
 4. `https://i.ytimg.com/vi/<video_id>/mqdefault.jpg`
 
 If all image candidates fail, the card shows the placeholder.
+
+## Dashboard
+
+Knowledge Library: Open Dashboard opens a lightweight dashboard view with counts by type and collection, progress buckets, favorites, high-priority resources, missing files, and recent additions/updates. It reads existing vault data only.

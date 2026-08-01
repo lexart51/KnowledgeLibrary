@@ -45,4 +45,4 @@ The deserializer reads legacy fields without modifying files during simple reads
 
 `VaultResourceRepository` scans configured folders, ignores backup/quarantine/report/template/system paths, creates and updates resource notes, finds resources by id, finds YouTube resources by video id, and deduplicates by provider-specific keys.
 
-Updates rewrite frontmatter while preserving user-written Markdown sections below the frontmatter block.
+Updates rewrite canonical frontmatter while preserving user-written Markdown sections below the frontmatter block and unrelated/unknown frontmatter keys. Collections and relationships are stored in the resource note frontmatter; no separate proprietary database files are used.

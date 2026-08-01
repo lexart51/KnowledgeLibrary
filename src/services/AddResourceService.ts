@@ -1,11 +1,13 @@
 import { App, TFile } from "obsidian";
 import { KnowledgeLibraryPluginSettings } from "../core/settings";
-import { KnowledgeResource, KnowledgeResourceType, ResourceInput } from "../models/KnowledgeResource";
+import { KnowledgeResource, KnowledgeResourcePriority, KnowledgeResourceProgressUnit, KnowledgeResourceType, ResourceInput } from "../models/KnowledgeResource";
 import { parseYouTubeUrl } from "../providers/YouTubeProvider";
 import { normalizeWebsiteUrl } from "../providers/WebsiteProvider";
 import { FileResourceService } from "./FileResourceService";
 import { TagService } from "./TagService";
 import { ResourceService } from "./ResourceService";
+import { CollectionService } from "./CollectionService";
+import { ProgressService } from "./ProgressService";
 import { StoredResource, VaultResourceRepository } from "./VaultResourceRepository";
 
 export type AddResourceKind = "youtube" | "website" | "pdf" | "book" | "powerpoint" | "document" | "markdown" | "image" | "script" | "skill" | "archive" | "other";
@@ -33,6 +35,13 @@ export interface AddResourceRequest {
   version?: string;
   archiveFormat?: string;
   resourceSubtype?: string;
+  collections?: string[];
+  progress?: number;
+  progress_unit?: KnowledgeResourceProgressUnit;
+  current_position?: number | null;
+  total_units?: number | null;
+  priority?: KnowledgeResourcePriority;
+  completed?: boolean;
 }
 
 export interface AddResourceResult {
@@ -47,7 +56,9 @@ export class AddResourceService {
     private readonly settings: KnowledgeLibraryPluginSettings,
     private readonly resourceService: ResourceService,
     private readonly repository: VaultResourceRepository,
-    private readonly tagService = new TagService()
+    private readonly tagService = new TagService(),
+    private readonly collectionService = new CollectionService(),
+    private readonly progressService = new ProgressService()
   ) {}
 
   async addResource(request: AddResourceRequest): Promise<AddResourceResult> {
@@ -78,6 +89,13 @@ export class AddResourceService {
 
   private toResourceInput(request: AddResourceRequest): ResourceInput {
     const tags = this.getCanonicalTags(parseTagInput(request.tags ?? []));
+    const progress = this.progressService.normalize({
+      completed: request.completed,
+      progress: request.progress,
+      progress_unit: request.progress_unit,
+      current_position: request.current_position,
+      total_units: request.total_units
+    });
     const metadata = compactMetadata({
       edition: request.edition,
       publisher: request.publisher,
@@ -104,6 +122,13 @@ export class AddResourceService {
         title: request.title?.trim() || undefined,
         creator: request.creator?.trim() || undefined,
         tags,
+        collections: this.collectionService.normalizeCollections(parseTagInput(request.collections ?? [])),
+        completed: progress.completed,
+        progress: progress.progress,
+        progress_unit: progress.progress_unit,
+        current_position: progress.current_position,
+        total_units: progress.total_units,
+        priority: request.priority ?? "normal",
         metadata
       };
     }
@@ -114,6 +139,13 @@ export class AddResourceService {
       title: request.title?.trim() || undefined,
       creator: request.creator?.trim() || undefined,
       tags,
+      collections: this.collectionService.normalizeCollections(parseTagInput(request.collections ?? [])),
+      completed: progress.completed,
+      progress: progress.progress,
+      progress_unit: progress.progress_unit,
+      current_position: progress.current_position,
+      total_units: progress.total_units,
+      priority: request.priority ?? "normal",
       metadata: {
         ...metadata,
         ...this.getFileMetadata(required(request.filePath, "Vault file is required."))

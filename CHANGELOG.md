@@ -4,6 +4,15 @@
 
 - No unreleased changes.
 
+## 6.2.0
+
+- Added optional resource frontmatter for collections, progress tracking, priority, and typed related-resource relationships.
+- Added `CollectionService`, `ProgressService`, and `RelationshipService` with normalization, planning, validation, and relationship lookup rules.
+- Added collection, priority, and progress filters; progress/priority sorting; collection badges; priority indicators; progress bars; and quick progress edits to library cards.
+- Added Manage collections, Edit selected resource, and Knowledge Dashboard commands using existing vault resource notes only.
+- Added 6.2.0 documentation for collections, progress, relationships, and dashboard.
+- Updated plugin metadata and status bar label to `6.2.0`.
+
 ## 6.1.0
 
 - Replaced the generic Add Resource form with specialized forms for YouTube, websites, PDFs, books, PowerPoint, Word/Text documents, Markdown, images, scripts, skills, archives, and other resources.
@@ -11,6 +20,7 @@
 - Added natural-height modal behavior so the footer follows visible form content and the modal scrolls vertically only when needed.
 - Added type-specific validation, optional manual metadata disclosures for YouTube and Website, and focused file metadata fields for local vault file resources.
 - Updated plugin metadata and status bar label to `6.1.0`.
+
 ## 6.0.0-rc.2
 
 - Fixed Add Resource modal horizontal overflow by using viewport-safe modal sizing, shrink-safe grid columns, full-width rows, and vertical-only modal scrolling.

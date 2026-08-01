@@ -5,7 +5,7 @@
 ## Fields
 
 - `id`: deterministic internal identifier generated from provider type and canonical source.
-- `type`: resource family, currently `youtube`, `website`, or `file`.
+- `type`: resource family, including `youtube`, `website`, `pdf`, `book`, `powerpoint`, `document`, `markdown`, `image`, `script`, `skill`, `archive`, `file`, and `other`.
 - `title`: display title.
 - `creator`: author, channel, publisher, or creator when known.
 - `source`: provider or origin label.
@@ -24,3 +24,7 @@
 ## Tag Normalization
 
 Tags are lowercased, trimmed, converted from spaces to hyphens, canonicalized through aliases, and de-duplicated. For example, `ia`, `AI`, and `artificial intelligence` all resolve to `ai`.
+
+## Organization Fields
+
+Collections, progress, priority, and relationships are optional for backward compatibility. Legacy reads populate safe in-memory defaults and do not require migration during read-only use. Relationship types are elated, complements, contradicts, xplains, prerequisite, continuation, source, and derived-from.

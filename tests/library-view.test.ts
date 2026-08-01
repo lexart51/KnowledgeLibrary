@@ -19,6 +19,7 @@ vi.mock("obsidian", () => ({
 import { DEFAULT_SETTINGS } from "../src/core/settings";
 import { KnowledgeResource } from "../src/models/KnowledgeResource";
 import { TagService } from "../src/services/TagService";
+import { CollectionService } from "../src/services/CollectionService";
 import { StoredResource } from "../src/services/VaultResourceRepository";
 import { KnowledgeLibraryView } from "../src/ui/KnowledgeLibraryView";
 
@@ -50,6 +51,7 @@ function viewWithResources(items: StoredResource[]): KnowledgeLibraryView {
   const view = new KnowledgeLibraryView({} as never, {
     settings: DEFAULT_SETTINGS,
     tagService,
+    collectionService: new CollectionService(),
     resourceRepository: { list: vi.fn(async () => items) },
     openAddResourceModal: vi.fn()
   } as never);

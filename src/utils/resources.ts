@@ -20,6 +20,13 @@ export function createBaseResource(input: ResourceInput, type: KnowledgeResource
     favorite: input.favorite ?? false,
     completed: input.completed ?? false,
     rating: input.rating ?? null,
+    collections: input.collections ?? [],
+    progress: input.completed ? 100 : input.progress ?? 0,
+    progress_unit: input.progress_unit ?? "percent",
+    current_position: input.current_position ?? null,
+    total_units: input.total_units ?? null,
+    priority: input.priority ?? "normal",
+    related_resources: input.related_resources ?? [],
     createdAt,
     updatedAt,
     metadata: input.metadata ?? {}

@@ -4,7 +4,7 @@ KnowledgeLibrary is a professional Obsidian plugin for unified personal knowledg
 
 ## Status
 
-`6.1.0`
+`6.2.0`
 
 ## Development
 
@@ -53,6 +53,9 @@ KnowledgeLibrary v6 installs side by side under plugin id and folder `knowledge-
 - Ribbon icon: opens the Knowledge Library view.
 - Command palette command: `Knowledge Library: Open Library`.
 - Command palette command: `Knowledge Library: Add Resource`.
+- Command palette command: `Knowledge Library: Manage collections`.
+- Command palette command: `Knowledge Library: Edit selected resource`.
+- Command palette command: `Knowledge Library: Open Dashboard`.
 - Command palette command: `Knowledge Library: Analyze existing vault`.
 - Command palette command: `Knowledge Library: Simulate migration`.
 - Command palette command: `Knowledge Library: Create migration backup`.
@@ -60,15 +63,15 @@ KnowledgeLibrary v6 installs side by side under plugin id and folder `knowledge-
 - Command palette command: `Knowledge Library: Analyze tags`.
 - Command palette command: `Knowledge Library: Consolidate tag aliases`.
 - Command palette command: `Knowledge Library: Repair YouTube thumbnails`.
-- Status bar: `KL 6.1.0`.
-- Polished native library view with responsive toolbar, search, filters, missing-file filtering, sorting, card grid, note/resource actions, and favorite/completed toggles.
+- Status bar: `KL 6.2.0`.
+- Polished native library view with responsive toolbar, search, tags, collections, priority, progress filters, sorting, card grid, note/resource actions, quick progress edits, and favorite/completed toggles.
 - Read-only migration analysis and simulation commands for existing vault compatibility.
 - Confirmed safe write workflows for migration backup, migration apply, tag consolidation, and YouTube thumbnail repair.
 - Specialized Add Resource wizard for YouTube, websites, PDFs, books, PowerPoint, Word/Text documents, Markdown, images, scripts, skills, archives, and other resources, all using the shared creation pipeline.
 - Settings-driven storage paths:
   - Library folder: `01 - Biblioteca`
   - Resources folder: `01 - Biblioteca/Recursos`
-- Markdown resource notes with YAML frontmatter.
+- Markdown resource notes with YAML frontmatter for resource identity, tags, collections, progress, priority, relationships, and provider metadata.
 
 ## Documentation
 
@@ -83,6 +86,10 @@ KnowledgeLibrary v6 installs side by side under plugin id and folder `knowledge-
 - [Thumbnail Repair](docs/THUMBNAIL_REPAIR.md)
 - [Add Resource](docs/ADD_RESOURCE.md)
 - [Specialized Forms](docs/SPECIALIZED_FORMS.md)
+- [Collections](docs/COLLECTIONS.md)
+- [Progress](docs/PROGRESS.md)
+- [Relationships](docs/RELATIONSHIPS.md)
+- [Dashboard](docs/DASHBOARD.md)
 - [File Resources](docs/FILE_RESOURCES.md)
 - [File Picker](docs/FILE_PICKER.md)
 - [Drag And Drop](docs/DRAG_AND_DROP.md)

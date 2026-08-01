@@ -15,6 +15,27 @@ export function registerLibraryCommands(plugin: KnowledgeLibraryPlugin): void {
   });
 
   plugin.addCommand({ id: "add-resource", name: "Knowledge Library: Add Resource", callback: () => plugin.openAddResourceModal() });
+  plugin.addCommand({ id: "manage-collections", name: "Knowledge Library: Manage collections", callback: () => plugin.openCollectionsManager() });
+
+  plugin.addCommand({
+    id: "edit-selected-resource",
+    name: "Knowledge Library: Edit selected resource",
+    callback: () => {
+      void plugin.openSelectedResourceEditor().catch((error) => {
+        new Notice(error instanceof Error ? error.message : "Unable to edit selected resource.");
+      });
+    }
+  });
+
+  plugin.addCommand({
+    id: "open-dashboard",
+    name: "Knowledge Library: Open Dashboard",
+    callback: () => {
+      void plugin.openDashboardView().catch((error) => {
+        new Notice(error instanceof Error ? error.message : "Unable to open Knowledge Dashboard.");
+      });
+    }
+  });
 
   plugin.addCommand({
     id: "analyze-existing-vault",

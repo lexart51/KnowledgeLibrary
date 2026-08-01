@@ -518,3 +518,113 @@
     flex: 1 1 100%;
   }
 }
+
+.knowledge-library-priority-badge,
+.knowledge-library-collection-badge {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  padding: 3px 6px;
+}
+
+.knowledge-library-priority-badge.is-high {
+  color: var(--text-error);
+}
+
+.knowledge-library-priority-badge.is-low {
+  color: var(--text-faint);
+}
+
+.knowledge-library-collection-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+}
+
+.knowledge-library-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.knowledge-library-progress-label {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.knowledge-library-progress-bar {
+  background: var(--background-modifier-border);
+  border-radius: 6px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.knowledge-library-progress-fill {
+  background: var(--interactive-accent);
+  height: 100%;
+}
+
+.knowledge-library-collections-field,
+.knowledge-library-progress-field,
+.knowledge-library-relationships-section {
+  grid-column: 1 / -1;
+}
+
+.knowledge-library-progress-field,
+.knowledge-library-editor-form,
+.knowledge-library-relationships-section,
+.knowledge-library-management-list,
+.knowledge-library-dashboard {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.knowledge-library-progress-field,
+.knowledge-library-editor-form {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.knowledge-library-management-row,
+.knowledge-library-relationship-row {
+  align-items: center;
+  border-bottom: 1px solid var(--background-modifier-border);
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) minmax(0, 1fr) auto auto auto;
+  padding: 8px 0;
+}
+
+.knowledge-library-management-name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.knowledge-library-management-count {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.knowledge-library-dashboard-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.knowledge-library-dashboard-list {
+  margin-top: 0;
+}
+
+@media (max-width: 760px) {
+  .knowledge-library-progress-field,
+  .knowledge-library-editor-form,
+  .knowledge-library-management-row,
+  .knowledge-library-relationship-row {
+    grid-template-columns: 1fr;
+  }
+}

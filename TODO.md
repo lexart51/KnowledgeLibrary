@@ -1,6 +1,6 @@
 # TODO
 
-- Deploy KnowledgeLibrary 6.1.0 into the YouTubes vault only after confirming the target path.
+- Deploy KnowledgeLibrary 6.2.0 into the YouTubes vault only after confirming the target path.
 - Run migration analysis and review generated counts in Obsidian.
 - Create migration backup before any apply operation.
 - Add richer provider metadata extraction.
@@ -33,3 +33,9 @@
 - Replaced the generic Add Resource wizard with specialized type-specific forms.
 - Preserved the shared AddResourceService persistence pipeline for every form.
 - Added natural-height modal sizing and tests for specialized form behavior.
+
+## Completed in 6.2.0
+
+- Added collections, progress tracking, priority, resource relationships, and dashboard.
+- Added collection management and selected-resource editing commands.
+- Added regression coverage for new organization and tracking services.

@@ -1,6 +1,18 @@
-import { KnowledgeResource, KnowledgeResourceMetadata, KnowledgeResourceStatus, KnowledgeResourceType } from "../models/KnowledgeResource";
+import {
+  KnowledgeResource,
+  KnowledgeResourceMetadata,
+  KnowledgeResourcePriority,
+  KnowledgeResourceProgressUnit,
+  KnowledgeResourceRelationship,
+  KnowledgeResourceRelationshipType,
+  KnowledgeResourceStatus,
+  KnowledgeResourceType
+} from "../models/KnowledgeResource";
 import { buildYouTubeThumbnailFallbacks } from "../providers/YouTubeProvider";
 import { createResourceId } from "../utils/ids";
+import { CollectionService } from "./CollectionService";
+import { ProgressService } from "./ProgressService";
+import { RELATIONSHIP_TYPES } from "./RelationshipService";
 import { TagService } from "./TagService";
 
 export interface DeserializedResourceNote {
@@ -16,27 +28,21 @@ function parseScalar(value: string): unknown {
   if (trimmed === "" || trimmed === "null") {
     return null;
   }
-
   if (trimmed === "true") {
     return true;
   }
-
   if (trimmed === "false") {
     return false;
   }
-
   if (trimmed === "[]") {
     return [];
   }
-
   if (trimmed === "{}") {
     return {};
   }
-
   if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
     return Number(trimmed);
   }
-
   if ((trimmed.startsWith('"') && trimmed.endsWith('"')) || (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
     try {
       return JSON.parse(trimmed);
@@ -51,28 +57,10 @@ function parseScalar(value: string): unknown {
 function parseYamlBlock(yaml: string): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   const lines = yaml.split(/\r?\n/);
-  let currentKey: string | null = null;
 
-  for (const line of lines) {
-    if (line.trim().length === 0) {
-      continue;
-    }
-
-    const listMatch = /^\s+-\s*(.*)$/.exec(line);
-    if (listMatch && currentKey) {
-      const existing = result[currentKey];
-      const values = Array.isArray(existing) ? existing : [];
-      values.push(parseScalar(listMatch[1]));
-      result[currentKey] = values;
-      continue;
-    }
-
-    const nestedPairMatch = /^\s{2}([^:]+):\s*(.*)$/.exec(line);
-    if (nestedPairMatch && currentKey) {
-      const existing = result[currentKey];
-      const objectValue = existing && typeof existing === "object" && !Array.isArray(existing) ? existing as Record<string, unknown> : {};
-      objectValue[nestedPairMatch[1].trim()] = parseScalar(nestedPairMatch[2]);
-      result[currentKey] = objectValue;
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (!line || /^\s/.test(line)) {
       continue;
     }
 
@@ -81,12 +69,65 @@ function parseYamlBlock(yaml: string): Record<string, unknown> {
       continue;
     }
 
-    currentKey = pairMatch[1].trim();
+    const key = pairMatch[1].trim();
     const rawValue = pairMatch[2];
-    result[currentKey] = rawValue.length === 0 ? {} : parseScalar(rawValue);
+    if (rawValue.length > 0) {
+      result[key] = parseScalar(rawValue);
+      continue;
+    }
+
+    const children: string[] = [];
+    while (index + 1 < lines.length && /^\s+/.test(lines[index + 1])) {
+      index += 1;
+      children.push(lines[index]);
+    }
+    result[key] = parseChildren(children);
   }
 
   return result;
+}
+
+function parseChildren(lines: string[]): unknown {
+  if (lines.length === 0) {
+    return {};
+  }
+
+  if (lines.some((line) => /^\s*-\s*/.test(line))) {
+    const list: unknown[] = [];
+    let currentObject: Record<string, unknown> | null = null;
+
+    for (const line of lines) {
+      const itemMatch = /^\s*-\s*(.*)$/.exec(line);
+      if (itemMatch) {
+        const item = itemMatch[1];
+        const pair = /^([^:]+):\s*(.*)$/.exec(item);
+        if (pair) {
+          currentObject = { [pair[1].trim()]: parseScalar(pair[2]) };
+          list.push(currentObject);
+        } else {
+          currentObject = null;
+          list.push(parseScalar(item));
+        }
+        continue;
+      }
+
+      const nestedPair = /^\s{4,}([^:]+):\s*(.*)$/.exec(line);
+      if (nestedPair && currentObject) {
+        currentObject[nestedPair[1].trim()] = parseScalar(nestedPair[2]);
+      }
+    }
+
+    return list;
+  }
+
+  const objectValue: Record<string, unknown> = {};
+  for (const line of lines) {
+    const pair = /^\s+([^:]+):\s*(.*)$/.exec(line);
+    if (pair) {
+      objectValue[pair[1].trim()] = parseScalar(pair[2]);
+    }
+  }
+  return objectValue;
 }
 
 function splitFrontmatter(markdown: string): { frontmatter: Record<string, unknown>; body: string } {
@@ -119,6 +160,10 @@ function booleanOrDefault(value: unknown, fallback: boolean): boolean {
 
 function numberOrNull(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function numberOrDefault(value: unknown, fallback: number): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
 function tagsFrom(value: unknown): string[] {
@@ -167,8 +212,42 @@ function statusFrom(value: unknown): KnowledgeResourceStatus {
   return value === "archived" || value === "unavailable" ? value : "active";
 }
 
+function progressUnitFrom(value: unknown): KnowledgeResourceProgressUnit {
+  return value === "pages" || value === "slides" || value === "chapters" || value === "minutes" || value === "custom" ? value : "percent";
+}
+
+function priorityFrom(value: unknown): KnowledgeResourcePriority {
+  return value === "low" || value === "high" ? value : "normal";
+}
+
+function relationshipTypeFrom(value: unknown): KnowledgeResourceRelationshipType {
+  return RELATIONSHIP_TYPES.includes(value as KnowledgeResourceRelationshipType) ? value as KnowledgeResourceRelationshipType : "related";
+}
+
+function relationshipsFrom(value: unknown): KnowledgeResourceRelationship[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.flatMap((item) => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) {
+      return [];
+    }
+    const record = item as Record<string, unknown>;
+    const resourceId = stringOrNull(record.resource_id);
+    if (!resourceId) {
+      return [];
+    }
+    return [{ resource_id: resourceId, relationship_type: relationshipTypeFrom(record.relationship_type), note: stringOrDefault(record.note, "") }];
+  });
+}
+
 export class ResourceDeserializer {
-  constructor(private readonly tagService = new TagService()) {}
+  constructor(
+    private readonly tagService = new TagService(),
+    private readonly collectionService = new CollectionService(),
+    private readonly progressService = new ProgressService()
+  ) {}
 
   deserialize(markdown: string, pathSeed = "resource"): DeserializedResourceNote | null {
     const { frontmatter, body } = splitFrontmatter(markdown);
@@ -186,6 +265,14 @@ export class ResourceDeserializer {
     const title = stringOrDefault(frontmatter.title, "Untitled resource");
     const createdAt = stringOrDefault(frontmatter.created_at ?? frontmatter.date_added ?? frontmatter.date_shared, new Date(0).toISOString());
     const updatedAt = stringOrDefault(frontmatter.updated_at, createdAt);
+    const completed = booleanOrDefault(frontmatter.completed, booleanOrDefault(frontmatter.watched, false));
+    const progress = this.progressService.normalize({
+      completed,
+      progress: numberOrDefault(frontmatter.progress, completed ? 100 : 0),
+      progress_unit: progressUnitFrom(frontmatter.progress_unit),
+      current_position: numberOrNull(frontmatter.current_position),
+      total_units: numberOrNull(frontmatter.total_units)
+    });
 
     if (!frontmatter.resource_id && !frontmatter.type && !url && !filePath && !legacyVideoId) {
       return null;
@@ -202,9 +289,16 @@ export class ResourceDeserializer {
         filePath,
         thumbnail: stringOrNull(frontmatter.thumbnail) ?? stringOrNull(frontmatter.image) ?? (legacyVideoId ? buildYouTubeThumbnailFallbacks(legacyVideoId)[0] : null),
         tags: this.tagService.normalizeTags(tagsFrom(frontmatter.tags)),
+        collections: this.collectionService.normalizeCollections(tagsFrom(frontmatter.collections)),
         status: statusFrom(frontmatter.status),
         favorite: booleanOrDefault(frontmatter.favorite, false),
-        completed: booleanOrDefault(frontmatter.completed, booleanOrDefault(frontmatter.watched, false)),
+        completed: progress.completed,
+        progress: progress.progress,
+        progress_unit: progress.progress_unit,
+        current_position: progress.current_position,
+        total_units: progress.total_units,
+        priority: priorityFrom(frontmatter.priority),
+        related_resources: relationshipsFrom(frontmatter.related_resources),
         rating: numberOrNull(frontmatter.rating),
         createdAt,
         updatedAt,

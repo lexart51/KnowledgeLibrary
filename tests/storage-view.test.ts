@@ -30,6 +30,13 @@ function resource(overrides: Partial<KnowledgeResource> = {}): KnowledgeResource
     createdAt: "2026-01-01T00:00:00.000Z",
     updatedAt: "2026-01-02T00:00:00.000Z",
     metadata: { videoId: "dQw4w9WgXcQ", provider: "youtube" },
+    collections: [],
+    progress: 0,
+    progress_unit: "percent",
+    current_position: null,
+    total_units: null,
+    priority: "normal",
+    related_resources: [],
     ...overrides
   };
 }

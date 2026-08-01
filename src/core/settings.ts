@@ -16,7 +16,7 @@ export interface KnowledgeLibraryPluginSettings {
 }
 
 export const DEFAULT_SETTINGS: KnowledgeLibraryPluginSettings = {
-  versionLabel: "KL 6.1.0",
+  versionLabel: "KL 6.2.0",
   libraryFolder: "01 - Biblioteca",
   resourcesFolder: "01 - Biblioteca/Recursos",
   includeLegacyNotes: true,

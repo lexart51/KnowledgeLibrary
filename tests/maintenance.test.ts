@@ -66,7 +66,7 @@ describe("SafeMigrationService", () => {
     await new SafeMigrationService(app as never, DEFAULT_SETTINGS).applyMigration(false);
     const migrated = store.get("YouTubes/hermes.md") ?? "";
 
-    expect(migrated).toContain("schema_version: 2");
+    expect(migrated).toContain("schema_version: 3");
     expect(migrated).toContain("type: youtube");
     expect(migrated).toContain("creator: Hermes");
     expect(migrated).toContain("completed: true");

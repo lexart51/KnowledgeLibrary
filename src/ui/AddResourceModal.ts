@@ -1,5 +1,6 @@
 import { App, Modal, Notice, TFile } from "obsidian";
 import { AddResourceKind, AddResourceRequest } from "../services/AddResourceService";
+import { KnowledgeResourceProgressUnit } from "../models/KnowledgeResource";
 import { FileResourceService } from "../services/FileResourceService";
 import KnowledgeLibraryPlugin from "../main";
 
@@ -18,7 +19,7 @@ const RESOURCE_TYPES: Array<{ value: AddResourceKind; label: string }> = [
   { value: "other", label: "Other" }
 ];
 
-type ValidationKey = "url" | "filePath" | "title" | "tags" | "global";
+type ValidationKey = "url" | "filePath" | "title" | "tags" | "progress" | "global";
 
 interface AddResourceFormState {
   kind: AddResourceKind;
@@ -27,6 +28,12 @@ interface AddResourceFormState {
   title: string;
   creator: string;
   tags: string;
+  collections: string;
+  priority: "low" | "normal" | "high";
+  progress: string;
+  progressUnit: KnowledgeResourceProgressUnit;
+  currentPosition: string;
+  totalUnits: string;
   notes: string;
   manualMetadata: boolean;
   publisher: string;
@@ -53,6 +60,12 @@ const INITIAL_STATE: AddResourceFormState = {
   title: "",
   creator: "",
   tags: "",
+  collections: "",
+  priority: "normal",
+  progress: "0",
+  progressUnit: "percent",
+  currentPosition: "",
+  totalUnits: "",
   notes: "",
   manualMetadata: false,
   publisher: "",
@@ -216,9 +229,69 @@ export class AddResourceModal extends Modal {
 
   private renderCommonFields(parent: HTMLElement): void {
     this.renderTextInput(parent, "Tags", "tags", "Resource tags", "knowledge-library-tags-field", this.plugin.settings.defaultTag);
+    this.renderCollectionsField(parent);
+    this.renderProgressFields(parent);
     this.renderTextarea(parent, "Notes / observations", "notes", "Notes or observations", "knowledge-library-notes-field");
   }
 
+
+
+  private renderCollectionsField(parent: HTMLElement): void {
+    const field = parent.createEl("label", { cls: "knowledge-library-add-field knowledge-library-collections-field" });
+    field.createEl("span", { text: "Collections" });
+    const listId = "knowledge-library-collection-options";
+    const input = field.createEl("input", { attr: { "aria-label": "Collections", title: "Collections", placeholder: "Comma-separated collections", list: listId } });
+    input.value = this.state.collections;
+    input.addEventListener("input", () => {
+      this.state.collections = input.value;
+      this.updateValidation();
+    });
+    const datalist = field.createEl("datalist", { attr: { id: listId } });
+    void this.plugin.resourceRepository.list().then((resources) => {
+      datalist.empty();
+      for (const collection of this.plugin.collectionService.collectionCounts(resources).map((item) => item.name)) {
+        datalist.createEl("option", { value: collection });
+      }
+    });
+  }
+  private renderProgressFields(parent: HTMLElement): void {
+    const group = parent.createDiv({ cls: "knowledge-library-progress-field" });
+    this.renderSelect(group, "Priority", "priority", [
+      { value: "low", label: "Low" },
+      { value: "normal", label: "Normal" },
+      { value: "high", label: "High" }
+    ], "Resource priority").addEventListener("change", (event) => {
+      this.state.priority = (event.target as HTMLSelectElement).value as AddResourceFormState["priority"];
+    });
+
+    const unit = this.progressUnitForType();
+    this.state.progressUnit = unit;
+    if (unit === "percent" || this.state.kind === "youtube") {
+      this.renderTextInput(group, "Progress percent", "progress", "Progress percent");
+    } else {
+      this.renderTextInput(group, this.positionLabel(), "currentPosition", this.positionLabel());
+      this.renderTextInput(group, this.totalLabel(), "totalUnits", this.totalLabel());
+    }
+    this.renderValidation(group, "progress");
+  }
+
+  private progressUnitForType(): KnowledgeResourceProgressUnit {
+    if (this.state.kind === "pdf" || this.state.kind === "book") {
+      return "pages";
+    }
+    if (this.state.kind === "powerpoint") {
+      return "slides";
+    }
+    return "percent";
+  }
+
+  private positionLabel(): string {
+    return this.state.kind === "powerpoint" ? "Current slide" : "Current page";
+  }
+
+  private totalLabel(): string {
+    return this.state.kind === "powerpoint" ? "Total slides" : "Total pages";
+  }
   private renderActions(parent: HTMLElement): void {
     const actions = parent.createDiv({ cls: "knowledge-library-add-actions" });
     const cancelButton = actions.createEl("button", { text: "Cancel", attr: { "aria-label": "Cancel Add Resource", title: "Cancel" } });
@@ -463,6 +536,11 @@ export class AddResourceModal extends Modal {
     if (FILE_BASED_TYPES.has(this.state.kind) && !filePath) {
       errors.set("filePath", "Select a vault file.");
     }
+    const progressError = this.validateProgress();
+    if (progressError) {
+      errors.set("progress", progressError);
+    }
+
     if ((this.state.kind === "book" || this.state.kind === "other") && !filePath && !url) {
       errors.set("filePath", "Select a vault file or enter a URL.");
       errors.set("url", "Enter a URL or select a vault file.");
@@ -471,6 +549,30 @@ export class AddResourceModal extends Modal {
     return errors;
   }
 
+
+  private validateProgress(): string | null {
+    const progress = this.optionalNumber(this.state.progress);
+    const current = this.optionalNumber(this.state.currentPosition);
+    const total = this.optionalNumber(this.state.totalUnits);
+    if (progress !== null && (!Number.isFinite(progress) || progress < 0 || progress > 100)) {
+      return "Progress must be from 0 to 100.";
+    }
+    if (current !== null && (!Number.isFinite(current) || current < 0)) {
+      return "Current position cannot be negative.";
+    }
+    if (total !== null && (!Number.isFinite(total) || total <= 0)) {
+      return "Total units must be greater than zero.";
+    }
+    return null;
+  }
+
+  private optionalNumber(value: string): number | null {
+    if (!value.trim()) {
+      return null;
+    }
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : Number.NaN;
+  }
   private buildRequest(): AddResourceRequest {
     return {
       kind: this.state.kind,
@@ -479,6 +581,13 @@ export class AddResourceModal extends Modal {
       title: this.state.manualMetadata || this.shouldSubmitTitle() ? this.state.title : undefined,
       creator: this.state.manualMetadata || this.shouldSubmitCreator() ? this.state.creator : undefined,
       tags: [this.state.tags],
+      collections: [this.state.collections],
+      priority: this.state.priority,
+      progress: this.optionalNumber(this.state.progress) ?? undefined,
+      progress_unit: this.state.progressUnit,
+      current_position: this.optionalNumber(this.state.currentPosition),
+      total_units: this.optionalNumber(this.state.totalUnits),
+      completed: this.optionalNumber(this.state.progress) === 100,
       notes: this.state.notes,
       edition: this.state.edition,
       publisher: this.state.publisher,

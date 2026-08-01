@@ -5,6 +5,8 @@ import { parseYouTubeUrl } from "../providers/YouTubeProvider";
 import { FileResourceService } from "./FileResourceService";
 import { ResourceDeserializer } from "./ResourceDeserializer";
 import { ResourceSerializer } from "./ResourceSerializer";
+import { CollectionService } from "./CollectionService";
+import { ProgressService } from "./ProgressService";
 import { TagService } from "./TagService";
 
 export interface StoredResource {
@@ -59,7 +61,9 @@ export class VaultResourceRepository {
     private readonly settings: KnowledgeLibraryPluginSettings,
     private readonly serializer = new ResourceSerializer(),
     private readonly deserializer = new ResourceDeserializer(),
-    private readonly tagService = new TagService()
+    private readonly tagService = new TagService(),
+    private readonly collectionService = new CollectionService(),
+    private readonly progressService = new ProgressService()
   ) {}
 
   async list(): Promise<StoredResource[]> {
@@ -94,7 +98,7 @@ export class VaultResourceRepository {
 
     const current = this.deserializer.deserialize(await this.app.vault.read(file), file.path);
     const normalized = this.normalizeResource({ ...resource, updatedAt: new Date().toISOString() });
-    await this.app.vault.modify(file, this.serializer.serialize(normalized, current?.body ?? ""));
+    await this.app.vault.modify(file, this.serializer.serialize(normalized, current?.body ?? "", current?.frontmatter ?? {}));
 
     return { resource: normalized, path: file.path, legacy: false };
   }
@@ -137,7 +141,17 @@ export class VaultResourceRepository {
       id: filePath ? FileResourceService.deterministicResourceId(filePath) : resource.id,
       filePath,
       thumbnail: resource.thumbnail ?? (filePath && resource.type === "image" ? filePath : null),
-      tags: this.tagService.normalizeTags(resource.tags)
+      tags: this.tagService.normalizeTags(resource.tags),
+      collections: this.collectionService.normalizeCollections(resource.collections ?? []),
+      ...this.progressService.normalize({
+        completed: resource.completed,
+        progress: resource.progress,
+        progress_unit: resource.progress_unit,
+        current_position: resource.current_position,
+        total_units: resource.total_units
+      }),
+      priority: resource.priority ?? "normal",
+      related_resources: resource.related_resources ?? []
     };
   }
 

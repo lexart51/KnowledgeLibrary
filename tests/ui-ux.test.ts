@@ -172,6 +172,26 @@ describe("UI/UX regression contracts", () => {
     expect(modal).not.toContain('new AddResourceService');
   });
 
+
+  it("declares 6.2 organization UI hooks", () => {
+    const modal = source("src/ui/AddResourceModal.ts");
+    const view = source("src/ui/KnowledgeLibraryView.ts");
+    const commands = source("src/commands/libraryCommands.ts");
+    const dashboard = source("src/ui/KnowledgeDashboardView.ts");
+
+    expect(modal).toContain("knowledge-library-collections-field");
+    expect(modal).toContain("datalist");
+    expect(modal).toContain("knowledge-library-progress-field");
+    expect(view).toContain('this.createSelect(filterGroup, "Collection"');
+    expect(view).toContain('this.createSelect(filterGroup, "Priority"');
+    expect(view).toContain('this.createSelect(filterGroup, "Progress"');
+    expect(view).toContain("knowledge-library-progress-bar");
+    expect(view).toContain("knowledge-library-collection-badge");
+    expect(commands).toContain("Knowledge Library: Manage collections");
+    expect(commands).toContain("Knowledge Library: Edit selected resource");
+    expect(commands).toContain("Knowledge Library: Open Dashboard");
+    expect(dashboard).toContain("calculateDashboardStats");
+  });
   it("groups settings into expected sections", () => {
     const settings = source("src/ui/KnowledgeLibrarySettingTab.ts");
 

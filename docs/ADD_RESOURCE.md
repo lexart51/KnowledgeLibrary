@@ -55,6 +55,9 @@ Books can use a local vault PDF/EPUB file or an external URL. The form requires 
 
 Changing type preserves common Tags and Notes, clears incompatible URL or file fields safely, and can recompute the detected file type when a selected file remains relevant.
 
+## Collections and Progress
+
+All specialized forms include Collections, Priority, and Progress controls. Collections accept comma-separated values, use autocomplete suggestions from existing resource notes, and are canonicalized before saving. PDF and Book resources use page progress, PowerPoint uses slide progress, and YouTube/generic resources use percentage progress.
 ## Tags
 
 Tags are canonicalized before saving. The default tag from settings is included, whitespace is trimmed, spaces become hyphens, `ia` merges into `ai`, and duplicates are removed.
