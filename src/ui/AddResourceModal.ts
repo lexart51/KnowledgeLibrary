@@ -47,6 +47,7 @@ export class AddResourceModal extends Modal {
   }
 
   onOpen(): void {
+    this.modalEl.addClass("knowledge-library-add-modal-shell");
     this.contentEl.empty();
     this.contentEl.addClass("knowledge-library-add-modal");
     this.contentEl.createEl("h2", { text: "Add Resource" });
@@ -60,7 +61,7 @@ export class AddResourceModal extends Modal {
     this.fileSelect = this.createFileSelect(this.fileField);
     this.titleInput = this.createInput(form.createDiv({ cls: "knowledge-library-add-field" }), "Title", "Resource title");
     this.creatorInput = this.createInput(form.createDiv({ cls: "knowledge-library-add-field" }), "Creator / Author", "Creator or author");
-    this.tagsInput = this.createTagInput(form.createDiv({ cls: "knowledge-library-add-field" }));
+    this.tagsInput = this.createTagInput(form.createDiv({ cls: "knowledge-library-add-field knowledge-library-tags-field" }));
 
     this.bookFields = form.createDiv({ cls: "knowledge-library-add-book-fields" });
     this.editionInput = this.createInput(this.bookFields.createDiv({ cls: "knowledge-library-add-field" }), "Edition", "Book edition");

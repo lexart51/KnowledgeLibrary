@@ -1,6 +1,6 @@
 # TODO
 
-- Deploy v6 rc.1 into the YouTubes vault only after confirming the target path.
+- Deploy v6 rc.2 into the YouTubes vault only after confirming the target path.
 - Run migration analysis and review generated counts in Obsidian.
 - Create migration backup before any apply operation.
 - Add richer provider metadata extraction.
@@ -23,3 +23,7 @@
 
 - Polished Add Resource modal layout, toolbar wrapping, card visual hierarchy, accessibility labels, and settings grouping.
 - Added UI/UX documentation and regression tests.
+
+## Completed in 6.0.0-rc.2
+
+- Hotfixed Add Resource modal overflow, clipped right column, selector sizing, and responsive grid behavior.

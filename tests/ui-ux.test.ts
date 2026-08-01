@@ -10,11 +10,13 @@ describe("UI/UX regression contracts", () => {
   it("keeps the Add Resource modal on responsive structure classes", () => {
     const modal = source("src/ui/AddResourceModal.ts");
 
+    expect(modal).toContain("knowledge-library-add-modal-shell");
     expect(modal).toContain("knowledge-library-add-modal");
     expect(modal).toContain("knowledge-library-add-form");
     expect(modal).toContain("knowledge-library-type-field");
     expect(modal).toContain("knowledge-library-file-picker-field");
     expect(modal).toContain("knowledge-library-field-validation");
+    expect(modal).toContain("knowledge-library-tags-field");
   });
 
   it("preserves conditional Add Resource fields by resource type", () => {
@@ -77,11 +79,35 @@ describe("UI/UX regression contracts", () => {
     expect(css).not.toMatch(/rgba?\(/);
   });
 
-  it("removes horizontal overflow rules while preserving vertical scrolling", () => {
+  it("uses viewport-safe modal sizing and removes horizontal overflow", () => {
     const css = source("src/styles.css");
 
+    expect(css).toMatch(/\.knowledge-library-add-modal\s*{[^}]*max-width:\s*calc\(100vw - 48px\);[^}]*overflow-y:\s*auto;[^}]*width:\s*min\(960px, calc\(100vw - 48px\)\);/s);
     expect(css).not.toMatch(/overflow-x\s*:/);
     expect(css).toMatch(/\.knowledge-library-scroll\s*{[^}]*height:\s*100%;[^}]*min-height:\s*0;[^}]*overflow-y:\s*auto;/s);
+  });
+
+  it("keeps the Add Resource grid shrink-safe", () => {
+    const css = source("src/styles.css");
+
+    expect(css).toContain("grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)");
+    expect(css).toMatch(/\.knowledge-library-add-form > \*,[\s\S]*?min-width:\s*0;/);
+    expect(css).toMatch(/\.knowledge-library-add-field input,[\s\S]*?max-width:\s*100%;[\s\S]*?width:\s*100%;/);
+  });
+
+  it("keeps full-width rows and sticky actions inside the modal grid", () => {
+    const css = source("src/styles.css");
+
+    expect(css).toMatch(/\.knowledge-library-tags-field,[\s\S]*?\.knowledge-library-add-actions\s*{[^}]*grid-column:\s*1 \/ -1;/);
+    expect(css).toMatch(/\.knowledge-library-add-actions\s*{[^}]*flex-wrap:\s*wrap;[^}]*position:\s*sticky;/s);
+  });
+
+  it("uses the rc.2 one-column breakpoint and constrained type selector", () => {
+    const css = source("src/styles.css");
+
+    expect(css).toContain("@media (max-width: 760px)");
+    expect(css).toMatch(/\.knowledge-library-add-form\s*{[^}]*grid-template-columns:\s*1fr;/s);
+    expect(css).toMatch(/\.knowledge-library-type-field select\s*{[^}]*max-height:\s*min\(320px, 50vh\);[^}]*width:\s*100%;/s);
   });
 
   it("groups settings into expected sections", () => {

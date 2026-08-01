@@ -2,7 +2,7 @@
 
 ## Open
 
-- v6 rc.1 is not deployed to the Obsidian vault yet.
+- v6 rc.2 is not deployed to the Obsidian vault yet.
 - Deployment scripts are prepared but have not been run against the YouTubes vault in this milestone.
 - Migration apply intentionally skips notes requiring manual review; unusual legacy note shapes may need manual cleanup before migration.
 - Tag consolidation updates YAML frontmatter tags only.
@@ -28,3 +28,9 @@
 - Add Resource modal layout is wider, responsive, and avoids horizontal scrolling.
 - Library toolbar and cards have improved spacing, wrapping, type labels, and action alignment.
 - Settings are grouped with short descriptions.
+
+## Fixed in 6.0.0-rc.2
+
+- Add Resource modal content no longer exceeds the visible modal width.
+- Two-column fields shrink correctly and switch to one column on narrow screens.
+- The resource type select is constrained to its field and does not create horizontal overflow.

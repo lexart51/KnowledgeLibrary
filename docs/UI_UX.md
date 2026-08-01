@@ -21,3 +21,7 @@ Styles use Obsidian CSS variables only, so light and dark themes inherit Obsidia
 ## Settings
 
 Settings are grouped into Storage, Migration and safety, Tags, File resources, and Display. Existing setting keys and defaults are unchanged.
+
+## 6.0.0-rc.2 Modal Overflow Hotfix
+
+The Add Resource modal now uses `width: min(960px, calc(100vw - 48px))` and `max-width: calc(100vw - 48px)`. The modal scrolls vertically only, its grid columns use `minmax(0, 1fr)`, and full-width rows such as Tags, validation, file picker, and actions span both columns. At narrow widths the form switches to one column at `760px`.

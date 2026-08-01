@@ -4,6 +4,12 @@
 
 - No unreleased changes.
 
+## 6.0.0-rc.2
+
+- Fixed Add Resource modal horizontal overflow by using viewport-safe modal sizing, shrink-safe grid columns, full-width rows, and vertical-only modal scrolling.
+- Constrained the native resource type selector and reinforced responsive one-column behavior at narrow widths.
+- Updated plugin metadata and status bar label to `6.0.0-rc.2`.
+
 ## 6.0.0-rc.1
 
 - Polished the Add Resource modal with a wider responsive layout, prominent vault file picker, inline field validation, constrained controls, sticky actions, and accessibility labels.
