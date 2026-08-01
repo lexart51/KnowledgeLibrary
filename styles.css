@@ -887,8 +887,10 @@
 }
 
 .knowledge-library-home-search input {
-  font-size: 18px;
-  min-height: 44px;
+  background: var(--background-primary);
+  border: 1px solid var(--interactive-accent);
+  font-size: 20px;
+  min-height: 52px;
   width: 100%;
 }
 
@@ -978,12 +980,20 @@
   min-width: 0;
 }
 
+.knowledge-library-home-row-action,
 .knowledge-library-home-progress {
   color: var(--interactive-accent);
   font-size: 12px;
   font-weight: 700;
   min-width: 42px;
   text-align: right;
+}
+
+.knowledge-library-home-row-action {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  color: var(--text-normal);
+  padding: 5px 8px;
 }
 
 .knowledge-library-home-timeline-group,
@@ -1019,6 +1029,7 @@
     grid-template-columns: 1fr;
   }
 
+  .knowledge-library-home-row-action,
   .knowledge-library-home-progress {
     text-align: left;
   }

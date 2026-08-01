@@ -136,6 +136,10 @@ export class KnowledgeHomeView extends ItemView {
 
   private renderTimeline(groups: HomeTimelineGroup[]): void {
     const section = this.section("Recent Activity");
+    if (groups.length === 0) {
+      section.createDiv({ text: "No recent activity this week.", cls: "knowledge-library-empty-state" });
+      return;
+    }
     for (const group of groups) {
       const groupEl = section.createDiv({ cls: "knowledge-library-home-timeline-group" });
       groupEl.createEl("h4", { text: group.label });
@@ -162,6 +166,10 @@ export class KnowledgeHomeView extends ItemView {
   private renderTagCloud(tags: HomeTagCloudItem[]): void {
     const section = this.section("Most Used Tags");
     const cloud = section.createDiv({ cls: "knowledge-library-home-tag-cloud" });
+    if (tags.length === 0) {
+      cloud.createDiv({ text: "No tags yet.", cls: "knowledge-library-empty-state" });
+      return;
+    }
     for (const tag of tags) {
       const chip = cloud.createEl("button", { text: `#${tag.tag}`, cls: `knowledge-library-home-tag is-weight-${tag.weight}`, attr: { "aria-label": `Open tag ${tag.tag}`, title: `Open tag ${tag.tag}` } });
       chip.addEventListener("click", () => void this.plugin.openLibraryView({ tag: tag.tag }));
@@ -176,7 +184,7 @@ export class KnowledgeHomeView extends ItemView {
     const progress = entry.progress ?? (entry.completed ? 100 : 0);
     row.createDiv({ text: progress > 0 ? `${progress}%` : "", cls: "knowledge-library-home-progress" });
     row.createDiv({ text: formatShortDate(lastTouched(entry)), cls: "knowledge-library-result-meta" });
-    const action = row.createEl("button", { text: actionLabel, cls: "knowledge-library-button", attr: { "aria-label": `${actionLabel} ${entry.title}`, title: `${actionLabel} ${entry.title}` } });
+    row.createSpan({ text: actionLabel, cls: "knowledge-library-home-row-action" });
     const open = (): void => this.openEntry(entry);
     row.addEventListener("click", open);
     row.addEventListener("keydown", (event) => {
@@ -184,10 +192,6 @@ export class KnowledgeHomeView extends ItemView {
         event.preventDefault();
         open();
       }
-    });
-    action.addEventListener("click", (event) => {
-      event.stopPropagation();
-      open();
     });
   }
 
@@ -228,8 +232,10 @@ export class KnowledgeHomeView extends ItemView {
 }
 
 export function buildHomeEntries(resources: StoredResource[], index: UnifiedKnowledgeIndex | null): UnifiedIndexEntry[] {
-  if (index?.entries.length) return index.entries;
-  return resources.map((item) => resourceToHomeEntry(item));
+  const activeEntries = resources.map((item) => resourceToHomeEntry(item));
+  if (!index?.entries.length) return activeEntries;
+  const indexedIds = new Set(index.entries.map((entry) => entry.id));
+  return [...activeEntries.filter((entry) => !indexedIds.has(entry.id)), ...index.entries];
 }
 
 export function homeOverviewCounts(entries: UnifiedIndexEntry[], index: UnifiedKnowledgeIndex | null = null): HomeOverviewCounts {
@@ -271,7 +277,7 @@ export function activityTimeline(entries: UnifiedIndexEntry[], now = new Date(),
     const target = groups.find((item) => item.label === group);
     if (target && target.entries.length < limitPerGroup) target.entries.push(entry);
   }
-  return groups;
+  return groups.filter((group) => group.entries.length > 0);
 }
 
 export function topTags(entries: UnifiedIndexEntry[], limit = 20): HomeTagCloudItem[] {

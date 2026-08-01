@@ -16,7 +16,9 @@ vi.mock("obsidian", () => ({
 }));
 
 import { UnifiedIndexEntry, UnifiedKnowledgeIndex } from "../src/models/VaultConnector";
-import { activityTimeline, continueLearningEntries, favoriteCollections, homeOverviewCounts, topTags } from "../src/ui/KnowledgeHomeView";
+import { KnowledgeResource } from "../src/models/KnowledgeResource";
+import { StoredResource } from "../src/services/VaultResourceRepository";
+import { activityTimeline, buildHomeEntries, continueLearningEntries, favoriteCollections, homeOverviewCounts, topTags } from "../src/ui/KnowledgeHomeView";
 
 function source(path: string): string {
   return readFileSync(join(process.cwd(), path), "utf8");
@@ -46,6 +48,29 @@ function entry(id: string, overrides: Partial<UnifiedIndexEntry> = {}): UnifiedI
   };
 }
 
+
+function storedResource(id: string): StoredResource {
+  const resource: KnowledgeResource = {
+    id,
+    type: "youtube",
+    title: `Resource ${id}`,
+    creator: null,
+    source: "YouTube",
+    url: null,
+    filePath: null,
+    thumbnail: null,
+    tags: ["active"],
+    status: "active",
+    favorite: false,
+    completed: false,
+    rating: null,
+    createdAt: "2026-08-01T10:00:00.000Z",
+    updatedAt: "2026-08-01T10:00:00.000Z",
+    metadata: {},
+    collections: ["Active"]
+  };
+  return { resource, path: `${id}.md`, legacy: false };
+}
 function index(entries: UnifiedIndexEntry[]): UnifiedKnowledgeIndex {
   return {
     schema_version: 1,
@@ -60,6 +85,10 @@ function index(entries: UnifiedIndexEntry[]): UnifiedKnowledgeIndex {
 }
 
 describe("Knowledge Navigator Home helpers", () => {
+  it("keeps active-vault resources visible when a unified index already exists", () => {
+    const entries = buildHomeEntries([storedResource("active")], index([entry("external", { role: "documents", type: "pdf" })]));
+    expect(entries.map((item) => item.id)).toEqual(["active", "external"]);
+  });
   it("builds continue learning from in-progress favorite high-priority and recent items", () => {
     const results = continueLearningEntries([
       entry("plain", { updated_at: null }),
@@ -82,6 +111,9 @@ describe("Knowledge Navigator Home helpers", () => {
     expect(tags).toHaveLength(3);
   });
 
+  it("does not render empty timeline groups for old activity", () => {
+    expect(activityTimeline([entry("old", { updated_at: "2026-07-01T10:00:00.000Z" })], new Date("2026-08-01T12:00:00.000Z"))).toEqual([]);
+  });
   it("groups recent activity into Today Yesterday and This Week", () => {
     const groups = activityTimeline([
       entry("today", { updated_at: "2026-08-01T10:00:00.000Z" }),
@@ -162,5 +194,9 @@ describe("Knowledge Navigator Home source contracts", () => {
     expect(css).toContain(".knowledge-library-home-view");
     expect(css).toMatch(/\.knowledge-library-home-view\s*\{[\s\S]*?overflow-x:\s*hidden;[\s\S]*?overflow-y:\s*auto;/);
     expect(css).toContain("@media (max-width: 760px)");
+    expect(css).toContain("min-height: 52px");
+    expect(css).toContain(".knowledge-library-home-row-action");
+    expect(source("src/ui/KnowledgeHomeView.ts")).toContain("No tags yet.");
+    expect(source("src/ui/KnowledgeHomeView.ts")).toContain("No recent activity this week.");
   });
 });
