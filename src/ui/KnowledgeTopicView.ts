@@ -1,4 +1,4 @@
-import { ItemView, Notice, WorkspaceLeaf } from "obsidian";
+import { ItemView, Notice, WorkspaceLeaf, type ViewStateResult } from "obsidian";
 import { KNOWLEDGE_TOPIC_VIEW_TYPE } from "../core/viewTypes";
 import KnowledgeLibraryPlugin from "../main";
 import { UnifiedIndexEntry, UnifiedKnowledgeIndex, VaultConnectorRole } from "../models/VaultConnector";
@@ -37,8 +37,18 @@ export class KnowledgeTopicView extends ItemView {
     await this.refresh();
   }
 
+  getState(): Record<string, unknown> {
+    return { topicName: this.topicName };
+  }
+
+  async setState(state: unknown, result: ViewStateResult): Promise<void> {
+    await super.setState(state, result);
+    this.topicName = typeof state === "object" && state !== null && typeof (state as { topicName?: unknown }).topicName === "string" ? (state as { topicName: string }).topicName : "";
+    await this.refresh();
+  }
+
   async setTopic(topicName: string): Promise<void> {
-    this.topicName = topicName;
+    this.topicName = topicName.trim();
     await this.refresh();
   }
 
@@ -97,7 +107,7 @@ export class KnowledgeTopicView extends ItemView {
     this.contentEl.createEl("h2", { text: "Knowledge Topic" });
     const topics = this.topicService.discoverTopics(entries, this.plugin.settings.defaultTopicSort, 24);
     if (topics.length === 0) {
-      this.contentEl.createDiv({ text: "No topics discovered yet.", cls: "knowledge-library-empty-state" });
+      this.contentEl.createDiv({ text: "No topics are currently available.", cls: "knowledge-library-empty-state" });
       return;
     }
     const grid = this.contentEl.createDiv({ cls: "knowledge-library-topic-grid" });

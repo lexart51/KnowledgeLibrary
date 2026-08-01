@@ -4,6 +4,13 @@
 
 - No unreleased changes.
 
+## 6.5.0-alpha.4
+
+- Fixed the `Knowledge Library: Open topic page` command so it opens a searchable native topic picker instead of relying on `window.prompt`.
+- Hardened Topic Page launch by validating requested topics, showing clear Notices for empty or invalid cases, reusing the existing Topic view leaf, and persisting `topicName` in workspace view state.
+- Root cause: alpha.3 routed the command through a browser prompt and allowed empty topic names into the ItemView path, which could leave users with no visible picker, page, or useful error in Obsidian.
+- Updated plugin metadata and status bar label to `6.5.0-alpha.4`.
+
 ## 6.5.0-alpha.3
 
 - Added automatically discovered Topic Pages as the central navigation surface for subjects across resources, conversations, documents, collections, timelines, related topics, recent activity, and Continue Learning.

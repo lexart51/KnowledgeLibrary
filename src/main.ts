@@ -1,4 +1,4 @@
-import { Plugin, TFile } from "obsidian";
+import { Notice, Plugin, TFile } from "obsidian";
 import { registerLibraryCommands } from "./commands/libraryCommands";
 import { DEFAULT_SETTINGS, KnowledgeLibraryPluginSettings } from "./core/settings";
 import { KNOWLEDGE_DASHBOARD_VIEW_TYPE, KNOWLEDGE_DIAGNOSTICS_VIEW_TYPE, KNOWLEDGE_HOME_VIEW_TYPE, KNOWLEDGE_LIBRARY_VIEW_TYPE, KNOWLEDGE_TOPIC_VIEW_TYPE, KNOWLEDGE_UNIVERSAL_SEARCH_VIEW_TYPE } from "./core/viewTypes";
@@ -16,7 +16,7 @@ import { VaultResourceRepository } from "./services/VaultResourceRepository";
 import { AddResourceModal } from "./ui/AddResourceModal";
 import { KnowledgeLibrarySettingTab } from "./ui/KnowledgeLibrarySettingTab";
 import { KnowledgeLibraryView, LibraryFilters } from "./ui/KnowledgeLibraryView";
-import { KnowledgeHomeView } from "./ui/KnowledgeHomeView";
+import { buildHomeEntries, KnowledgeHomeView } from "./ui/KnowledgeHomeView";
 import { KnowledgeDashboardView } from "./ui/KnowledgeDashboardView";
 import { CollectionManagementModal } from "./ui/CollectionManagementModal";
 import { ResourceEditorModal } from "./ui/ResourceEditorModal";
@@ -24,6 +24,8 @@ import { VaultConnectorManagementModal } from "./ui/VaultConnectorManagementModa
 import { UnifiedSearchModal } from "./ui/UnifiedSearchModal";
 import { UniversalSearchView } from "./ui/UniversalSearchView";
 import { KnowledgeTopicView } from "./ui/KnowledgeTopicView";
+import { TopicPickerModal } from "./ui/TopicPickerModal";
+import { TopicService } from "./services/TopicService";
 import { SavedSearchManagementModal } from "./ui/SavedSearchManagementModal";
 import { RibbonService } from "./ui/RibbonService";
 import { StatusBarService } from "./ui/StatusBarService";
@@ -37,6 +39,7 @@ import { IndexRepository } from "./services/PluginStorage/IndexRepository";
 import { DiagnosticsRepository } from "./services/PluginStorage/DiagnosticsRepository";
 import { SavedSearchRepository } from "./services/PluginStorage/SavedSearchRepository";
 import { ConnectorRepository } from "./services/PluginStorage/ConnectorRepository";
+import type { UnifiedIndexEntry } from "./models/VaultConnector";
 
 export default class KnowledgeLibraryPlugin extends Plugin {
   settings: KnowledgeLibraryPluginSettings = DEFAULT_SETTINGS;
@@ -256,20 +259,61 @@ export default class KnowledgeLibraryPlugin extends Plugin {
   }
 
 
+  async openTopicPicker(): Promise<void> {
+    try {
+      if (!this.settings.enableTopicPages) {
+        await this.openUniversalSearch();
+        return;
+      }
+      const topics = new TopicService().discoverTopics(await this.loadTopicEntries(), this.settings.defaultTopicSort, 500);
+      if (topics.length === 0) {
+        new Notice("No topics are currently available.");
+        return;
+      }
+      new TopicPickerModal(this.app, topics, (topicName) => this.openTopicPage(topicName)).open();
+    } catch (error) {
+      new Notice(error instanceof Error ? error.message : "Unable to open topic picker.");
+    }
+  }
+
   async openTopicPage(topicName = ""): Promise<void> {
-    if (!this.settings.enableTopicPages) {
-      await this.openUniversalSearch(topicName);
-      return;
+    try {
+      if (!this.settings.enableTopicPages) {
+        await this.openUniversalSearch(topicName);
+        return;
+      }
+      const requested = topicName.trim();
+      if (!requested) {
+        await this.openTopicPicker();
+        return;
+      }
+      const topic = new TopicService().findTopic(await this.loadTopicEntries(), requested);
+      if (!topic) {
+        new Notice(`Topic not found: ${requested}`);
+        return;
+      }
+
+      const existingLeaf = this.app.workspace.getLeavesOfType(KNOWLEDGE_TOPIC_VIEW_TYPE)[0];
+      const leaf = existingLeaf ?? this.app.workspace.getLeaf(true);
+      if (!existingLeaf) {
+        await leaf.setViewState({ type: KNOWLEDGE_TOPIC_VIEW_TYPE, active: true, state: { topicName: topic.name } });
+      }
+      await this.app.workspace.revealLeaf(leaf);
+      const view = leaf.view as unknown as Partial<KnowledgeTopicView> | null | undefined;
+      if (view && typeof view.setTopic === "function") {
+        await view.setTopic(topic.name);
+        return;
+      }
+      throw new Error("Knowledge Topic view did not initialize.");
+    } catch (error) {
+      new Notice(error instanceof Error ? error.message : "Unable to open topic page.");
     }
-    const existingLeaf = this.app.workspace.getLeavesOfType(KNOWLEDGE_TOPIC_VIEW_TYPE)[0];
-    const leaf = existingLeaf ?? this.app.workspace.getLeaf(true);
-    if (!existingLeaf) {
-      await leaf.setViewState({ type: KNOWLEDGE_TOPIC_VIEW_TYPE, active: true });
-    }
-    await this.app.workspace.revealLeaf(leaf);
-    if (leaf.view instanceof KnowledgeTopicView) {
-      await leaf.view.setTopic(topicName);
-    }
+  }
+
+  async loadTopicEntries(): Promise<UnifiedIndexEntry[]> {
+    const resources = await this.resourceRepository.list();
+    const index = await this.unifiedIndexService.load();
+    return buildHomeEntries(resources, index);
   }
   async openHomeView(): Promise<void> {
     const existingLeaf = this.app.workspace.getLeavesOfType(KNOWLEDGE_HOME_VIEW_TYPE)[0];

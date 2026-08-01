@@ -11,6 +11,10 @@
 - Book creation stores supplied metadata only; no external book metadata API is used yet.
 - The frontmatter parser supports the plugin's canonical YAML shape and simple legacy fields; complex arbitrary YAML should be migrated cautiously.
 
+## Fixed in 6.5.0-alpha.4
+
+- `Knowledge Library: Open topic page` now opens a searchable native topic picker instead of silently doing nothing when no topic name is available.
+- Topic Page launch now validates missing and invalid topics with Notices, reuses the Topic view leaf, and preserves selected topic state across workspace restoration.
 ## Fixed in 6.0.0-beta.2
 
 - Knowledge Library card grids can scroll through large libraries.

@@ -44,11 +44,15 @@ export class TopicService {
     const byTopic = new Map<string, { name: string; aliases: Set<string>; entries: UnifiedIndexEntry[] }>();
 
     for (const entry of uniqueEntries) {
-      for (const candidate of discoverTopicCandidates(entry)) {
+      const candidates = discoverTopicCandidates(entry);
+      for (const candidate of candidates) {
         const id = topicId(candidate);
         if (!id) continue;
         const existing = byTopic.get(id) ?? { name: displayTopic(candidate), aliases: new Set<string>(), entries: [] };
         existing.aliases.add(candidate);
+        if (candidate === candidates[0]) {
+          for (const alias of topicAliasesForEntry(entry)) existing.aliases.add(alias);
+        }
         existing.entries.push(entry);
         byTopic.set(id, existing);
       }
@@ -132,6 +136,14 @@ export function topicTimeline(entries: UnifiedIndexEntry[], limit: number): Topi
     .slice(0, limit);
 }
 
+function topicAliasesForEntry(entry: UnifiedIndexEntry): string[] {
+  const metadata = entry.metadata ?? {};
+  return [
+    ...stringList(metadata.aliases),
+    ...stringList(metadata.topicAliases),
+    ...stringList(metadata.topics)
+  ].map((value) => displayTopic(value)).filter(Boolean);
+}
 function relatedTopicCounts(topicName: string, entries: UnifiedIndexEntry[]): Array<{ topic: string; count: number }> {
   const currentId = topicId(topicName);
   const counts = new Map<string, { topic: string; count: number }>();

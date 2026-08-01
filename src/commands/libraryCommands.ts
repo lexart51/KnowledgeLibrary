@@ -27,8 +27,7 @@ export function registerLibraryCommands(plugin: KnowledgeLibraryPlugin): void {
     id: "open-topic-page",
     name: "Knowledge Library: Open topic page",
     callback: () => {
-      const topic = window.prompt("Topic to open", "");
-      void plugin.openTopicPage(topic ?? "").catch((error) => new Notice(error instanceof Error ? error.message : "Unable to open topic page."));
+      void plugin.openTopicPicker().catch((error) => new Notice(error instanceof Error ? error.message : "Unable to open topic page."));
     }
   });
   plugin.addCommand({ id: "add-resource", name: "Knowledge Library: Add Resource", callback: () => plugin.openAddResourceModal() });
