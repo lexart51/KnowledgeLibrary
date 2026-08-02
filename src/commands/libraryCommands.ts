@@ -5,15 +5,6 @@ import { MigrationReportModal } from "../ui/MigrationReportModal";
 
 export function registerLibraryCommands(plugin: KnowledgeLibraryPlugin): void {
   plugin.addCommand({
-    id: "open-home",
-    name: "Knowledge Library: Home",
-    callback: () => {
-      void plugin.openHomeView().catch((error) => {
-        new Notice(error instanceof Error ? error.message : "Unable to open Knowledge Library Home.");
-      });
-    }
-  });
-  plugin.addCommand({
     id: "open-library",
     name: "Knowledge Library: Open Library",
     callback: () => {
@@ -23,42 +14,6 @@ export function registerLibraryCommands(plugin: KnowledgeLibraryPlugin): void {
     }
   });
 
-  plugin.addCommand({
-    id: "open-topic-page",
-    name: "Knowledge Library: Open topic page",
-    callback: () => {
-      try {
-        plugin.logger.debug("Topic navigation: command callback execution");
-        void plugin.openTopicPicker().catch((error) => new Notice(error instanceof Error ? error.message : "Topic picker could not be opened."));
-      } catch (error) {
-        new Notice(error instanceof Error ? error.message : "Topic picker could not be opened.");
-      }
-    }
-  });
-
-  plugin.addCommand({
-    id: "open-topics",
-    name: "Knowledge Library: Topics",
-    callback: () => {
-      try {
-        void plugin.openTopicsView().catch((error) => new Notice(error instanceof Error ? error.message : "Topics view could not be initialized."));
-      } catch (error) {
-        new Notice(error instanceof Error ? error.message : "Topics view could not be initialized.");
-      }
-    }
-  });
-
-  plugin.addCommand({
-    id: "test-topic-navigation",
-    name: "Knowledge Library: Test Topic Navigation",
-    callback: () => {
-      try {
-        void plugin.runTopicNavigationSelfTest().then((report) => new Notice(report)).catch((error) => new Notice(error instanceof Error ? error.message : "Topic navigation self-test failed."));
-      } catch (error) {
-        new Notice(error instanceof Error ? error.message : "Topic navigation self-test failed.");
-      }
-    }
-  });
   plugin.addCommand({ id: "add-resource", name: "Knowledge Library: Add Resource", callback: () => plugin.openAddResourceModal() });
   plugin.addCommand({ id: "manage-collections", name: "Knowledge Library: Manage collections", callback: () => plugin.openCollectionsManager() });
 

@@ -2,11 +2,9 @@ import { ItemView, Notice, WorkspaceLeaf } from "obsidian";
 import { KNOWLEDGE_DASHBOARD_VIEW_TYPE } from "../core/viewTypes";
 import KnowledgeLibraryPlugin from "../main";
 import { CollectionService } from "../services/CollectionService";
-import { ConnectorStatus, UnifiedIndexEntry, UnifiedKnowledgeIndex } from "../models/VaultConnector";
+import { ConnectorStatus, UnifiedKnowledgeIndex } from "../models/VaultConnector";
 import { StoredResource } from "../services/VaultResourceRepository";
 import { FileResourceService } from "../services/FileResourceService";
-import { renderKnowledgeNavigation } from "./NavigationShell";
-import { activityTimeline, buildHomeEntries, continueLearningEntries, popularTopics } from "./KnowledgeHomeView";
 
 export interface DashboardStats {
   total: number;
@@ -51,20 +49,19 @@ export class KnowledgeDashboardView extends ItemView {
     try {
       const resources = await this.plugin.resourceRepository.list();
       const index = await this.plugin.unifiedIndexService.load();
-      this.render(calculateDashboardStats(resources, this.collectionService, (path) => Boolean(this.app.vault.getAbstractFileByPath(FileResourceService.normalizeVaultPath(path)))), index, buildHomeEntries(resources, index));
+      this.render(calculateDashboardStats(resources, this.collectionService, (path) => Boolean(this.app.vault.getAbstractFileByPath(FileResourceService.normalizeVaultPath(path)))), index);
     } catch (error) {
       new Notice(error instanceof Error ? error.message : "Unable to load Knowledge Dashboard.");
     }
   }
 
-  private render(stats: DashboardStats, index: UnifiedKnowledgeIndex | null = null, entries: UnifiedIndexEntry[] = []): void {
+  private render(stats: DashboardStats, index: UnifiedKnowledgeIndex | null = null): void {
     this.contentEl.empty();
     this.contentEl.addClass("knowledge-library-dashboard");
-    renderKnowledgeNavigation(this.contentEl, this.plugin, "dashboard");
     const header = this.contentEl.createDiv({ cls: "knowledge-library-universal-header" });
-    header.createEl("h2", { text: "What should I do now?" });
-    this.renderWorkflow(entries);
-    this.contentEl.createEl("h3", { text: "Statistics" });
+    header.createEl("h2", { text: "Knowledge Dashboard" });
+    const searchButton = header.createEl("button", { text: "Universal Search", cls: "knowledge-library-button mod-cta", attr: { "aria-label": "Open universal search", title: "Open universal search" } });
+    searchButton.addEventListener("click", () => void this.plugin.openUniversalSearch());
     const grid = this.contentEl.createDiv({ cls: "knowledge-library-dashboard-grid" });
     this.metric(grid, "Total resources", stats.total);
     this.metric(grid, "Not started", stats.notStarted);
@@ -93,54 +90,6 @@ export class KnowledgeDashboardView extends ItemView {
     this.resourceList("Recently updated", stats.recentlyUpdated);
   }
 
-
-  private renderWorkflow(entries: UnifiedIndexEntry[]): void {
-    const workflow = this.contentEl.createDiv({ cls: "knowledge-library-dashboard-workflow" });
-    this.workflowList(workflow, "Continue Learning", continueLearningEntries(entries, 5));
-    this.topicList(workflow, "Recent Topics", popularTopics(entries, "recent", 5));
-    const recentItems = activityTimeline(entries).flatMap((group) => group.entries).slice(0, 5);
-    this.workflowList(workflow, "Recent Activity", recentItems);
-    const actions = workflow.createDiv({ cls: "knowledge-library-dashboard-workflow-card" });
-    actions.createEl("h3", { text: "Quick Actions" });
-    this.actionButton(actions, "+ Add Resource", "Add Resource", () => this.plugin.openAddResourceModal());
-    this.actionButton(actions, "Search", "Open Universal Search", () => void this.plugin.openUniversalSearch());
-    this.actionButton(actions, "Topics", "Open Topic Browser", () => void this.plugin.openTopicsView());
-    this.actionButton(actions, "Library", "Browse Library", () => void this.plugin.openLibraryView());
-  }
-
-  private workflowList(parent: HTMLElement, title: string, entries: UnifiedIndexEntry[]): void {
-    const card = parent.createDiv({ cls: "knowledge-library-dashboard-workflow-card" });
-    card.createEl("h3", { text: title });
-    if (entries.length === 0) {
-      card.createDiv({ text: "No items yet.", cls: "knowledge-library-empty-state" });
-      return;
-    }
-    for (const entry of entries) {
-      const row = card.createEl("button", { cls: "knowledge-library-topic-entry", attr: { "aria-label": `Open ${entry.title}`, title: `Open ${entry.title}` } });
-      row.createSpan({ text: entry.title, cls: "knowledge-library-result-title" });
-      row.createSpan({ text: [entry.connector_name, entry.role, entry.type].filter(Boolean).join(" | "), cls: "knowledge-library-result-meta" });
-      row.addEventListener("click", () => void this.plugin.openUniversalSearch(entry.title));
-    }
-  }
-
-  private topicList(parent: HTMLElement, title: string, topics: ReturnType<typeof popularTopics>): void {
-    const card = parent.createDiv({ cls: "knowledge-library-dashboard-workflow-card" });
-    card.createEl("h3", { text: title });
-    if (topics.length === 0) {
-      card.createDiv({ text: "No topics yet.", cls: "knowledge-library-empty-state" });
-      return;
-    }
-    for (const topic of topics) {
-      const row = card.createEl("button", { cls: "knowledge-library-topic-entry", attr: { "aria-label": `Open topic ${topic.name}`, title: `Open topic ${topic.name}` } });
-      row.createSpan({ text: topic.name, cls: "knowledge-library-result-title" });
-      row.createSpan({ text: `${topic.entries.length} items | ${topic.progress}% progress`, cls: "knowledge-library-result-meta" });
-      row.addEventListener("click", () => void this.plugin.openTopicPage(topic.name));
-    }
-  }
-
-  private actionButton(parent: HTMLElement, label: string, title: string, onClick: () => void): void {
-    parent.createEl("button", { text: label, cls: "knowledge-library-button", attr: { "aria-label": title, title } }).addEventListener("click", onClick);
-  }
   private metric(parent: HTMLElement, label: string, value: number): void {
     const metric = parent.createDiv({ cls: "knowledge-library-report-metric" });
     metric.createSpan({ text: label });

@@ -1,7 +1,6 @@
 import { App, Notice, PluginSettingTab, Setting } from "obsidian";
 import KnowledgeLibraryPlugin from "../main";
 import { DEFAULT_ALLOWED_FILE_EXTENSIONS, DEFAULT_EXCLUDED_FILE_FOLDERS } from "../services/FileResourceService";
-import { renderKnowledgeNavigation } from "./NavigationShell";
 
 export class KnowledgeLibrarySettingTab extends PluginSettingTab {
   constructor(
@@ -15,95 +14,7 @@ export class KnowledgeLibrarySettingTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
     containerEl.createEl("h2", { text: "KnowledgeLibrary" });
-    renderKnowledgeNavigation(containerEl, this.plugin, "settings");
 
-    this.createGroup(containerEl, "Home", "Configure the Knowledge Navigator Home landing view.");
-
-    new Setting(containerEl)
-      .setName("Show Continue Learning")
-      .setDesc("Show unfinished items with explicit learning signals on Home.")
-      .addToggle((toggle) => toggle
-        .setValue(this.plugin.settings.homeShowContinueLearning)
-        .onChange(async (value) => {
-          this.plugin.settings.homeShowContinueLearning = value;
-          await this.plugin.saveSettings();
-        }));
-
-    new Setting(containerEl)
-      .setName("Show Timeline")
-      .setDesc("Show the Today, Yesterday, and This Week activity timeline on Home.")
-      .addToggle((toggle) => toggle
-        .setValue(this.plugin.settings.homeShowTimeline)
-        .onChange(async (value) => {
-          this.plugin.settings.homeShowTimeline = value;
-          await this.plugin.saveSettings();
-        }));
-
-    new Setting(containerEl)
-      .setName("Show Tag Cloud")
-      .setDesc("Show the top tags on Home.")
-      .addToggle((toggle) => toggle
-        .setValue(this.plugin.settings.homeShowTagCloud)
-        .onChange(async (value) => {
-          this.plugin.settings.homeShowTagCloud = value;
-          await this.plugin.saveSettings();
-        }));
-
-    new Setting(containerEl)
-      .setName("Default startup page")
-      .setDesc("Advanced preference retained for compatibility. The ribbon and normal KnowledgeLibrary entry point open Home.")
-      .addDropdown((dropdown) => dropdown
-        .addOption("home", "Home")
-        .addOption("library", "Library")
-        .addOption("dashboard", "Dashboard")
-        .addOption("universal-search", "Universal Search")
-        .setValue(this.plugin.settings.defaultStartupPage)
-        .onChange(async (value) => {
-          this.plugin.settings.defaultStartupPage = value === "library" || value === "dashboard" || value === "universal-search" ? value : "home";
-          await this.plugin.saveSettings();
-        }));
-
-
-    this.createGroup(containerEl, "Topics", "Configure automatically discovered topic pages and topic-oriented navigation.");
-
-    new Setting(containerEl)
-      .setName("Enable Topic Pages")
-      .setDesc("Allow tags, collections, search results, and cards to open Knowledge Topic pages.")
-      .addToggle((toggle) => toggle
-        .setValue(this.plugin.settings.enableTopicPages)
-        .onChange(async (value) => {
-          this.plugin.settings.enableTopicPages = value;
-          await this.plugin.saveSettings();
-        }));
-
-    new Setting(containerEl)
-      .setName("Default Topic Sort")
-      .setDesc("Default order for topic lists and the Topic picker.")
-      .addDropdown((dropdown) => dropdown
-        .addOption("popular", "Popular")
-        .addOption("recent", "Recent")
-        .addOption("title", "Title")
-        .setValue(this.plugin.settings.defaultTopicSort)
-        .onChange(async (value) => {
-          this.plugin.settings.defaultTopicSort = value === "recent" || value === "title" ? value : "popular";
-          await this.plugin.saveSettings();
-        }));
-
-    new Setting(containerEl)
-      .setName("Related Topics depth")
-      .setDesc("Maximum number of related topics shown on a Topic page.")
-      .addText((text) => text.setValue(String(this.plugin.settings.relatedTopicsDepth)).onChange(async (value) => {
-        this.plugin.settings.relatedTopicsDepth = boundedNumber(value, 1, 24, 8);
-        await this.plugin.saveSettings();
-      }));
-
-    new Setting(containerEl)
-      .setName("Timeline length")
-      .setDesc("Maximum number of chronological topic activity rows.")
-      .addText((text) => text.setValue(String(this.plugin.settings.topicTimelineLength)).onChange(async (value) => {
-        this.plugin.settings.topicTimelineLength = boundedNumber(value, 5, 100, 20);
-        await this.plugin.saveSettings();
-      }));
     this.createGroup(containerEl, "Storage", "Choose where KnowledgeLibrary reads library notes and writes resource notes.");
 
     new Setting(containerEl)

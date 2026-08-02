@@ -4,8 +4,6 @@ import KnowledgeLibraryPlugin from "../main";
 import { UnifiedIndexEntry, UnifiedKnowledgeIndex } from "../models/VaultConnector";
 import { highlightMatchedTerms, SearchRankingService, UniversalSearchDisplayMode, UniversalSearchResult, UniversalSearchSortMode } from "../services/SearchRankingService";
 import { serializeSavedSearch } from "../services/SavedSearchService";
-import { primaryTopicForEntry, TopicService, TopicSummary } from "../services/TopicService";
-import { renderKnowledgeNavigation } from "./NavigationShell";
 
 export class UniversalSearchView extends ItemView {
   private index: UnifiedKnowledgeIndex | null = null;
@@ -21,8 +19,6 @@ export class UniversalSearchView extends ItemView {
   private overviewEl!: HTMLElement;
   private diagnosticsEl!: HTMLElement;
   private currentResults: UniversalSearchResult[] = [];
-  private currentTopicResults: TopicSummary[] = [];
-  private topicService = new TopicService();
 
   constructor(leaf: WorkspaceLeaf, private readonly plugin: KnowledgeLibraryPlugin) {
     super(leaf);
@@ -54,7 +50,6 @@ export class UniversalSearchView extends ItemView {
   private renderShell(): void {
     this.contentEl.empty();
     this.contentEl.addClass("knowledge-library-universal-search-view");
-    renderKnowledgeNavigation(this.contentEl, this.plugin, "search");
     const header = this.contentEl.createDiv({ cls: "knowledge-library-universal-header" });
     header.createEl("h2", { text: "Universal Knowledge Search" });
     const actions = header.createDiv({ cls: "knowledge-library-view-actions" });
@@ -97,7 +92,6 @@ export class UniversalSearchView extends ItemView {
     if (!this.index || sequence !== this.sequence) return;
     const start = performance.now();
     this.sortMode = this.query.trim() ? this.sortMode === "updated" ? "relevance" : this.sortMode : this.sortMode;
-    this.currentTopicResults = this.plugin.settings.enableTopicPages ? this.topicService.searchTopics(this.index.entries, this.query, 5) : [];
     this.currentResults = this.ranking.search(this.index, this.query, {
       activeVaultBoost: this.plugin.settings.searchActiveVaultBoost,
       favoriteBoost: this.plugin.settings.searchFavoriteBoost,
@@ -135,17 +129,13 @@ export class UniversalSearchView extends ItemView {
     this.resultsEl.removeClasses(["is-compact", "is-comfortable", "is-grouped-role", "is-grouped-vault", "is-grouped-source"]);
     this.resultsEl.addClass(`is-${this.displayMode}`);
     if (!this.index) return;
-    if (this.currentResults.length === 0 && this.currentTopicResults.length === 0) {
+    if (this.currentResults.length === 0) {
       const unavailable = this.index.connector_statuses.filter((status) => status.connector.enabled && !status.available);
       this.resultsEl.createDiv({ text: unavailable.length > 0 ? "No matches. Some connectors are unavailable; rebuild after they sync." : "Search across resources, conversations, documents, and active-vault entries.", cls: "knowledge-library-empty-state" });
       return;
     }
 
     const parsed = this.ranking.parse(this.query);
-    if (this.currentTopicResults.length > 0) {
-      this.resultsEl.createEl("h3", { text: "Topics" });
-      for (const topic of this.currentTopicResults) this.renderTopicResult(topic, parsed.terms);
-    }
     if (this.displayMode.startsWith("grouped")) {
       for (const [group, results] of groupResults(this.currentResults, this.displayMode)) {
         this.resultsEl.createEl("h3", { text: group });
@@ -156,20 +146,6 @@ export class UniversalSearchView extends ItemView {
     for (const result of this.currentResults) this.renderResult(result, parsed.terms);
   }
 
-  private renderTopicResult(topic: TopicSummary, terms: string[]): void {
-    const row = this.resultsEl.createDiv({ cls: "knowledge-library-search-result is-topic", attr: { role: "option", tabindex: "0", "aria-label": `Open topic ${topic.name}`, title: `Open topic ${topic.name}` } });
-    const title = row.createDiv({ cls: "knowledge-library-result-title" });
-    title.innerHTML = `TOPIC ${highlightMatchedTerms(topic.name, terms)}`;
-    const badges = row.createDiv({ cls: "knowledge-library-card-badge-row" });
-    badges.createSpan({ text: "Topic", cls: "knowledge-library-type-badge" });
-    badges.createSpan({ text: `${topic.entries.length} items`, cls: "knowledge-library-source-badge" });
-    row.createDiv({ text: `${topic.counts.videos} videos | ${topic.counts.conversations} conversations | ${topic.counts.documents} documents | ${topic.progress}% progress`, cls: "knowledge-library-result-meta" });
-    if (topic.description) row.createDiv({ text: topic.description, cls: "knowledge-library-result-excerpt" });
-    row.addEventListener("click", () => void this.plugin.openTopicPage(topic.name));
-    row.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") void this.plugin.openTopicPage(topic.name);
-    });
-  }
   private renderResult(result: UniversalSearchResult, terms: string[]): void {
     const entry = result.entry;
     const row = this.resultsEl.createDiv({ cls: `knowledge-library-search-result is-${entry.role} is-${entry.type}`, attr: { role: "option", "aria-selected": String(this.currentResults[this.selectedIndex] === result), tabindex: "0" } });
@@ -194,14 +170,6 @@ export class UniversalSearchView extends ItemView {
     const taxonomy = [...entry.tags.map((tag) => `#${tag}`), ...entry.collections.map((collection) => `[${collection}]`)];
     if (taxonomy.length > 0) row.createDiv({ text: taxonomy.join(" "), cls: "knowledge-library-card-tags" });
     if (result.suppressedDuplicates.length > 0) row.createDiv({ text: `${result.suppressedDuplicates.length} duplicate suppressed`, cls: "knowledge-library-result-meta" });
-    const topic = primaryTopicForEntry(entry);
-    if (topic && this.plugin.settings.enableTopicPages) {
-      const action = row.createEl("button", { text: "Open Topic", cls: "knowledge-library-button", attr: { "aria-label": `Open topic ${topic}`, title: `Open topic ${topic}` } });
-      action.addEventListener("click", (event) => {
-        event.stopPropagation();
-        void this.plugin.openTopicPage(topic);
-      });
-    }
   }
 
   private handleKeys(event: KeyboardEvent): void {

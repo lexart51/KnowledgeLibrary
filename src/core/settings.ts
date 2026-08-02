@@ -2,18 +2,9 @@ import { DEFAULT_ALLOWED_FILE_EXTENSIONS, DEFAULT_EXCLUDED_FILE_FOLDERS } from "
 import { KnowledgeResourceType } from "../models/KnowledgeResource";
 import { VaultConnector } from "../models/VaultConnector";
 import { UniversalSearchDisplayMode } from "../services/SearchRankingService";
-import { TopicSortMode } from "../services/TopicService";
 
 export interface KnowledgeLibraryPluginSettings {
   versionLabel: string;
-  homeShowContinueLearning: boolean;
-  homeShowTimeline: boolean;
-  homeShowTagCloud: boolean;
-  enableTopicPages: boolean;
-  defaultTopicSort: TopicSortMode;
-  relatedTopicsDepth: number;
-  topicTimelineLength: number;
-  defaultStartupPage: "home" | "library" | "dashboard" | "universal-search";
   libraryFolder: string;
   resourcesFolder: string;
   includeLegacyNotes: boolean;
@@ -96,15 +87,7 @@ export const DEFAULT_VAULT_CONNECTORS: VaultConnector[] = [
   }
 ];
 export const DEFAULT_SETTINGS: KnowledgeLibraryPluginSettings = {
-  versionLabel: "KL 6.5.0-alpha.6",
-  homeShowContinueLearning: true,
-  homeShowTimeline: true,
-  homeShowTagCloud: true,
-  enableTopicPages: true,
-  defaultTopicSort: "popular",
-  relatedTopicsDepth: 8,
-  topicTimelineLength: 20,
-  defaultStartupPage: "home",
+  versionLabel: "KL 6.4.1",
   libraryFolder: "01 - Biblioteca",
   resourcesFolder: "01 - Biblioteca/Recursos",
   includeLegacyNotes: true,

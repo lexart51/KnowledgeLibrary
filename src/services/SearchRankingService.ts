@@ -191,43 +191,19 @@ function searchableFields(entry: UnifiedIndexEntry): Record<string, string> {
   return fields;
 }
 
-export function duplicateKey(entry: UnifiedIndexEntry): string {
-  return duplicateKeys(entry)[0];
-}
-
-export function duplicateKeys(entry: UnifiedIndexEntry): string[] {
+function duplicateKey(entry: UnifiedIndexEntry): string {
   const metadata = entry.metadata ?? {};
-  const resourceId = firstString(metadata.resourceId, metadata.resource_id, metadata.id);
-  const videoId = firstString(metadata.videoId, metadata.video_id);
-  const url = normalizeUrl(entry.url ?? firstString(metadata.url, metadata.sourceUrl, metadata.source_url));
-  const filePath = normalizePath(firstString(metadata.filePath, metadata.file_path));
-  const externalPath = normalizePath(firstString(metadata.external_path) || entry.path);
-  const keys: string[] = [];
-  if (resourceId) keys.push(`resource:${resourceId.toLowerCase()}`);
-  if (videoId) keys.push(`youtube:${videoId.toLowerCase()}`);
-  if (url) keys.push(`url:${url}`);
-  if (filePath) keys.push(`file:${filePath}`);
-  if (externalPath) keys.push(`note:${entry.connector_id}:${externalPath}`);
-  return keys.length > 0 ? keys : [`note:${entry.connector_id}:${entry.id.toLowerCase()}`];
+  const resourceId = typeof metadata.resourceId === "string" ? metadata.resourceId : "";
+  const videoId = typeof metadata.videoId === "string" ? metadata.videoId : "";
+  const url = entry.url?.toLowerCase().replace(/^https?:\/\/(www\.)?/, "") ?? "";
+  const filePath = typeof metadata.filePath === "string" ? metadata.filePath.toLowerCase() : "";
+  if (resourceId) return `resource:${resourceId}`;
+  if (videoId) return `youtube:${videoId}`;
+  if (url) return `url:${url}`;
+  if (filePath) return `file:${filePath}`;
+  return `note:${entry.connector_id}:${entry.path.toLowerCase()}`;
 }
 
-
-function firstString(...values: unknown[]): string {
-  for (const value of values) {
-    if (typeof value === "string" && value.trim()) return value.trim();
-  }
-  return "";
-}
-
-function normalizeUrl(value: string | null): string {
-  if (!value) return "";
-  return value.trim().toLowerCase().replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
-}
-
-function normalizePath(value: string): string {
-  if (!value) return "";
-  return value.trim().replace(/\\/g, "/").replace(/\/+/g, "/").toLowerCase();
-}
 function compareResults(left: UniversalSearchResult, right: UniversalSearchResult, sortMode: UniversalSearchSortMode): number {
   if (sortMode === "updated") return compareDates(right.entry.updated_at, left.entry.updated_at) || stable(left, right);
   if (sortMode === "added") return compareDates(right.entry.created_at, left.entry.created_at) || stable(left, right);

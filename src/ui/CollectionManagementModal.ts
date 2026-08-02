@@ -1,15 +1,12 @@
 import { App, Modal, Notice } from "obsidian";
 import { CollectionBulkPlan, CollectionService } from "../services/CollectionService";
 import { StoredResource, VaultResourceRepository } from "../services/VaultResourceRepository";
-import type KnowledgeLibraryPlugin from "../main";
-import { renderKnowledgeNavigation } from "./NavigationShell";
 
 export class CollectionManagementModal extends Modal {
   private resources: StoredResource[] = [];
 
   constructor(
     app: App,
-    private readonly plugin: KnowledgeLibraryPlugin,
     private readonly repository: VaultResourceRepository,
     private readonly collectionService: CollectionService,
     private readonly onChanged: () => Promise<void>
@@ -29,7 +26,6 @@ export class CollectionManagementModal extends Modal {
 
   private render(): void {
     this.contentEl.empty();
-    renderKnowledgeNavigation(this.contentEl, this.plugin, "collections");
     this.contentEl.createEl("h2", { text: "Manage collections" });
     const list = this.contentEl.createDiv({ cls: "knowledge-library-management-list" });
 
