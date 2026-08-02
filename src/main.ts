@@ -149,7 +149,7 @@ export default class KnowledgeLibraryPlugin extends Plugin {
     return this.unifiedIndexService.rebuild();
   }
   openCollectionsManager(): void {
-    new CollectionManagementModal(this.app, this.resourceRepository, this.collectionService, () => this.refreshLibraryViews()).open();
+    new CollectionManagementModal(this.app, this, this.resourceRepository, this.collectionService, () => this.refreshLibraryViews()).open();
   }
 
   async openDiagnosticsView(): Promise<void> {
@@ -247,18 +247,6 @@ export default class KnowledgeLibraryPlugin extends Plugin {
   }
 
   async openDefaultLandingView(): Promise<void> {
-    if (this.settings.defaultStartupPage === "library") {
-      await this.openLibraryView();
-      return;
-    }
-    if (this.settings.defaultStartupPage === "dashboard") {
-      await this.openDashboardView();
-      return;
-    }
-    if (this.settings.defaultStartupPage === "universal-search") {
-      await this.openUniversalSearch();
-      return;
-    }
     await this.openHomeView();
   }
 

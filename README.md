@@ -4,7 +4,7 @@ KnowledgeLibrary is a professional Obsidian plugin for unified personal knowledg
 
 ## Status
 
-`6.5.0-alpha.3`
+`6.5.0-alpha.6`
 
 ## Development
 
@@ -67,7 +67,9 @@ KnowledgeLibrary v6 installs side by side under plugin id and folder `knowledge-
 - Command palette command: `Knowledge Library: Open universal search`.
 - Command palette command: `Knowledge Library: Save current search`.
 - Command palette command: `Knowledge Library: Manage saved searches`.
-- Knowledge Navigator Home with search-first navigation, Continue Learning, recent activity, recent resources/conversations/documents, Popular Topics, favorite collections, and most-used tags.
+- Knowledge Navigator Home as the default control center, with search-first navigation, Continue Learning, recent activity, recent resources/conversations/documents, Popular Topics, favorite collections, and most-used tags.
+- Persistent navigation shell across Home, Search, Library, Topics, Collections, Dashboard, Add Resource, and Settings so normal workflows do not require Ctrl+P.
+- Topic Browser ItemView for first-class topic navigation without relying on a modal or command palette flow.
 - Universal Knowledge Search with source-aware ranking, query filters, keyboard navigation, Topic results, grouped display modes, duplicate suppression, and saved searches.
 - Command palette command: `Knowledge Library: Analyze existing vault`.
 - Command palette command: `Knowledge Library: Simulate migration`.
@@ -83,7 +85,7 @@ KnowledgeLibrary v6 installs side by side under plugin id and folder `knowledge-
 - Command palette command: `Knowledge Library: Restore plugin state`.
 - Maintenance-safe deployment updates only `main.js`, `manifest.json`, and `styles.css`, preserving plugin state.
 - Command palette command: `Knowledge Library: Repair YouTube thumbnails`.
-- Status bar: `KL 6.5.0-alpha.3`.
+- Status bar: `KL 6.5.0-alpha.6`.
 - Polished native library view with responsive toolbar, unified source/vault/role filters, search, tags, collections, priority, progress filters, sorting, card grid, note/resource actions, external-open actions, quick progress edits, and favorite/completed toggles.
 - Read-only migration analysis and simulation commands for existing vault compatibility.
 - Confirmed safe write workflows for migration backup, migration apply, tag consolidation, and YouTube thumbnail repair.
@@ -120,6 +122,9 @@ KnowledgeLibrary v6 installs side by side under plugin id and folder `knowledge-
 - [Topics](docs/TOPICS.md)
 - [Topic Discovery](docs/TOPIC_DISCOVERY.md)
 - [Related Topics](docs/RELATED_TOPICS.md)
+- [Navigation](docs/NAVIGATION.md)
+- [Navigation Shell](docs/NAVIGATION_SHELL.md)
+- [User Workflow](docs/USER_WORKFLOW.md)
 - [File Resources](docs/FILE_RESOURCES.md)
 - [File Picker](docs/FILE_PICKER.md)
 - [Drag And Drop](docs/DRAG_AND_DROP.md)

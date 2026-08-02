@@ -205,6 +205,7 @@ describe("Knowledge Navigator Home source contracts", () => {
     expect(source("src/core/viewTypes.ts")).toContain("KNOWLEDGE_HOME_VIEW_TYPE");
     expect(source("src/main.ts")).toContain("KnowledgeHomeView");
     expect(source("src/main.ts")).toContain("openDefaultLandingView");
+    expect(source("src/main.ts")).toContain("await this.openHomeView();");
     expect(source("src/commands/libraryCommands.ts")).toContain("Knowledge Library: Home");
     expect(source("src/ui/RibbonService.ts")).toContain("Open Knowledge Library");
   });
@@ -227,12 +228,15 @@ describe("Knowledge Navigator Home source contracts", () => {
     expect(home).toContain('input.type = "search"');
   });
 
-  it("provides clickable navigation and filtered library hooks", () => {
+  it("uses the persistent shell for navigation and keeps filtered library hooks", () => {
     const home = source("src/ui/KnowledgeHomeView.ts");
     const library = source("src/ui/KnowledgeLibraryView.ts");
-    expect(home).toContain('this.navButton(nav, "Resources"');
-    expect(home).toContain('this.navButton(nav, "Conversations"');
-    expect(home).toContain('this.navButton(nav, "Documents"');
+    const shell = source("src/ui/NavigationShell.ts");
+    expect(home).toContain("renderKnowledgeNavigation(this.contentEl, this.plugin, \"home\")");
+    expect(home).toContain("renderHomeSummary(counts)");
+    expect(shell).toContain("navButton(nav, \"Library\"");
+    expect(shell).toContain("navButton(nav, \"Topics\"");
+    expect(shell).toContain("navButton(nav, \"+ Add Resource\"");
     expect(home).toContain("openTopicPage(collection.name)");
     expect(home).toContain("openTopicPage(tag.tag)");
     expect(library).toContain("setFilters(filters: Partial<LibraryFilters>)");

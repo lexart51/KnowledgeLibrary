@@ -1,6 +1,7 @@
 import { App, Notice, PluginSettingTab, Setting } from "obsidian";
 import KnowledgeLibraryPlugin from "../main";
 import { DEFAULT_ALLOWED_FILE_EXTENSIONS, DEFAULT_EXCLUDED_FILE_FOLDERS } from "../services/FileResourceService";
+import { renderKnowledgeNavigation } from "./NavigationShell";
 
 export class KnowledgeLibrarySettingTab extends PluginSettingTab {
   constructor(
@@ -14,6 +15,7 @@ export class KnowledgeLibrarySettingTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
     containerEl.createEl("h2", { text: "KnowledgeLibrary" });
+    renderKnowledgeNavigation(containerEl, this.plugin, "settings");
 
     this.createGroup(containerEl, "Home", "Configure the Knowledge Navigator Home landing view.");
 
@@ -49,7 +51,7 @@ export class KnowledgeLibrarySettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Default startup page")
-      .setDesc("Choose the view opened from the KnowledgeLibrary ribbon icon.")
+      .setDesc("Advanced preference retained for compatibility. The ribbon and normal KnowledgeLibrary entry point open Home.")
       .addDropdown((dropdown) => dropdown
         .addOption("home", "Home")
         .addOption("library", "Library")

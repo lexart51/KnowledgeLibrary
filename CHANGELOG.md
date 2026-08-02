@@ -4,6 +4,15 @@
 
 - No unreleased changes.
 
+## 6.5.0-alpha.6
+
+- Made Home the default KnowledgeLibrary entry point for normal plugin opening.
+- Updated the shared navigation shell so all major workflows are reachable inside the plugin: Home, Search, Library, Topics, Collections, Dashboard, `+ Add Resource`, and Settings.
+- Changed the shell Topics action to open the persistent Topic Browser ItemView instead of a modal-only path.
+- Simplified Home by removing redundant local shortcut buttons now covered by the persistent shell.
+- Reworked the Dashboard hierarchy so workflow prompts, Continue Learning, Recent Topics, Recent Activity, and Quick Actions appear before statistics.
+- Added navigation workflow documentation and regression coverage for shell navigation, active state, Topic Browser access, Home startup, dashboard workflow, and quick actions.
+- Updated plugin metadata and status bar label to `6.5.0-alpha.6`.
 ## 6.5.0-alpha.5
 
 - Added runtime DEBUG diagnostics around Topic command invocation, discovery, picker construction/opening, picker `onOpen`, topic selection, and Topic ItemView activation.

@@ -1266,3 +1266,67 @@
   min-height: 0;
   overflow-x: hidden;
 }
+
+.knowledge-library-shell-nav {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: 8px 0;
+  background: var(--background-primary);
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.knowledge-library-shell-nav-button.mod-cta {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border-color: var(--interactive-accent);
+  font-weight: 600;
+}
+
+.knowledge-library-home-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+  margin: 10px 0 14px;
+}
+
+.knowledge-library-home-summary-metric {
+  display: grid;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  background: var(--background-secondary);
+  min-width: 0;
+}
+
+.knowledge-library-home-summary-metric span {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+.knowledge-library-home-summary-metric strong {
+  color: var(--text-normal);
+  font-size: var(--font-ui-medium);
+}
+
+.knowledge-library-dashboard-workflow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin: 10px 0 16px;
+}
+
+.knowledge-library-dashboard-workflow-card {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  background: var(--background-secondary);
+}
+
+.knowledge-library-dashboard-workflow-card h3 {
+  margin: 0;
+}

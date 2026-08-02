@@ -65,7 +65,7 @@ export class KnowledgeHomeView extends ItemView {
     renderKnowledgeNavigation(this.contentEl, this.plugin, "home");
 
     this.renderSearch();
-    this.renderQuickNavigation(counts);
+    this.renderHomeSummary(counts);
 
     if (entries.length === 0) {
       this.renderEmptyState();
@@ -109,16 +109,12 @@ export class KnowledgeHomeView extends ItemView {
     setTimeout(() => input.focus(), 0);
   }
 
-  private renderQuickNavigation(counts: HomeOverviewCounts): void {
-    const nav = this.contentEl.createDiv({ cls: "knowledge-library-home-nav", attr: { "aria-label": "Knowledge navigation" } });
-    nav.createDiv({ text: "Counts show unique logical items.", cls: "knowledge-library-home-count-note", attr: { title: "Counts are duplicate-suppressed logical items, not raw index entries." } });
-    this.navButton(nav, "Resources", String(counts.resources), () => void this.plugin.openLibraryView({ role: "resources" }));
-    this.navButton(nav, "Conversations", String(counts.conversations), () => void this.plugin.openLibraryView({ role: "conversations" }));
-    this.navButton(nav, "Documents", String(counts.documents), () => void this.plugin.openLibraryView({ role: "documents" }));
-    this.navButton(nav, "Collections", "Manage", () => this.plugin.openCollectionsManager());
-    this.navButton(nav, "Dashboard", "Open", () => void this.plugin.openDashboardView());
-    this.navButton(nav, "Universal Search", "Search", () => void this.plugin.openUniversalSearch());
-    this.navButton(nav, "Settings", "Configure", () => this.openSettings());
+  private renderHomeSummary(counts: HomeOverviewCounts): void {
+    const summary = this.contentEl.createDiv({ cls: "knowledge-library-home-summary", attr: { title: "Counts are duplicate-suppressed logical items, not raw index entries." } });
+    this.summaryMetric(summary, "Resources", counts.resources);
+    this.summaryMetric(summary, "Conversations", counts.conversations);
+    this.summaryMetric(summary, "Documents", counts.documents);
+    this.summaryMetric(summary, "Active vault", counts.active);
   }
 
   private renderEmptyState(): void {
@@ -224,11 +220,10 @@ export class KnowledgeHomeView extends ItemView {
     return section;
   }
 
-  private navButton(parent: HTMLElement, label: string, meta: string, onClick: () => void): void {
-    const button = parent.createEl("button", { cls: "knowledge-library-home-nav-button", attr: { "aria-label": label, title: label } });
-    button.createSpan({ text: label });
-    button.createEl("strong", { text: meta });
-    button.addEventListener("click", onClick);
+  private summaryMetric(parent: HTMLElement, label: string, value: number): void {
+    const metric = parent.createDiv({ cls: "knowledge-library-home-summary-metric" });
+    metric.createSpan({ text: label });
+    metric.createEl("strong", { text: String(value) });
   }
 
   private emptyAction(parent: HTMLElement, label: string, onClick: () => void): void {
@@ -247,11 +242,6 @@ export class KnowledgeHomeView extends ItemView {
     new Notice(entry.open_uri || entry.path);
   }
 
-  private openSettings(): void {
-    const appWithSettings = this.app as typeof this.app & { setting?: { open(): void; openTabById(id: string): void } };
-    appWithSettings.setting?.open();
-    appWithSettings.setting?.openTabById(this.plugin.manifest.id);
-  }
 }
 
 export function buildHomeEntries(resources: StoredResource[], index: UnifiedKnowledgeIndex | null): UnifiedIndexEntry[] {

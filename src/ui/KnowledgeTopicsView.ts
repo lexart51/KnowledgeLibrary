@@ -2,7 +2,7 @@ import { ItemView, Notice, WorkspaceLeaf } from "obsidian";
 import { KNOWLEDGE_TOPICS_VIEW_TYPE } from "../core/viewTypes";
 import KnowledgeLibraryPlugin from "../main";
 import { TopicService, TopicSummary, topicId } from "../services/TopicService";
-import { describeTopicSources, filterTopicPickerOptions, nextTopicPickerIndex } from "./TopicPickerModal";
+import { filterTopicPickerOptions, nextTopicPickerIndex, type TopicPickerOption } from "./TopicPickerModal";
 import { renderKnowledgeNavigation } from "./NavigationShell";
 
 export class KnowledgeTopicsView extends ItemView {
@@ -67,7 +67,7 @@ export class KnowledgeTopicsView extends ItemView {
   }
 
   private handleKeydown(event: KeyboardEvent): void {
-    const results = filterTopicPickerOptions(this.topics, this.query, 200);
+    const results = topicBrowserOptions(this.topics, this.query, 200);
     if (event.key === "Escape") {
       event.preventDefault();
       this.inputEl.value = "";
@@ -105,7 +105,7 @@ export class KnowledgeTopicsView extends ItemView {
       this.resultsEl.createDiv({ text: "No topics are currently available.", cls: "knowledge-library-empty-state" });
       return;
     }
-    const results = filterTopicPickerOptions(this.topics, this.query, 200);
+    const results = topicBrowserOptions(this.topics, this.query, 200);
     if (results.length === 0) {
       this.resultsEl.createDiv({ text: "No matching topic found.", cls: "knowledge-library-empty-state" });
       return;
@@ -117,7 +117,8 @@ export class KnowledgeTopicsView extends ItemView {
         attr: { "aria-label": `Open topic ${option.topic.name}`, title: `Open topic ${option.topic.name}` }
       });
       row.createSpan({ text: option.topic.name, cls: "knowledge-library-result-title" });
-      row.createSpan({ text: `${option.topic.entries.length} logical item${option.topic.entries.length === 1 ? "" : "s"} | ${describeTopicSources(option.topic)}`, cls: "knowledge-library-result-meta" });
+      const detail = `${option.topic.counts.resources} resources | ${option.topic.counts.conversations} conversations | ${option.topic.counts.documents} documents | ${option.topic.progress}% progress | recent ${formatTopicActivity(option.topic)}`;
+      row.createSpan({ text: detail, cls: "knowledge-library-result-meta" });
       row.addEventListener("click", () => void this.plugin.openTopicPage(option.topic.name));
       row.addEventListener("mousemove", () => {
         this.selectedIndex = index;
@@ -131,4 +132,13 @@ export function topicMatchesQuery(topic: TopicSummary, query: string): boolean {
   const text = query.trim().toLowerCase();
   if (!normalized && !text) return true;
   return topicId(topic.name).includes(normalized) || topic.aliases.some((alias) => topicId(alias).includes(normalized) || alias.toLowerCase().includes(text));
+}
+export function topicBrowserOptions(topics: TopicSummary[], query: string, limit = 200): TopicPickerOption[] {
+  return filterTopicPickerOptions(topics, query, limit).sort((left, right) => left.topic.name.localeCompare(right.topic.name));
+}
+
+export function formatTopicActivity(topic: TopicSummary): string {
+  if (!topic.updated_at) return "none";
+  const parsed = Date.parse(topic.updated_at);
+  return Number.isFinite(parsed) ? new Date(parsed).toLocaleDateString() : "none";
 }

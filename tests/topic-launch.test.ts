@@ -164,9 +164,9 @@ describe("Topic Page launch hotfix", () => {
     expect(source("src/ui/KnowledgeTopicView.ts")).toContain("renderKnowledgeNavigation(this.contentEl, this.plugin, \"topics\")");
   });
 
-  it("navigation shell Topics action opens the picker with fallback available", () => {
+  it("navigation shell Topics action opens the Topic Browser directly", () => {
     const shell = source("src/ui/NavigationShell.ts");
-    expect(shell).toContain("plugin.openTopicPicker()");
+    expect(shell).toContain("plugin.openTopicsView()");
     expect(shell).toContain("aria-current");
     expect(shell).toContain("knowledge-library-shell-nav-button");
   });

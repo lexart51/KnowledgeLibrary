@@ -10,7 +10,9 @@
 - [x] Stabilize deployment, state preservation, diagnostics, backup/restore, and logging for `6.4.1`.
 - [x] Add Knowledge Navigator Home for `6.5.0-alpha.1`.
 - [x] Add Topic Pages for `6.5.0-alpha.3`.
-- [ ] Install 6.5.0-alpha.3 into the YouTubes vault for controlled manual testing.
+- [x] Add reliable Topic navigation and fallback Topic Browser for `6.5.0-alpha.5`.
+- [x] Redesign navigation workflow with persistent shell and workflow-first Dashboard for `6.5.0-alpha.6`.
+- [ ] Install 6.5.0-alpha.6 into the YouTubes vault for controlled manual testing.
 - [ ] Validate migration dry-run output against the production dataset.
 - [ ] Apply migration only after reviewed backup and simulation reports.
 
