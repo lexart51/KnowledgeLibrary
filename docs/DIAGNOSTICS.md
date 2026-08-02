@@ -1,5 +1,8 @@
 # Diagnostics
 
+This document describes `6.4.1 LTS` production diagnostics and self-test behavior.
+
+
 KnowledgeLibrary 6.4.1 adds a Diagnostics view and self diagnostics command.
 
 Diagnostics show:

@@ -1,5 +1,8 @@
 # Add Resource Wizard
 
+This describes Add Resource behavior available in the stable 6.4.1 production baseline.
+
+
 Version 6.1.0 replaces the generic Add Resource form with specialized type-specific forms while preserving the unified creation pipeline.
 
 ## Supported Types

@@ -1,5 +1,8 @@
 # Plugin State
 
+This document describes the `6.4.1 LTS` production state layer. It is part of the recommended stable baseline.
+
+
 KnowledgeLibrary 6.4.1 introduces `PluginStateManager` and schema-managed plugin state.
 
 Current state includes:

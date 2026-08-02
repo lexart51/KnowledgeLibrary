@@ -1,5 +1,8 @@
 # Specialized Add Resource Forms
 
+This describes specialized Add Resource forms available in the stable 6.4.1 production baseline.
+
+
 KnowledgeLibrary 6.1.0 keeps one `AddResourceModal` shell and one persistence path, but the visible fields now change by resource type.
 
 ## Shared Architecture

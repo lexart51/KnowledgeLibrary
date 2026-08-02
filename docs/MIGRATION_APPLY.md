@@ -1,5 +1,8 @@
 # Migration Apply
 
+This is stable 6.4.1-compatible documentation for explicit, confirmation-gated migration writes. No migration runs on plugin load.
+
+
 Milestone 5 adds controlled migration writes. No migration runs during plugin load.
 
 ## Commands

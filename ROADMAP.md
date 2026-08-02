@@ -1,41 +1,43 @@
 # Roadmap
 
-## v6 Release Candidate
+## 1. Current Production
 
-- [x] Polish KnowledgeLibrary v6 UI/UX for `6.0.0-rc.1`.
-- [x] Implement specialized Add Resource forms for `6.1.0`.
-- [x] Add collections, progress tracking, relationships, and dashboard for `6.2.0`.
-- [x] Add read-only multi-vault connectors and unified index for `6.3.0`.
-- [x] Add universal search, source-aware ranking, saved searches, and ecosystem navigation for `6.4.0`.
-- [x] Stabilize deployment, state preservation, diagnostics, backup/restore, and logging for `6.4.1`.
-- [x] Add Knowledge Navigator Home for `6.5.0-alpha.1`.
-- [x] Add Topic Pages for `6.5.0-alpha.3`.
-- [x] Add reliable Topic navigation and fallback Topic Browser for `6.5.0-alpha.5`.
-- [x] Redesign navigation workflow with persistent shell and workflow-first Dashboard for `6.5.0-alpha.6`.
-- [ ] Install 6.5.0-alpha.6 into the YouTubes vault for controlled manual testing.
-- [ ] Validate migration dry-run output against the production dataset.
-- [ ] Apply migration only after reviewed backup and simulation reports.
+- [x] `6.4.1 LTS` is the recommended production version.
+- [x] Stable baseline commit: `890ea68 Fix release version synchronization for 6.4.1`.
+- [x] Production vault: `D:\Dropbox\Cursos Livros Instrucoes\YouTubes`.
+- [x] Enabled read-only connectors: YouTubes/resources, Obsidian_Vault/conversations, `_Docs`/documents.
+- [x] Accepted for daily use: artifact-only deployment, PluginStateManager, diagnostics, backup/restore, read-only connectors, unified index, Universal Search, Library, Add Resource, collections, progress, relationships, and dashboard statistics.
+- [ ] Continue validating connector/search workflows on the 6.4.1 production installation before further UX work.
 
-## v6 Beta
+## 2. Frozen Experimental Work
 
-- [x] Prepare beta metadata and side-by-side deployment scripts.
-- [x] Add safe migration backup and apply workflows.
-- [x] Add tag alias analysis and consolidation.
-- [x] Add YouTube thumbnail repair.
-- [x] Complete local vault file resource support.
+- [x] `6.5.0-alpha.1`: Knowledge Navigator Home.
+- [x] `6.5.0-alpha.2`: Home duplicate-resource and Continue Learning hotfix.
+- [x] `6.5.0-alpha.3`: Topic Pages.
+- [x] `6.5.0-alpha.4`: Topic Page launch hotfix.
+- [x] `6.5.0-alpha.5`: Topic Browser and navigation diagnostics.
+- [x] `6.5.0-alpha.6`: persistent navigation shell.
+- [ ] Do not deploy 6.5 alpha artifacts to the production vault.
+- [ ] Resolve unresolved blockers before resuming implementation: Topic Page launch reliability, modal-only navigation weakness, and alpha.6 interface lock after major-view navigation.
 
-## v6 Alpha
+## 3. Next Planning Phase
 
-- [x] Establish plugin architecture and build pipeline.
-- [x] Create the resource core and provider engine.
-- [x] Add initial YouTube, website, and file providers.
-- [x] Add persistent Markdown resource storage.
-- [x] Build the first native library view.
-- [x] Add migration analysis and compatibility layer.
-- [x] Add unified Add Resource wizard.
+- [ ] Preserve and tag the 6.4.1 stable baseline.
+- [ ] Create a separate experimental branch for any future UX redesign implementation.
+- [ ] Design user workflows before coding.
+- [ ] Prepare low-fidelity screen designs for Home, Search, Library, Topics, Documents, and Conversations.
+- [ ] Prototype navigation that never depends on Ctrl+P and never blocks the interface with an overlay-only path.
+- [ ] Define acceptance tests for each view independently.
+- [ ] Validate prototypes in real Obsidian before implementation.
+- [ ] Keep 6.4.1 untouched during UX work.
 
-## Later
+## 4. Later Capabilities
 
-- Add deeper provider integrations for PDF text extraction, document previews, video metadata, web pages, and AI resources.
-- Add import/export workflows.
-- Add automated release packaging.
+Schedule these only after UX and stability work:
+
+- PDF and Office text extraction.
+- OCR.
+- Semantic search.
+- Embeddings.
+- RAG.
+- Local or optional AI integrations.

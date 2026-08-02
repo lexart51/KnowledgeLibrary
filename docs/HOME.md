@@ -1,5 +1,8 @@
 # Knowledge Navigator Home
 
+> **Experimental 6.5 UX document.** This document describes the experimental 6.5 UX line. It is retained for design history and is not part of the recommended 6.4.1 production workflow.
+
+
 KnowledgeLibrary 6.5 introduces `Knowledge Library: Home` as the navigation-first landing view.
 
 Home uses existing active-vault resources and the existing unified index. It does not rescan connectors, write to external vaults, or change the storage format. Home sections display duplicate-suppressed logical items, preferring active-vault resources over external connector copies when they represent the same underlying resource.

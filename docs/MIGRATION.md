@@ -1,5 +1,8 @@
 # Migration and Compatibility
 
+This is stable 6.4.1-compatible historical documentation. Migration analysis remains read-only unless an explicit migration apply command is confirmed.
+
+
 Milestone 3 adds a read-only migration layer for using the existing YouTubes vault content as the first production dataset for KnowledgeLibrary v6.
 
 ## Commands

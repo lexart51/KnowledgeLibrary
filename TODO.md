@@ -1,58 +1,45 @@
 # TODO
 
-- Deploy KnowledgeLibrary 6.3.0 into the YouTubes vault only after confirming the target path.
-- Run migration analysis and review generated counts in Obsidian.
-- Create migration backup before any apply operation.
-- Add richer provider metadata extraction.
+## Production Baseline
+
+- Preserve and tag the `6.4.1 LTS` stable baseline at commit `890ea68`.
+- Validate connector/search workflows on the 6.4.1 production installation.
+- Keep production vault deployment limited to approved 6.4.1 LTS artifacts until a future release passes real Obsidian acceptance testing.
+- Keep plugin source, tests, docs, and Git history separate from vault data.
+
+## UX Redesign Planning
+
+- Design UX before coding.
+- Create a separate experimental branch for the next UX redesign attempt.
+- Prepare low-fidelity navigation prototypes for Home, Search, Library, Topics, Documents, and Conversations.
+- Define acceptance tests for each view and navigation transition.
+- Prototype a navigation model that never depends on Ctrl+P for normal workflows.
+- Avoid blocking overlays as the only access path for core navigation.
+- Avoid production deployment of 6.5 alpha artifacts.
+
+## Stable Backlog
+
+- Add richer provider metadata extraction after UX and stability work.
 - Add settings UI for alias management.
 - Add library view empty states and bulk actions.
-- Add resource editing workflow.
+- Continue improving resource editing workflow from the 6.4.1 baseline.
 
-## Completed in 6.0.0-beta.2
-
-- Fixed library view scrolling for large card grids.
-- Fixed YouTube thumbnail fallback rendering for new and legacy resources.
-- Consolidated legacy `ia` tags into canonical `ai` across read, write, filter, analysis, and migration paths.
-
-## Completed in 6.0.0-beta.3
-
-- Completed local vault file resource support with picker, metadata, dedupe, missing-file display, and drag/drop prefill.
-- Added file resource documentation.
-
-## Completed in 6.0.0-rc.1
-
-- Polished Add Resource modal layout, toolbar wrapping, card visual hierarchy, accessibility labels, and settings grouping.
-- Added UI/UX documentation and regression tests.
-
-## Completed in 6.0.0-rc.2
-
-- Hotfixed Add Resource modal overflow, clipped right column, selector sizing, and responsive grid behavior.
-
-## Completed in 6.1.0
-
-- Replaced the generic Add Resource wizard with specialized type-specific forms.
-- Preserved the shared AddResourceService persistence pipeline for every form.
-- Added natural-height modal sizing and tests for specialized form behavior.
-
-## Completed in 6.2.0
-
-- Added collections, progress tracking, priority, resource relationships, and dashboard.
-- Added collection management and selected-resource editing commands.
-- Added regression coverage for new organization and tracking services.
-
-
-## Completed in 6.3.0
-
-- Added read-only multi-vault connectors and connector management.
-- Added unified metadata index, unified search, source/vault/role filtering, and connector dashboard status.
-- Added privacy and connector documentation.
-## Completed in 6.4.0
-
-- Added Universal Knowledge Search as a native view.
-- Added deterministic ranking, query filters, duplicate suppression, saved searches, and result highlighting.
-- Added source-aware navigation improvements and dashboard search integration.
 ## Completed in 6.4.1
 
 - Made deployment artifact-only and state-preserving.
 - Added plugin state manager, storage repositories, diagnostics, logger, self-test, backup/restore, and configuration export/import.
 - Added maintenance reliability documentation and regression tests.
+
+## Completed Before 6.4.1
+
+- Added Universal Knowledge Search, deterministic ranking, query filters, duplicate suppression, saved searches, and result highlighting in 6.4.0.
+- Added read-only multi-vault connectors, unified metadata index, source/vault/role filtering, and connector dashboard status in 6.3.0.
+- Added collections, progress tracking, priority, relationships, dashboard, and selected-resource editing in 6.2.0.
+- Added specialized type-specific Add Resource forms in 6.1.0.
+- Added local vault file resource support, UI polish, migration safety, tag consolidation, and YouTube thumbnail repair across the 6.0 beta/RC line.
+
+## Frozen 6.5 Experimental Line
+
+- `6.5.0-alpha.1` through `6.5.0-alpha.6` are retained for design history only.
+- Do not deploy 6.5 alpha artifacts to the production vault.
+- Future UX work must restart from prototypes and branch isolation, not direct production implementation.

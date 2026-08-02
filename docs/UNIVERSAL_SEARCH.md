@@ -1,5 +1,8 @@
 # Universal Search
 
+This document describes Universal Knowledge Search from `6.4.0`, retained in the recommended `6.4.1 LTS` production baseline.
+
+
 KnowledgeLibrary 6.4.0 adds `Universal Knowledge Search` as a native Obsidian view opened with `Knowledge Library: Open universal search`.
 
 The view searches the active vault plus all enabled unified-index connectors. It uses the cached unified index in memory and does not rescan connected vaults for each query.
@@ -22,3 +25,8 @@ The view searches the active vault plus all enabled unified-index connectors. It
 - `grouped-source`
 
 Results show source, vault, role, type, platform, creator, tags, collections, excerpt, modified date, favorite/progress/priority when available, and unavailable or missing state when indexed.
+
+
+## Experimental Topic Results Note
+
+Topic results from the 6.5 alpha line are not part of the recommended 6.4.1 production workflow. Universal Search itself remains stable in 6.4.1.

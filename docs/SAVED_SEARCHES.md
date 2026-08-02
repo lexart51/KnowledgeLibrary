@@ -1,5 +1,8 @@
 # Saved Searches
 
+This describes saved searches available in the stable 6.4.1 production baseline.
+
+
 KnowledgeLibrary 6.4.0 can store optional saved searches in plugin data.
 
 Saved searches contain:

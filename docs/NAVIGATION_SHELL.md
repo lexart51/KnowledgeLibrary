@@ -1,5 +1,8 @@
 # Navigation Shell
 
+> **Experimental 6.5 UX document.** This document describes the experimental 6.5 UX line. It is retained for design history and is not part of the recommended 6.4.1 production workflow.
+
+
 KnowledgeLibrary 6.5.0-alpha.6 makes the plugin navigation-first. Normal plugin workflows should be reachable from the plugin UI itself; command palette commands remain as advanced shortcuts.
 
 ## Persistent Sections

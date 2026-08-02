@@ -1,5 +1,8 @@
 # Privacy and External Vault Safety
 
+This document describes privacy and external-vault safety guarantees for the recommended `6.4.1 LTS` production baseline.
+
+
 KnowledgeLibrary 6.3.0 treats connected vaults as read-only external sources.
 
 ## Guarantees

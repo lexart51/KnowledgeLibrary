@@ -4,6 +4,15 @@
 
 - No unreleased changes.
 
+## 6.5 Experimental Line - Rolled Back
+
+- Purpose: explored a navigation-first UX with Home, Topic Pages, Topic Browser diagnostics, and a persistent navigation shell on top of the stable 6.4.1 connector/search/storage baseline.
+- Alpha versions attempted: `6.5.0-alpha.1` Home, `6.5.0-alpha.2` Home deduplication hotfix, `6.5.0-alpha.3` Topic Pages, `6.5.0-alpha.4` Topic Page launch hotfix, `6.5.0-alpha.5` Topic Browser and navigation diagnostics, and `6.5.0-alpha.6` persistent navigation shell.
+- Blocking runtime result: the installed `6.5.0-alpha.6` interface locked after navigation between major views in real Obsidian use.
+- Production action: the daily-use installation was intentionally rolled back to `6.4.1 LTS` at stable commit `890ea68`.
+- No source vault data was lost. The rollback preserved independent vault content and connector read-only guarantees.
+- Experimental commits remain in Git history for design and technical reference.
+- Future UX work requires design-first prototypes, independent acceptance tests, and branch isolation before any production deployment.
 ## 6.5.0-alpha.6
 
 - Made Home the default KnowledgeLibrary entry point for normal plugin opening.
@@ -12,7 +21,7 @@
 - Simplified Home by removing redundant local shortcut buttons now covered by the persistent shell.
 - Reworked the Dashboard hierarchy so workflow prompts, Continue Learning, Recent Topics, Recent Activity, and Quick Actions appear before statistics.
 - Added navigation workflow documentation and regression coverage for shell navigation, active state, Topic Browser access, Home startup, dashboard workflow, and quick actions.
-- Updated plugin metadata and status bar label to `6.5.0-alpha.6`.
+- Updated plugin metadata and status bar label to `6.5.0-alpha.6`. This alpha is retained as experimental history and is not production approved.
 ## 6.5.0-alpha.5
 
 - Added runtime DEBUG diagnostics around Topic command invocation, discovery, picker construction/opening, picker `onOpen`, topic selection, and Topic ItemView activation.
@@ -60,7 +69,7 @@
 - Added state schema versioning, automatic migration, unknown-field preservation, backup, restore, and corruption fallback behavior.
 - Added diagnostics view, self diagnostics command, and configurable `LoggerService`.
 - Added plugin configuration export/import and plugin state backup/restore commands.
-- Updated plugin metadata and status bar label to `6.4.1`.
+- Updated plugin metadata and status bar label to `6.4.1`. This is the recommended production LTS baseline after the 6.5 alpha rollback.
 ## 6.4.0
 
 - Added the native `Universal Knowledge Search` ItemView with debounced input, focused search, keyboard navigation, compact/grouped result modes, matched-term highlighting, and ecosystem overview counts.

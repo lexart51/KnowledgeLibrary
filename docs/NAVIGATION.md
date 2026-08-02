@@ -1,23 +1,23 @@
 # Navigation
 
-KnowledgeLibrary 6.5.0-alpha.6 keeps Home as the default navigator and makes the shared navigation shell the primary way to reach normal plugin workflows.
+> **Experimental 6.5 UX document.** This document describes navigation work from the experimental 6.5 UX line. It is retained for design history and is not part of the recommended 6.4.1 production workflow.
 
-## Entry Points
+KnowledgeLibrary 6.5.0-alpha.6 attempted to make Home and a shared navigation shell the primary way to reach normal plugin workflows.
 
-- The ribbon icon opens Home for the normal KnowledgeLibrary entry flow.
-- `Knowledge Library: Home` opens the Home view.
-- `Knowledge Library: Open Library` still opens the resource Library directly.
-- `Knowledge Library: Open universal search` still opens Universal Search directly.
-- `Knowledge Library: Topics` opens the persistent Topic Browser view.
-- `Knowledge Library: Open topic page` opens the quick picker and falls back to Topics if the modal does not initialize.
-- `Knowledge Library: Test Topic Navigation` reports discovery, picker, Topic view, navigation shell, and index availability.
+## Production Context
 
-Command palette commands remain available for hotkeys and advanced use. Normal navigation is available inside the plugin UI.
+The recommended production version is `6.4.1 LTS`. In 6.4.1, normal access remains through the stable Library, Dashboard, Universal Search, connector, diagnostics, and settings commands. The 6.5 navigation shell is not production approved because the installed alpha.6 runtime locked the interface after navigation between major views.
 
-## Shared Navigation Shell
+## Experimental Entry Points
 
-The shell appears in Home, Library, Universal Search, Dashboard, Topic Page, Topics, Collections management, and Settings. It exposes Home, Search, Library, Topics, Collections, Dashboard, `+ Add Resource`, and Settings with keyboard-accessible buttons, an active-view indicator, responsive wrapping, Obsidian theme variables, and no horizontal scrolling.
+The alpha line explored:
 
-The Topics button opens the persistent Topic Browser ItemView. The command palette quick picker remains available as a shortcut.
+- Home as the default entry point.
+- `Knowledge Library: Topics` as a persistent Topic Browser view.
+- `Knowledge Library: Open topic page` as a quick picker with fallback behavior.
+- `Knowledge Library: Test Topic Navigation` as a diagnostic command.
+- A shared shell across Home, Library, Universal Search, Dashboard, Topic Page, Topics, Collections management, and Settings.
 
-No connector architecture, storage format, deployment behavior, external vault write behavior, Topic engine behavior, or Universal Search ranking changes are introduced by this navigation layer.
+## Lessons For Future UX
+
+Future navigation must be prototyped before implementation, must not depend on Ctrl+P for normal workflows, and must never rely on a blocking overlay as the only path to a primary feature. See `docs/UX_REDESIGN_PLAN.md`.

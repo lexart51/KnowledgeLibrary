@@ -1,5 +1,8 @@
 # Multi-Vault Knowledge Ecosystem
 
+This document describes the stable read-only multi-vault architecture used by the `6.4.1 LTS` production installation.
+
+
 KnowledgeLibrary 6.3.0 connects independent vaults through read-only connector configuration and a unified metadata index. It does not merge vaults physically and does not move, rename, or modify external vault content.
 
 ## Example Connectors

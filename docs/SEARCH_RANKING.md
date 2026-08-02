@@ -1,5 +1,8 @@
 # Search Ranking
 
+This describes Universal Search ranking available in the stable 6.4.1 production baseline.
+
+
 Universal Search ranks cached unified-index entries with deterministic scores.
 
 ## Match Priority

@@ -1,5 +1,8 @@
 # Storage
 
+This describes the active-vault resource storage model used by the stable 6.4.1 production baseline.
+
+
 KnowledgeLibrary v6 stores resources as Markdown notes with YAML frontmatter. Storage paths are settings-driven and do not depend on any specific existing vault.
 
 ## Default Paths

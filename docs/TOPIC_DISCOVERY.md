@@ -1,5 +1,8 @@
 # Topic Discovery
 
+> **Experimental 6.5 UX document.** This document describes the experimental 6.5 UX line. It is retained for design history and is not part of the recommended 6.4.1 production workflow.
+
+
 Topics are discovered automatically from metadata already available in memory:
 
 - tags

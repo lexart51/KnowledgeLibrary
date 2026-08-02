@@ -1,5 +1,8 @@
 # Vault Connectors
 
+This document describes stable `6.4.1 LTS` connector configuration. Connectors are read-only and external vaults remain independent.
+
+
 A vault connector has:
 
 - `id`

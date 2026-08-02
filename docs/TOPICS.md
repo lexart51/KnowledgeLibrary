@@ -1,5 +1,8 @@
 # Topic Pages
 
+> **Experimental 6.5 UX document.** This document describes the experimental 6.5 UX line. It is retained for design history and is not part of the recommended 6.4.1 production workflow.
+
+
 KnowledgeLibrary 6.5.0-alpha.3 adds `Knowledge Topic` pages as a topic-oriented navigation surface over the existing active-vault resources and unified index.
 
 A Topic Page is read-only. It does not create, move, rename, delete, or rewrite vault content. It groups existing resources, conversations, documents, collections, timeline activity, related topics, and topic-scoped Continue Learning into one view.

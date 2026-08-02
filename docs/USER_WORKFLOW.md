@@ -1,24 +1,26 @@
 # User Workflow
 
-KnowledgeLibrary 6.5.0-alpha.6 is organized around a normal in-plugin workflow instead of command palette navigation.
+> **Experimental 6.5 UX document.** This document describes the experimental 6.5 workflow direction. It is retained for design history and is not part of the recommended 6.4.1 production workflow.
 
-## Default Entry
+KnowledgeLibrary 6.5.0-alpha.6 attempted to organize the plugin around a normal in-plugin workflow instead of command palette navigation.
 
-Opening KnowledgeLibrary opens Home. Home acts as the control center with search, continue-learning signals, recent activity, recent role sections, popular topics, favorite collections, and tag discovery.
+## Production Context
 
-## Typical Paths
+The recommended daily-use version is `6.4.1 LTS`. Production users should rely on stable 6.4.1 workflows: Library, Add Resource, Universal Search, Dashboard, connector management, diagnostics, backup/restore, and settings.
 
-- Start on Home to see what changed and what to continue.
-- Use the shell Search button for cross-vault Universal Search.
-- Use Topics to browse subjects alphabetically and open Topic Pages.
-- Use Library when managing or browsing resources specifically.
-- Use Dashboard when deciding what to do next; detailed statistics appear below the workflow cards.
-- Use `+ Add Resource` from any major surface to add a resource.
+The 6.5 workflow documents are not deployment instructions. The alpha.6 runtime locked after navigation between major views and was rolled back.
 
-## Command Palette
+## Experimental Workflow Direction
 
-Command palette commands still exist for hotkeys and advanced use, but they are no longer required for normal plugin navigation.
+The alpha line explored:
 
-## Compatibility
+- Home as a control center.
+- Search as a first-class cross-vault workflow.
+- Topics as subject-oriented browsing.
+- Library as resource browsing and management.
+- Dashboard as a “what should I do now?” surface.
+- `+ Add Resource` as a persistent action.
 
-This workflow redesign preserves existing data and services. It does not modify connected vaults, storage files, connector definitions, resource notes, migrations, deployment behavior, or PluginStateManager.
+## Future Use
+
+Use this document as input for design prototypes only. Future implementation should happen on a separate experimental branch while `6.4.1 LTS` remains untouched.

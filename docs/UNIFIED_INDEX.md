@@ -1,5 +1,8 @@
 # Unified Index
 
+This document describes the stable `6.4.1 LTS` unified metadata index. It does not describe 6.5 UX experiments.
+
+
 The unified knowledge index combines active-vault resources and read-only external references into one logical index.
 
 Index entries include connector identity, vault name, role, type, title, creator, path, URL/open URI, tags, collections, excerpt, dates, status, favorite/progress when available, source platform, and metadata.
