@@ -66,11 +66,11 @@ For each task from the brief's Phase 1 list: current entry point(s), click path,
 - **Entry point:** none dedicated. Library's default Sort option "updated" surfaces recently-touched items, but there is no explicit "recent" list or history.
 - **Friction:** this is a real gap. The 6.5 alpha Home's "Recent Activity" concept targeted exactly this, but per the brief it must be re-validated, not assumed necessary, before becoming a top-level destination.
 
-## Summary of confirmed gaps (for Phase 2 input, not yet acted on)
+## Summary of confirmed gaps (for Phase 2 input)
 
-1. Dashboard and Universal Search are each one click away from **each other and from nothing else** — Library has no link to either.
-2. Administrative tasks (collections manager, vault connectors manager, diagnostics, backup/restore) have zero in-view entry points; 100% `Ctrl+P`-dependent.
-3. No cross-surface "recent items" or "continue studying" view exists today outside of Library's Progress filter and Sort-by-updated, both of which require already being in Library with the right filter set.
-4. Conversations and Documents are Library role filters, not dedicated views — matches the brief's own instruction (section 13, Phase 2) not to assume they need to be top-level until validated.
+1. ~~Dashboard and Universal Search are each one click away from each other and from nothing else — Library has no link to either.~~ **Fixed** — see `LESSONS_LEARNED.md`, "Cross-Link Gaps Fixed." Library now links to Dashboard and Universal Search; Dashboard now links to Library.
+2. ~~Administrative tasks (collections manager, vault connectors manager, diagnostics, backup/restore) have zero in-view entry points; 100% `Ctrl+P`-dependent.~~ **Partially fixed** — Manage collections (Library), Manage connectors and Diagnostics (Dashboard) now have in-view buttons. Backup/restore and config export/import remain `Ctrl+P`-only by choice, since those are more consequential, data-mutating actions not suited to a casual one-click button.
+3. No cross-surface "recent items" or "continue studying" view exists today outside of Library's Progress filter and Sort-by-updated, both of which require already being in Library with the right filter set. **Still open** — this is a real new-screen decision, not an additive fix, and belongs to Phase 2/3.
+4. Conversations and Documents are Library role filters, not dedicated views — matches the brief's own instruction (section 13, Phase 2) not to assume they need to be top-level until validated. **Still open**, by design — Phase 2 territory.
 
-This inventory intentionally stops here. Per the brief, Phase 2 (information architecture) and Phase 3 (wireframes) come next, and are separate, later decisions — not implied by anything in this document.
+This inventory intentionally stops here for gaps 3 and 4. Per the brief, Phase 2 (information architecture) and Phase 3 (wireframes) come next for those, and are separate, later decisions — not implied by anything in this document.

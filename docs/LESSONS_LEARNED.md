@@ -59,6 +59,17 @@ The candidate fix that resolved the Library/Dashboard nav-bar label defect was `
 
 This closes the open item from the isolated diagnostic above regarding volume behavior of the label fix. The original, broader "interface lock" report from the historical production rollback has still not been deliberately reproduced under sustained real-data navigation and remains a separate, still-open question — the fix here addresses the confirmed label-rendering defect, not necessarily whatever originally triggered the production rollback report.
 
+## Cross-Link Gaps Fixed (August 2026)
+
+Two of the four gaps identified in `docs/WORKFLOW_INVENTORY.md` (Phase 1) were fixed directly in `6.4.1` as small additive buttons, not a navigation redesign — each new button calls a plugin method that already existed and was already reachable via `Ctrl+P`:
+
+- Library gained header buttons for Universal Search and Dashboard, and a "Manage collections" button next to the Collection filter.
+- Dashboard gained a header button for Library, and "Manage connectors"/"Diagnostics" buttons next to the existing connector actions.
+
+Verified before deployment: `npx tsc --noEmit` clean, 114/114 tests passing, `npm run build:prod` producing byte-identical output across two separate environments (sandbox and the real Windows machine), then live-tested in the isolated `KL-6.4.1-Test` vault — every new button opens the correct view/modal, no interface lock, no overlap. The "Manage collections" modal appearing to show only a title with no rows was checked against `CollectionManagementModal.ts` and confirmed to be pre-existing, correct behavior for a vault with zero collections, not a defect introduced by the new button. Only after live verification passed was the change applied to the real source tree and pushed to `main` (`db1c74c`).
+
+The remaining two gaps from the inventory — no dedicated "recent items"/"continue studying" surface, and Conversations/Documents being Library role filters rather than dedicated views — were intentionally not touched. Both are real information-architecture decisions, not additive fixes, and belong to Phase 2/3 of the design-first process, not a direct code change.
+
 ## Future UX Work
 
 UX must be prototyped before another large implementation. Future work should start with user workflows and low-fidelity screens, then validate each view independently in Obsidian. Experimental implementation belongs on a separate branch and must not disturb the 6.4.1 production baseline.
