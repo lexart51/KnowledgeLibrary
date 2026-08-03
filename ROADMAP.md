@@ -18,14 +18,13 @@
 - [x] `6.5.0-alpha.5`: Topic Browser and navigation diagnostics.
 - [x] `6.5.0-alpha.6`: persistent navigation shell.
 - [ ] Do not deploy 6.5 alpha artifacts to the production vault.
-- [x] Nav bar button label-visibility defect on Library/Dashboard views (see `docs/LESSONS_LEARNED.md`, "Alpha.6 Isolated Diagnostic" and "Alpha.6 Nav Bar Fix Confirmed"): fixed via `flex-shrink: 0; min-height: 40px;` on `.knowledge-library-shell-nav`, confirmed at n=50/500/5000 synthetic items in an isolated test vault.
-- [ ] Resolve remaining unresolved blockers before resuming implementation: Topic Page launch reliability, modal-only navigation weakness, and the originally reported alpha.6 interface lock after major-view navigation (not yet deliberately reproduced or ruled out under sustained real-data navigation at volume; distinct from the now-fixed label defect above).
+- [ ] Resolve unresolved blockers before resuming implementation: Topic Page launch reliability, modal-only navigation weakness, alpha.6 interface lock after major-view navigation, and the nav bar button clipping/label-visibility defect found on the Dashboard view (see `docs/LESSONS_LEARNED.md`, "Alpha.6 Isolated Diagnostic").
 
 ## 3. Next Planning Phase
 
 - [x] Preserve and tag the 6.4.1 stable baseline (`v6.4.1-stable` -> `890ea68`; `v6.5.0-alpha.6-experimental` -> `8d5fd36`).
 - [ ] Create a separate experimental branch for any future UX redesign implementation.
-- [ ] Design user workflows before coding.
+- [x] Phase 1 — Real workflow inventory documented against actual 6.4.1 entry points and click paths (see `docs/WORKFLOW_INVENTORY.md`).
 - [ ] Prepare low-fidelity screen designs for Home, Search, Library, Topics, Documents, and Conversations.
 - [ ] Prototype navigation that never depends on Ctrl+P and never blocks the interface with an overlay-only path.
 - [ ] Define acceptance tests for each view independently.
