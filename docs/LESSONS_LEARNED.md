@@ -49,6 +49,16 @@ Alpha.6 (`v6.5.0-alpha.6-experimental`, commit `8d5fd36`) was deployed under a d
 - This diagnostic effort is being closed here rather than continued with further speculative CSS changes. Remote, screenshot-relayed debugging (no direct DevTools access, no way to inspect computed styles or live-edit and observe in real time) has reached its practical limit for this specific bug. Whoever picks this up next should work directly at the machine with DevTools open, not repeat this remote process.
 - Neither finding affects the 6.4.1 LTS baseline, which was verified clean in the same isolated-vault methodology before alpha.6 was tested.
 
+## Alpha.6 Nav Bar Fix Confirmed (August 2026)
+
+The candidate fix that resolved the Library/Dashboard nav-bar label defect was `flex-shrink: 0; min-height: 40px;` added to `.knowledge-library-shell-nav` in `src/styles.css`. It was verified live in the isolated alpha.6 test vault at increasing scale using synthetic `KnowledgeResource` data:
+
+- n=50: nav bar labels render correctly on Library, Dashboard, and Home; no genuine interface lock reproduced.
+- n=500 and n=5000: fix continues to hold. Dashboard was checked directly at 5000 synthetic items after a full Obsidian restart and renders nav bar labels correctly.
+- Two minor cosmetic observations at 5000 items, both reviewed and accepted as non-blocking for personal use rather than treated as defects: the sticky nav bar can be scrolled under by fast-moving page content, and at reduced window widths the dimmed secondary text on dashboard cards visually overlaps the bold primary text. Neither affects functionality or clickability. Revisit only if they become a problem in real production use.
+
+This closes the open item from the isolated diagnostic above regarding volume behavior of the label fix. The original, broader "interface lock" report from the historical production rollback has still not been deliberately reproduced under sustained real-data navigation and remains a separate, still-open question — the fix here addresses the confirmed label-rendering defect, not necessarily whatever originally triggered the production rollback report.
+
 ## Future UX Work
 
 UX must be prototyped before another large implementation. Future work should start with user workflows and low-fidelity screens, then validate each view independently in Obsidian. Experimental implementation belongs on a separate branch and must not disturb the 6.4.1 production baseline.

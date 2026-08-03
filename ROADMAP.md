@@ -18,7 +18,8 @@
 - [x] `6.5.0-alpha.5`: Topic Browser and navigation diagnostics.
 - [x] `6.5.0-alpha.6`: persistent navigation shell.
 - [ ] Do not deploy 6.5 alpha artifacts to the production vault.
-- [ ] Resolve unresolved blockers before resuming implementation: Topic Page launch reliability, modal-only navigation weakness, alpha.6 interface lock after major-view navigation, and the nav bar button clipping/label-visibility defect found on the Dashboard view (see `docs/LESSONS_LEARNED.md`, "Alpha.6 Isolated Diagnostic").
+- [x] Nav bar button label-visibility defect on Library/Dashboard views (see `docs/LESSONS_LEARNED.md`, "Alpha.6 Isolated Diagnostic" and "Alpha.6 Nav Bar Fix Confirmed"): fixed via `flex-shrink: 0; min-height: 40px;` on `.knowledge-library-shell-nav`, confirmed at n=50/500/5000 synthetic items in an isolated test vault.
+- [ ] Resolve remaining unresolved blockers before resuming implementation: Topic Page launch reliability, modal-only navigation weakness, and the originally reported alpha.6 interface lock after major-view navigation (not yet deliberately reproduced or ruled out under sustained real-data navigation at volume; distinct from the now-fixed label defect above).
 
 ## 3. Next Planning Phase
 
