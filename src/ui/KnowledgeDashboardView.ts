@@ -62,6 +62,12 @@ export class KnowledgeDashboardView extends ItemView {
     header.createEl("h2", { text: "Knowledge Dashboard" });
     const searchButton = header.createEl("button", { text: "Universal Search", cls: "knowledge-library-button mod-cta", attr: { "aria-label": "Open universal search", title: "Open universal search" } });
     searchButton.addEventListener("click", () => void this.plugin.openUniversalSearch());
+    const libraryButton = header.createEl("button", { text: "Library", cls: "knowledge-library-button", attr: { "aria-label": "Open library", title: "Open library" } });
+    libraryButton.addEventListener("click", () => {
+      void this.plugin.openLibraryView().catch((error) => {
+        new Notice(error instanceof Error ? error.message : "Unable to open Knowledge Library.");
+      });
+    });
     const grid = this.contentEl.createDiv({ cls: "knowledge-library-dashboard-grid" });
     this.metric(grid, "Total resources", stats.total);
     this.metric(grid, "Not started", stats.notStarted);
@@ -121,6 +127,14 @@ export class KnowledgeDashboardView extends ItemView {
     refresh.addEventListener("click", () => void this.plugin.refreshUnifiedIndex().then(() => this.refresh()));
     const rebuild = actions.createEl("button", { text: "Rebuild all", cls: "knowledge-library-button", attr: { "aria-label": "Rebuild unified index", title: "Rebuild unified index" } });
     rebuild.addEventListener("click", () => void this.plugin.rebuildUnifiedIndex().then(() => this.refresh()));
+    const manageConnectors = actions.createEl("button", { text: "Manage connectors", cls: "knowledge-library-button", attr: { "aria-label": "Manage vault connectors", title: "Manage vault connectors" } });
+    manageConnectors.addEventListener("click", () => this.plugin.openVaultConnectorsManager());
+    const diagnostics = actions.createEl("button", { text: "Diagnostics", cls: "knowledge-library-button", attr: { "aria-label": "Open diagnostics", title: "Open diagnostics" } });
+    diagnostics.addEventListener("click", () => {
+      void this.plugin.openDiagnosticsView().catch((error) => {
+        new Notice(error instanceof Error ? error.message : "Unable to open diagnostics.");
+      });
+    });
   }
   private unifiedRecentList(title: string, index: UnifiedKnowledgeIndex, role: string): void {
     this.contentEl.createEl("h3", { text: title });

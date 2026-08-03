@@ -94,6 +94,18 @@ export class KnowledgeLibraryView extends ItemView {
     addButton.addEventListener("click", () => this.plugin.openAddResourceModal());
     const refreshButton = headerActions.createEl("button", { text: "Refresh", cls: "knowledge-library-button", attr: { "aria-label": "Refresh library", title: "Refresh library" } });
     refreshButton.addEventListener("click", () => void this.refresh());
+    const searchButton = headerActions.createEl("button", { text: "Universal Search", cls: "knowledge-library-button", attr: { "aria-label": "Open universal search", title: "Open universal search" } });
+    searchButton.addEventListener("click", () => {
+      void this.plugin.openUniversalSearch().catch((error) => {
+        new Notice(error instanceof Error ? error.message : "Unable to open universal search.");
+      });
+    });
+    const dashboardButton = headerActions.createEl("button", { text: "Dashboard", cls: "knowledge-library-button", attr: { "aria-label": "Open dashboard", title: "Open dashboard" } });
+    dashboardButton.addEventListener("click", () => {
+      void this.plugin.openDashboardView().catch((error) => {
+        new Notice(error instanceof Error ? error.message : "Unable to open dashboard.");
+      });
+    });
 
     const toolbar = this.contentEl.createDiv({ cls: "knowledge-library-toolbar" });
     const searchGroup = toolbar.createDiv({ cls: "knowledge-library-toolbar-group is-search" });
@@ -131,6 +143,8 @@ export class KnowledgeLibraryView extends ItemView {
       this.filters.collection = value;
       this.renderCards();
     });
+    const manageCollectionsButton = filterGroup.createEl("button", { text: "Manage collections", cls: "knowledge-library-button", attr: { "aria-label": "Manage collections", title: "Manage collections" } });
+    manageCollectionsButton.addEventListener("click", () => this.plugin.openCollectionsManager());
     this.createSelect(filterGroup, "Priority", ["all", "low", "normal", "high"], (value) => {
       this.filters.priority = value;
       this.renderCards();
