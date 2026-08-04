@@ -68,7 +68,19 @@ Two of the four gaps identified in `docs/WORKFLOW_INVENTORY.md` (Phase 1) were f
 
 Verified before deployment: `npx tsc --noEmit` clean, 114/114 tests passing, `npm run build:prod` producing byte-identical output across two separate environments (sandbox and the real Windows machine), then live-tested in the isolated `KL-6.4.1-Test` vault — every new button opens the correct view/modal, no interface lock, no overlap. The "Manage collections" modal appearing to show only a title with no rows was checked against `CollectionManagementModal.ts` and confirmed to be pre-existing, correct behavior for a vault with zero collections, not a defect introduced by the new button. Only after live verification passed was the change applied to the real source tree and pushed to `main` (`db1c74c`).
 
-The remaining two gaps from the inventory — no dedicated "recent items"/"continue studying" surface, and Conversations/Documents being Library role filters rather than dedicated views — were intentionally not touched. Both are real information-architecture decisions, not additive fixes, and belong to Phase 2/3 of the design-first process, not a direct code change.
+The remaining gap from the inventory — Conversations/Documents being Library role filters rather than dedicated views — was intentionally not touched. It is a real information-architecture decision, not an additive fix, and belongs to Phase 2/3 of the design-first process, not a direct code change.
+
+## Continue Learning Added (August 2026)
+
+The user asked for "something like 6.4.1 with the new features that resulted in 6.5." Rather than reviving Home, Topics, or the persistent navigation shell (the piece that actually caused the original interface lock), the user chose the narrowest, lowest-risk option: just the one confirmed gap from Phase 1 — no "continue studying" surface.
+
+Implementation: `KnowledgeDashboardView.ts` gained a `continueLearning` field on `DashboardStats` (in-progress, non-completed resources, sorted by most recently updated, capped at 5) and a "Continue Learning" section rendered via the existing `resourceList` helper, reusing `plugin.openResourceNote(path)` (already used elsewhere) to make list items clickable. While in there, the existing "Recently added"/"Recently updated" lists and the unified recent lists were also made visibly clickable (`cursor: pointer`, hover underline) since they already had click handlers (for the unified lists) or gained one (for `resourceList`) but no visual affordance — a small, directly-related consistency fix, not scope creep.
+
+No new screen, no new navigation shell, no overlay — an additive section on an existing view, same pattern as the cross-link buttons. Verified: 115/115 tests passing (new test added for the `continueLearning` field's filtering and sort order), `tsc --noEmit` clean, `npm run build:prod` producing byte-identical output across the sandbox and the real Windows machine, deployed and live-tested in the isolated `KL-6.4.1-Test` vault with a real added YouTube resource before being written to the production source tree and pushed (`86ab2e7`).
+
+A real YouTube thumbnail exposed two false alarms during this round of testing, both ruled out via DevTools inspection rather than blind CSS guessing: a native `title`-attribute tooltip that looked like overlapping card text, and a video thumbnail with its own title text baked into the image pixels that visually resembled the real HTML card title next to it. Neither was a plugin defect; both computed to clean, correctly-sized boxes in DevTools (h3: exactly 288.45×39px = 2 lines, no overflow; badge: 55.79×20.53px, normal padding/contrast). Recorded here so a future "the title looks broken" report isn't re-investigated from scratch.
+
+Larger 6.5 features (Home, Topics, persistent navigation shell) remain explicitly deferred — not attempted, not scoped, per the user's own choice to start narrow rather than revive the piece that caused the original production rollback.
 
 ## Future UX Work
 
