@@ -87,7 +87,7 @@ export const DEFAULT_VAULT_CONNECTORS: VaultConnector[] = [
   }
 ];
 export const DEFAULT_SETTINGS: KnowledgeLibraryPluginSettings = {
-  versionLabel: "KL 6.4.1",
+  versionLabel: "KL 6.4.2",
   libraryFolder: "01 - Biblioteca",
   resourcesFolder: "01 - Biblioteca/Recursos",
   includeLegacyNotes: true,

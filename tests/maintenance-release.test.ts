@@ -30,7 +30,7 @@ import { CacheRepository } from "../src/services/PluginStorage/CacheRepository";
 function memoryHost(initial: unknown = {}) {
   let state = initial;
   return {
-    manifest: { id: "knowledge-library-v6", version: "6.4.1" },
+    manifest: { id: "knowledge-library-v6", version: "6.4.2" },
     loadData: vi.fn(async () => state),
     saveData: vi.fn(async (data: unknown) => { state = data; }),
     state: () => state
@@ -59,7 +59,7 @@ describe("plugin state manager", () => {
     const manager = new PluginStateManager(host);
     const state = await manager.loadState();
     expect(state.state_version).toBe(1);
-    expect(state.plugin_version).toBe("6.4.1");
+    expect(state.plugin_version).toBe("6.4.2");
     expect(state.custom_future_field).toEqual({ keep: true });
   });
 
@@ -67,15 +67,15 @@ describe("plugin state manager", () => {
     const host = memoryHost({ state_version: 1, plugin_version: "6.4.0", versionLabel: "KL 6.4.0", custom_future_field: { keep: true } });
     const manager = new PluginStateManager(host);
     const state = await manager.loadState();
-    expect(state.plugin_version).toBe("6.4.1");
-    expect(state.versionLabel).toBe("KL 6.4.1");
+    expect(state.plugin_version).toBe("6.4.2");
+    expect(state.versionLabel).toBe("KL 6.4.2");
     expect(state.custom_future_field).toEqual({ keep: true });
-    expect((host.state() as { versionLabel: string }).versionLabel).toBe("KL 6.4.1");
+    expect((host.state() as { versionLabel: string }).versionLabel).toBe("KL 6.4.2");
   });
 
 
   it("backs up and restores state", async () => {
-    const host = memoryHost({ state_version: 1, plugin_version: "6.4.1", libraryFolder: "A" });
+    const host = memoryHost({ state_version: 1, plugin_version: "6.4.2", libraryFolder: "A" });
     const manager = new PluginStateManager(host);
     const backup = await manager.backup("test");
     await manager.saveState({ ...(await manager.loadState()), libraryFolder: "B" });
@@ -88,7 +88,7 @@ describe("plugin state manager", () => {
     const manager = new PluginStateManager(host);
     const state = await manager.loadState();
     expect(state.state_version).toBe(1);
-    expect(state.plugin_version).toBe("6.4.1");
+    expect(state.plugin_version).toBe("6.4.2");
   });
 
   it("exports and imports configuration without cache or index", async () => {
@@ -109,7 +109,7 @@ describe("plugin storage repositories", () => {
     await new SettingsRepository(manager).save({ ...DEFAULT_SETTINGS, libraryFolder: "Updated" });
     expect((await new SettingsRepository(manager).load(DEFAULT_SETTINGS)).libraryFolder).toBe("Updated");
     await manager.saveState({ ...DEFAULT_SETTINGS, versionLabel: "KL 6.4.0" });
-    expect((await new SettingsRepository(manager).load(DEFAULT_SETTINGS)).versionLabel).toBe("KL 6.4.1");
+    expect((await new SettingsRepository(manager).load(DEFAULT_SETTINGS)).versionLabel).toBe("KL 6.4.2");
     await new IndexRepository(manager).save({ schema_version: 1, rebuilt_at: "now", entries: [], connector_statuses: [], errors: [] });
     expect((await new IndexRepository(manager).load())?.rebuilt_at).toBe("now");
     await new SavedSearchRepository(manager).saveAll([{ id: "s", name: "S", query: "q", displayMode: "compact", sortMode: "relevance", createdAt: "now", updatedAt: "now" }]);
@@ -125,7 +125,7 @@ describe("diagnostics and logger", () => {
   it("collects diagnostics and writes self-test output", async () => {
     const stateManager = new PluginStateManager(memoryHost({ ...DEFAULT_SETTINGS }));
     const plugin = {
-      manifest: { id: "knowledge-library-v6", version: "6.4.1" },
+      manifest: { id: "knowledge-library-v6", version: "6.4.2" },
       app: { vault: { configDir: ".obsidian", getName: () => "Vault" }, version: "1.8.7" },
       settings: DEFAULT_SETTINGS,
       stateManager,
@@ -137,7 +137,7 @@ describe("diagnostics and logger", () => {
     };
     const service = new DiagnosticsService(plugin as never);
     const report = await service.collect();
-    expect(report.pluginVersion).toBe("6.4.1");
+    expect(report.pluginVersion).toBe("6.4.2");
     expect(await service.runSelfDiagnostics()).toContain("Plugin state readable: yes");
   });
 

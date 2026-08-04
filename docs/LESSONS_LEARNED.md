@@ -82,6 +82,10 @@ A real YouTube thumbnail exposed two false alarms during this round of testing, 
 
 Larger 6.5 features (Home, Topics, persistent navigation shell) remain explicitly deferred — not attempted, not scoped, per the user's own choice to start narrow rather than revive the piece that caused the original production rollback.
 
-## Future UX Work
+## Promotion To 6.4.2 (August 2026)
 
-UX must be prototyped before another large implementation. Future work should start with user workflows and low-fidelity screens, then validate each view independently in Obsidian. Experimental implementation belongs on a separate branch and must not disturb the 6.4.1 production baseline.
+All three additive fixes above (cross-links, Continue Learning, Universal Search ribbon icon) were promoted to the production vault as `6.4.2 LTS`, replacing the running `6.4.1` install. This is a version bump on the stable line, not a resumption of the 6.5 redesign — Home, Topics, and the persistent navigation shell are still untouched.
+
+Version integrity was updated everywhere the project's own checklist requires (`CLAUDE_PROJECT_BRIEF.md` section 7): `package.json`, `package-lock.json`, `manifest.json`, `CURRENT_PLUGIN_VERSION`/`CURRENT_VERSION_LABEL` in `StateManager.ts`, the default `versionLabel` in `settings.ts`, and every hardcoded version assertion in `tests/maintenance-release.test.ts`. Verified: 115/115 tests, clean `tsc --noEmit`, `npm run build:prod` producing byte-identical output across environments, compiled bundle grepped to confirm `6.4.2` is actually baked in (not a stale label — the exact failure mode that caused the original 6.4.1 version-integrity audit at the start of this engagement).
+
+Deployment used the existing `scripts/deploy-windows.ps1` (artifact-only: `main.js`/`manifest.json`/`styles.css`, `data.json` and all other state preserved, writes its own `deployment-report.md`), after backing up the previous production artifacts. The original `6.4.1` baseline remains separately recoverable via the `v6.4.1-stable` tag (`890ea68`), untouched by any of this.

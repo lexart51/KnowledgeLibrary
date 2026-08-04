@@ -2,7 +2,7 @@
 
 ## KnowledgeLibrary — Project Constitution, Architecture Brief, and Future Plan
 
-**Recommended production version:** `6.4.1 LTS`  
+**Recommended production version:** `6.4.2 LTS`  
 **Experimental line:** `6.5.0-alpha.*` — design history only; not approved for production.  
 **Repository:** `lexart51/KnowledgeLibrary`
 

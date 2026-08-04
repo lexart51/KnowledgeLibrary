@@ -1,6 +1,6 @@
 # KnowledgeLibrary v6
 
-> **Recommended production version:** `6.4.1 LTS`
+> **Recommended production version:** `6.4.2 LTS`
 >
 > **Experimental line:** `6.5 alpha` is retained in Git history and documentation, but it is **not production ready** and must not be deployed to the daily-use vault.
 
