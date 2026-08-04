@@ -18,6 +18,7 @@ export interface DashboardStats {
   missingFiles: number;
   recentlyAdded: StoredResource[];
   recentlyUpdated: StoredResource[];
+  continueLearning: StoredResource[];
   connectorStatuses?: ConnectorStatus[];
   byRole?: Record<string, number>;
   byVault?: Record<string, number>;
@@ -76,6 +77,7 @@ export class KnowledgeDashboardView extends ItemView {
     this.metric(grid, "Favorites", stats.favorites);
     this.metric(grid, "High priority", stats.highPriority);
     this.metric(grid, "Missing files", stats.missingFiles);
+    this.resourceList("Continue Learning", stats.continueLearning);
     this.section("By type", stats.byType);
     this.section("By collection", stats.byCollection);
     this.section("By role", stats.byRole ?? {});
@@ -141,15 +143,21 @@ export class KnowledgeDashboardView extends ItemView {
     const list = this.contentEl.createEl("ul", { cls: "knowledge-library-dashboard-list" });
     const entries = index.entries.filter((entry) => entry.role === role).sort((left, right) => (right.updated_at ?? "").localeCompare(left.updated_at ?? "")).slice(0, 5);
     for (const entry of entries) {
-      const item = list.createEl("li", { text: `${entry.title} - ${entry.connector_name}` });
+      const item = list.createEl("li", { text: `${entry.title} - ${entry.connector_name}`, cls: "knowledge-library-dashboard-list-item" });
       item.addEventListener("click", () => void this.plugin.openUniversalSearch(`role:${role} ${entry.title}`));
     }
   }
   private resourceList(title: string, resources: StoredResource[]): void {
     this.contentEl.createEl("h3", { text: title });
     const list = this.contentEl.createEl("ul", { cls: "knowledge-library-dashboard-list" });
+    if (resources.length === 0) {
+      list.createEl("li", { text: "None", cls: "knowledge-library-card-meta" });
+      return;
+    }
     for (const item of resources) {
-      list.createEl("li", { text: item.resource.title });
+      const label = title === "Continue Learning" ? `${item.resource.title} (${item.resource.progress ?? 0}%)` : item.resource.title;
+      const entry = list.createEl("li", { text: label, cls: "knowledge-library-dashboard-list-item", attr: { "aria-label": `Open ${item.resource.title}`, title: `Open ${item.resource.title}` } });
+      entry.addEventListener("click", () => void this.plugin.openResourceNote(item.path));
     }
   }
 }
@@ -174,6 +182,10 @@ export function calculateDashboardStats(resources: StoredResource[], collectionS
     highPriority: resources.filter((item) => item.resource.priority === "high").length,
     missingFiles: resources.filter((item) => item.resource.filePath && !fileExists(item.resource.filePath)).length,
     recentlyAdded: [...resources].sort((left, right) => right.resource.createdAt.localeCompare(left.resource.createdAt)).slice(0, 5),
-    recentlyUpdated: [...resources].sort((left, right) => right.resource.updatedAt.localeCompare(left.resource.updatedAt)).slice(0, 5)
+    recentlyUpdated: [...resources].sort((left, right) => right.resource.updatedAt.localeCompare(left.resource.updatedAt)).slice(0, 5),
+    continueLearning: resources
+      .filter((item) => !item.resource.completed && (item.resource.progress ?? 0) > 0 && (item.resource.progress ?? 0) < 100)
+      .sort((left, right) => right.resource.updatedAt.localeCompare(left.resource.updatedAt))
+      .slice(0, 5)
   };
 }

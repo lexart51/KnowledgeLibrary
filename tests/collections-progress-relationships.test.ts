@@ -180,4 +180,15 @@ describe("Dashboard statistics", () => {
     expect(stats.highPriority).toBe(1);
     expect(stats.missingFiles).toBe(1);
   });
+
+  it("lists in-progress, non-completed resources as continue learning, most recently updated first", () => {
+    const stats = calculateDashboardStats([
+      stored({ id: "a", progress: 0 }),
+      stored({ id: "b", progress: 50, updatedAt: "2026-01-02T00:00:00.000Z" }),
+      stored({ id: "c", progress: 75, updatedAt: "2026-01-03T00:00:00.000Z" }),
+      stored({ id: "d", completed: true, progress: 100 })
+    ]);
+
+    expect(stats.continueLearning.map((item) => item.resource.id)).toEqual(["c", "b"]);
+  });
 });

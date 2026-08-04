@@ -620,6 +620,14 @@
   margin-top: 0;
 }
 
+.knowledge-library-dashboard-list-item {
+  cursor: pointer;
+}
+
+.knowledge-library-dashboard-list-item:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 760px) {
   .knowledge-library-progress-field,
   .knowledge-library-editor-form,
