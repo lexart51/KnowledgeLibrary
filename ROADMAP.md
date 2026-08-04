@@ -25,7 +25,8 @@
 - [x] Preserve and tag the 6.4.1 stable baseline (`v6.4.1-stable` -> `890ea68`; `v6.5.0-alpha.6-experimental` -> `8d5fd36`).
 - [ ] Create a separate experimental branch for any future UX redesign implementation.
 - [x] Phase 1 — Real workflow inventory documented against actual 6.4.1 entry points and click paths (see `docs/WORKFLOW_INVENTORY.md`).
-- [ ] Prepare low-fidelity screen designs for Home, Search, Library, Topics, Documents, and Conversations.
+- [x] Phase 2 — Information architecture decided: minimum top-level destinations are Library, Dashboard, and Universal Search (all already exist, now cross-linked). Home, Conversations, Documents, Collections, and Topics are explicitly not promoted to top-level — see `docs/INFORMATION_ARCHITECTURE.md` for the evidence and reasoning behind each. One open question (a possible second ribbon icon for Universal Search) is flagged there but not decided.
+- [ ] Prepare low-fidelity screen designs for Home, Search, Library, Topics, Documents, and Conversations. Per the Phase 2 decision, this is not currently needed — no new destinations were added. Revisit only if Phase 2's decision changes, or for the one open ribbon-icon question.
 - [ ] Prototype navigation that never depends on Ctrl+P and never blocks the interface with an overlay-only path.
 - [ ] Define acceptance tests for each view independently.
 - [ ] Validate prototypes in real Obsidian before implementation.
