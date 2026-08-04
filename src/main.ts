@@ -3,6 +3,7 @@ import { registerLibraryCommands } from "./commands/libraryCommands";
 import { DEFAULT_SETTINGS, KnowledgeLibraryPluginSettings } from "./core/settings";
 import { KNOWLEDGE_DASHBOARD_VIEW_TYPE, KNOWLEDGE_DIAGNOSTICS_VIEW_TYPE, KNOWLEDGE_LIBRARY_VIEW_TYPE, KNOWLEDGE_UNIVERSAL_SEARCH_VIEW_TYPE } from "./core/viewTypes";
 import { AddResourceRequest, AddResourceResult, AddResourceService } from "./services/AddResourceService";
+import { UnifiedIndexEntry } from "./models/VaultConnector";
 import { MigrationService } from "./services/MigrationService";
 import { CollectionService } from "./services/CollectionService";
 import { UnifiedIndexService } from "./services/UnifiedIndexService";
@@ -206,6 +207,12 @@ export default class KnowledgeLibraryPlugin extends Plugin {
     const result = await this.addResourceService.addResource(request);
     await this.refreshLibraryViews();
     await this.openResourceNote(result.stored.path);
+    return result;
+  }
+
+  async addExternalEntryToLibrary(entry: UnifiedIndexEntry): Promise<AddResourceResult> {
+    const result = await this.addResourceService.promoteExternalEntry(entry);
+    await this.refreshLibraryViews();
     return result;
   }
 

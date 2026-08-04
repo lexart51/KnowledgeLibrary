@@ -1,14 +1,25 @@
 import { App, TFile } from "obsidian";
 import { KnowledgeLibraryPluginSettings } from "../core/settings";
 import { KnowledgeResource, KnowledgeResourcePriority, KnowledgeResourceProgressUnit, KnowledgeResourceType, ResourceInput } from "../models/KnowledgeResource";
+import { UnifiedIndexEntry } from "../models/VaultConnector";
 import { parseYouTubeUrl } from "../providers/YouTubeProvider";
 import { normalizeWebsiteUrl } from "../providers/WebsiteProvider";
+import { createBaseResource } from "../utils/resources";
 import { FileResourceService } from "./FileResourceService";
 import { TagService } from "./TagService";
 import { ResourceService } from "./ResourceService";
 import { CollectionService } from "./CollectionService";
 import { ProgressService } from "./ProgressService";
 import { StoredResource, VaultResourceRepository } from "./VaultResourceRepository";
+
+const VALID_RESOURCE_TYPES: KnowledgeResourceType[] = ["youtube", "website", "pdf", "book", "powerpoint", "document", "markdown", "image", "script", "skill", "archive", "file", "other"];
+
+function mapExternalEntryType(type: string): KnowledgeResourceType {
+  if (type === "conversation" || type === "moc") {
+    return "markdown";
+  }
+  return (VALID_RESOURCE_TYPES as string[]).includes(type) ? (type as KnowledgeResourceType) : "other";
+}
 
 export type AddResourceKind = "youtube" | "website" | "pdf" | "book" | "powerpoint" | "document" | "markdown" | "image" | "script" | "skill" | "archive" | "other";
 
@@ -69,6 +80,39 @@ export class AddResourceService {
     }
 
     const resource = await this.resourceService.createResource(input);
+    const stored = await this.repository.create(resource);
+    return { resource: stored.resource, stored, duplicate: false };
+  }
+
+  async promoteExternalEntry(entry: UnifiedIndexEntry): Promise<AddResourceResult> {
+    if (entry.origin !== "external") {
+      throw new Error("Only external connector entries can be added to the library this way.");
+    }
+
+    const existing = (await this.repository.list()).find((item) => item.resource.url === entry.open_uri);
+    if (existing) {
+      return { resource: existing.resource, stored: existing, duplicate: true };
+    }
+
+    const resource = createBaseResource(
+      {
+        title: entry.title,
+        creator: entry.creator ?? undefined,
+        source: entry.connector_name,
+        url: entry.open_uri,
+        tags: this.getCanonicalTags(entry.tags),
+        collections: this.collectionService.normalizeCollections(entry.collections),
+        metadata: {
+          ...entry.metadata,
+          promotedFromConnectorId: entry.connector_id,
+          promotedFromPath: entry.path,
+          promotedFromVault: entry.vault_name
+        }
+      },
+      mapExternalEntryType(entry.type),
+      entry.open_uri
+    );
+
     const stored = await this.repository.create(resource);
     return { resource: stored.resource, stored, duplicate: false };
   }

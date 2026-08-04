@@ -170,6 +170,23 @@ export class UniversalSearchView extends ItemView {
     const taxonomy = [...entry.tags.map((tag) => `#${tag}`), ...entry.collections.map((collection) => `[${collection}]`)];
     if (taxonomy.length > 0) row.createDiv({ text: taxonomy.join(" "), cls: "knowledge-library-card-tags" });
     if (result.suppressedDuplicates.length > 0) row.createDiv({ text: `${result.suppressedDuplicates.length} duplicate suppressed`, cls: "knowledge-library-result-meta" });
+    if (entry.origin === "external") {
+      const actions = row.createDiv({ cls: "knowledge-library-unified-result-actions" });
+      const addButton = actions.createEl("button", { text: "Add to Library", cls: "knowledge-library-button", attr: { "aria-label": `Add ${entry.title} to Library`, title: `Add ${entry.title} to Library` } });
+      addButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        void this.addToLibrary(entry);
+      });
+    }
+  }
+
+  private async addToLibrary(entry: UnifiedIndexEntry): Promise<void> {
+    try {
+      const result = await this.plugin.addExternalEntryToLibrary(entry);
+      new Notice(result.duplicate ? `"${entry.title}" is already in your Library.` : `Added "${entry.title}" to your Library.`);
+    } catch (error) {
+      new Notice(error instanceof Error ? error.message : "Unable to add to Library.");
+    }
   }
 
   private handleKeys(event: KeyboardEvent): void {

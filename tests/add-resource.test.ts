@@ -9,6 +9,7 @@ vi.mock("obsidian", () => ({
 import { TFile } from "obsidian";
 import { DEFAULT_SETTINGS } from "../src/core/settings";
 import { KnowledgeResource } from "../src/models/KnowledgeResource";
+import { UnifiedIndexEntry } from "../src/models/VaultConnector";
 import { FileProvider } from "../src/providers/FileProvider";
 import { WebsiteProvider } from "../src/providers/WebsiteProvider";
 import { YouTubeProvider } from "../src/providers/YouTubeProvider";
@@ -138,6 +139,67 @@ describe("AddResourceService", () => {
     const result = await add.addResource({ kind: "website", url: "https://example.com", tags: ["ia, AI, project notes, project-notes"] });
 
     expect(result.resource.tags).toEqual(["knowledge-library", "ai", "project-notes"]);
+  });
+});
+
+function externalEntry(overrides: Partial<UnifiedIndexEntry> = {}): UnifiedIndexEntry {
+  return {
+    id: "kl_ext_1",
+    origin: "external",
+    connector_id: "conversation-archive",
+    connector_name: "Obsidian_Vault",
+    vault_name: "Obsidian_Vault",
+    role: "conversations",
+    type: "conversation",
+    title: "Discussing WireGuard failover",
+    creator: null,
+    path: "ChatGPT/wireguard.md",
+    url: null,
+    open_uri: "obsidian://open?vault=Obsidian_Vault&file=ChatGPT%2Fwireguard.md",
+    tags: ["mikrotik"],
+    collections: [],
+    excerpt: "We discussed WireGuard failover configuration.",
+    created_at: "2026-01-01T00:00:00.000Z",
+    updated_at: "2026-01-01T00:00:00.000Z",
+    metadata: { platform: "chatgpt" },
+    ...overrides
+  };
+}
+
+describe("AddResourceService external promotion", () => {
+  it("promotes an external connector entry into a tracked resource", async () => {
+    const { add, repository } = service();
+    const result = await add.promoteExternalEntry(externalEntry());
+
+    expect(result.duplicate).toBe(false);
+    expect(result.resource.title).toBe("Discussing WireGuard failover");
+    expect(result.resource.type).toBe("markdown");
+    expect(result.resource.url).toBe("obsidian://open?vault=Obsidian_Vault&file=ChatGPT%2Fwireguard.md");
+    expect(result.resource.source).toBe("Obsidian_Vault");
+    expect(result.resource.tags).toContain("mikrotik");
+    expect(repository.create).toHaveBeenCalledTimes(1);
+  });
+
+  it("maps document-role entries to their real resource type", async () => {
+    const { add } = service();
+    const result = await add.promoteExternalEntry(externalEntry({ id: "kl_ext_2", role: "documents", type: "pdf", title: "Contract.pdf", open_uri: "obsidian://open?vault=_Docs&file=Contract.pdf" }));
+
+    expect(result.resource.type).toBe("pdf");
+  });
+
+  it("does not duplicate an entry already promoted to the library", async () => {
+    const existing = { resource: baseResource({ type: "markdown", url: "obsidian://open?vault=Obsidian_Vault&file=ChatGPT%2Fwireguard.md" }), path: "Discussing WireGuard failover.md", legacy: false };
+    const { add, repository } = service([existing]);
+    const result = await add.promoteExternalEntry(externalEntry());
+
+    expect(result.duplicate).toBe(true);
+    expect(result.stored).toBe(existing);
+    expect(repository.create).not.toHaveBeenCalled();
+  });
+
+  it("refuses to promote active-vault entries", async () => {
+    const { add } = service();
+    await expect(add.promoteExternalEntry(externalEntry({ origin: "active-vault" }))).rejects.toThrow(/external connector entries/);
   });
 });
 

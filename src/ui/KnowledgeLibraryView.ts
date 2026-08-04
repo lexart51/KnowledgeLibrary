@@ -381,6 +381,7 @@ export class KnowledgeLibraryView extends ItemView {
     }
     const actions = card.createDiv({ cls: "knowledge-library-card-actions" });
     this.createActionButton(actions, "Open external", `Open external resource ${entry.title}`, () => this.openExternalEntry(entry));
+    this.createActionButton(actions, "Add to Library", `Add ${entry.title} to Library`, () => void this.addToLibrary(entry));
   }
 
   private openExternalEntry(entry: UnifiedIndexEntry): void {
@@ -389,6 +390,16 @@ export class KnowledgeLibraryView extends ItemView {
       return;
     }
     new Notice(entry.open_uri || entry.path);
+  }
+
+  private async addToLibrary(entry: UnifiedIndexEntry): Promise<void> {
+    try {
+      const result = await this.plugin.addExternalEntryToLibrary(entry);
+      new Notice(result.duplicate ? `"${entry.title}" is already in your Library.` : `Added "${entry.title}" to your Library.`);
+      await this.refresh();
+    } catch (error) {
+      new Notice(error instanceof Error ? error.message : "Unable to add to Library.");
+    }
   }
   private renderMedia(parent: HTMLElement, resource: KnowledgeResource): void {
     const imageSource = getVaultImageCardSource(resource, this.app);
