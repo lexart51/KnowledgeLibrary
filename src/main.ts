@@ -70,7 +70,7 @@ export default class KnowledgeLibraryPlugin extends Plugin {
     this.tagService = new TagService(this.tagAliases);
     this.resourceService = new ResourceService(undefined, this.tagService);
     this.initializeServices();
-    this.ribbonService = new RibbonService(this, () => this.openLibraryView());
+    this.ribbonService = new RibbonService(this, () => this.openLibraryView(), () => this.openUniversalSearch());
     this.statusBarService = new StatusBarService(this, this.settings.versionLabel);
 
     this.registerView(KNOWLEDGE_LIBRARY_VIEW_TYPE, (leaf) => new KnowledgeLibraryView(leaf, this));
