@@ -2,7 +2,7 @@
 
 ## 1. Current Production
 
-- [x] `6.4.2 LTS` is the recommended production version (6.4.1 plus Library/Dashboard cross-links, Continue Learning, and a Universal Search ribbon icon — see `docs/LESSONS_LEARNED.md`).
+- [x] `6.4.2 LTS` is the recommended production version (6.4.1 plus Library/Dashboard cross-links, Continue Learning, a Universal Search ribbon icon, and Add to Library for external connector entries — see `docs/LESSONS_LEARNED.md`).
 - [x] Stable baseline commit: `890ea68 Fix release version synchronization for 6.4.1` (original 6.4.1, preserved via tag `v6.4.1-stable`).
 - [x] Production vault: `D:\Dropbox\Cursos Livros Instrucoes\YouTubes`.
 - [x] Enabled read-only connectors: YouTubes/resources, Obsidian_Vault/conversations, `_Docs`/documents.
