@@ -8,13 +8,13 @@ KnowledgeLibrary is a professional Obsidian plugin for unified personal knowledg
 
 ## Verified Production State
 
-- Production plugin version: `6.4.1 LTS`
+- Production plugin version: `6.4.2 LTS`
 - Stable release commit: `890ea68 Fix release version synchronization for 6.4.1`
 - Production vault: `D:\Dropbox\Cursos Livros Instrucoes\YouTubes`
 - Plugin source repository: `D:\Dropbox\KnowledgeLibrary`
-- Conversation vault connector: `D:\Dropbox\Obsidian_Vault`
+- Conversation vault connector: `D:\Dropbox\AI_Chats`
 - Document vault connector: `D:\Dropbox\_Docs`
-- Enabled read-only connectors: YouTubes/resources, Obsidian_Vault/conversations, `_Docs`/documents
+- Enabled read-only connectors: YouTubes/resources, AI_Chats/conversations, `_Docs`/documents
 
 The vaults remain physically independent. KnowledgeLibrary joins them logically through a unified metadata index stored in the active production plugin installation; connector scans do not move, rename, delete, or rewrite external vault files.
 
@@ -28,7 +28,7 @@ Source code, tests, documentation, build scripts, and Git repository. Do not use
 
 Active production Obsidian vault. This is the daily-use KnowledgeLibrary 6.4.1 LTS installation target.
 
-`D:\Dropbox\Obsidian_Vault`
+`D:\Dropbox\AI_Chats`
 
 Read-only conversation archive connector for ChatGPT, Claude, Gemini, and related Markdown conversation notes.
 

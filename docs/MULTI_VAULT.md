@@ -10,7 +10,7 @@ KnowledgeLibrary 6.3.0 connects independent vaults through read-only connector c
 The default settings include disabled example connector configurations for:
 
 - `YouTubes` as a resources connector
-- `Obsidian_Vault` as a conversations connector
+- `AI_Chats` as a conversations connector
 - `_Docs` as a documents connector
 
 They are examples only. Users can edit paths, vault names, roles, include/exclude patterns, icons, and color tokens before enabling them.

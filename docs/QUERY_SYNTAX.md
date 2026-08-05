@@ -21,7 +21,7 @@ Quoted values are supported for multi-word filters.
 Examples:
 
 ```text
-wireguard source:Obsidian_Vault
+wireguard source:AI_Chats
 mikrotik type:pdf
 hermes platform:chatgpt
 retirement collection:"Retirement Automation"

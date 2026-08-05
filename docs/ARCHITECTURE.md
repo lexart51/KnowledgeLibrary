@@ -16,7 +16,7 @@ YouTubes active vault
         +-- Unified metadata index
               |
               +-- YouTubes connector
-              +-- Obsidian_Vault connector
+              +-- AI_Chats connector
               +-- _Docs connector
 ```
 
@@ -24,7 +24,7 @@ YouTubes active vault
 
 - Source repository: `D:\Dropbox\KnowledgeLibrary`
 - Active production vault: `D:\Dropbox\Cursos Livros Instrucoes\YouTubes`
-- Conversation vault connector: `D:\Dropbox\Obsidian_Vault`
+- Conversation vault connector: `D:\Dropbox\AI_Chats`
 - Document vault connector: `D:\Dropbox\_Docs`
 
 The source repository is not a vault data folder. The production vault owns the active plugin installation and plugin state.

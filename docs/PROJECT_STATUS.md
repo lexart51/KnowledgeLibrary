@@ -10,13 +10,13 @@ Stable release commit: `890ea68 Fix release version synchronization for 6.4.1`
 
 - Plugin source path: `D:\Dropbox\KnowledgeLibrary`
 - Production vault path: `D:\Dropbox\Cursos Livros Instrucoes\YouTubes`
-- Conversation vault path: `D:\Dropbox\Obsidian_Vault`
+- Conversation vault path: `D:\Dropbox\AI_Chats`
 - Document vault path: `D:\Dropbox\_Docs`
 
 ## Enabled Connector Roles
 
 - YouTubes: resources
-- Obsidian_Vault: conversations
+- AI_Chats: conversations
 - `_Docs`: documents
 
 Connectors are read-only. The vaults remain physically independent and are joined only through the unified metadata index stored in active-vault plugin data.
@@ -42,7 +42,7 @@ Safe in the production 6.4.1 LTS installation:
 - Add Resource workflows.
 - Local file resources.
 - Collections, progress, relationships, priority, and dashboard statistics.
-- Read-only connectors for YouTubes, Obsidian_Vault, and `_Docs`.
+- Read-only connectors for YouTubes, AI_Chats, and `_Docs`.
 - Unified metadata index and Universal Search.
 - Saved searches.
 - Diagnostics, self diagnostics, backup/restore, configuration export/import.

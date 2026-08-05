@@ -113,3 +113,19 @@ Recorded once, plainly, since disaster-recovery planning (a second machine, "PIN
 - **Production backups**: `D:\Dropbox\Cursos Livros Instrucoes\YouTubes_BACKUPS\` — Dropbox-synced, timestamped folders taken before each production deployment this session.
 - **Stable baseline tag**: `v6.4.1-stable` (commit `890ea68`) — lives in git, recoverable from any machine with repo access, independent of Dropbox entirely.
 - **Local-only isolated testing (`C:\ObsidianTestVaults\`)**: deliberately kept outside Dropbox during this engagement so testing never risked production data — isolated test vaults, a scratch build copy, a synthetic-data generator, one-off migration scripts. None of it held anything unique (all reproducible from git); the whole folder was removed once the 6.4.2 work landed in production, keeping only what's actually needed: the Dropbox-synced source, production install, and backups below, plus the git history and tags. Recreate the same isolated-vault pattern if a future change needs the same safe-testing methodology again.
+
+## Obsidian_Vault Renamed To AI_Chats (August 2026)
+
+The user asked to rename how `Obsidian_Vault` was labeled, and was offered a choice: a zero-risk change to just the connector's display name in the plugin, versus a real vault rename with real breakage risk (folder path, `vaultName`, and every existing `obsidian://` deep link all encode the old name). The safe option was chosen and applied first (`displayName` only, in the production `data.json`'s `vaultConnectors` entry and its cached `connector_statuses` snapshot).
+
+The user then separately used Obsidian's own native "rename vault" feature (via the vault's context menu) on top of that. That feature does not just change a display label — it renames the actual folder on disk. `D:\Dropbox\Obsidian_Vault` became `D:\Dropbox\AI_Chats`, confirmed via Obsidian's own `obsidian.json` vault registry. This is exactly the risk flagged as the non-recommended option, materializing anyway after the fact.
+
+Real breakage this caused, found and fixed directly in production `data.json`:
+
+- The `conversation-archive` connector's `windowsPath` (`D:/Dropbox/Obsidian_Vault`) no longer existed — the connector would have started failing on its next scan.
+- Its `vaultName` (`Obsidian_Vault`) no longer matched Obsidian's actual registered vault, which is now named `AI_Chats` (Obsidian derives the vault name from the folder name when no separate override is set).
+- All 1,180 already-indexed conversation entries carried a stored `open_uri` of the form `obsidian://open?vault=Obsidian_Vault&file=...` — every one of them would have failed to open, since no vault named `Obsidian_Vault` exists anymore.
+
+Fixed by a scoped find-and-replace directly on `windowsPath`, `vaultName` (2 and 3 occurrences respectively, across the connector config and its cached status), and all 1,180 `obsidian://open?vault=Obsidian_Vault` URIs, verified as valid JSON afterward. Checked separately for any promoted "Add to Library" resource notes with the same stale vault reference in their own frontmatter — none existed yet in production, so no additional files needed fixing. All current-state documentation (`CLAUDE_PROJECT_BRIEF.md`, `README.md`, `ROADMAP.md`, `docs/ARCHITECTURE.md`, `docs/MULTI_VAULT.md`, `docs/PROJECT_STATUS.md`, `docs/QUERY_SYNTAX.md`) updated to say `AI_Chats` and `D:\Dropbox\AI_Chats` throughout; historical narrative entries elsewhere in this file that describe events which genuinely happened under the old name were left as `Obsidian_Vault`, since that was accurate at the time.
+
+Lesson for next time: "just change the label" and "the user might still go rename the real thing anyway" are both real possibilities once a rename is on the table — worth checking the actual current vault registry after any rename conversation, not just trusting the choice that was agreed on.

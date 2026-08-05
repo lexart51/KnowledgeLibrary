@@ -12,7 +12,7 @@
 |---|---|
 | `D:\Dropbox\KnowledgeLibrary` | Plugin source, tests, documentation, build scripts and Git repository. It is not a vault. |
 | `D:\Dropbox\Cursos Livros Instrucoes\YouTubes` | Active production Obsidian vault and installed KnowledgeLibrary instance. |
-| `D:\Dropbox\Obsidian_Vault` | Read-only archive of ChatGPT, Claude and Gemini conversations, plus MOCs. |
+| `D:\Dropbox\AI_Chats` | Read-only archive of ChatGPT, Claude and Gemini conversations, plus MOCs. |
 | `D:\Dropbox\_Docs` | Read-only document-oriented vault. |
 
 Installed plugin path:
@@ -68,7 +68,7 @@ D:\Dropbox\Cursos Livros Instrucoes\YouTubes
         +-- Unified metadata index
                 |
                 +-- YouTubes connector      [resources]
-                +-- Obsidian_Vault connector [conversations]
+                +-- AI_Chats connector [conversations]
                 +-- _Docs connector          [documents]
 ```
 
@@ -109,7 +109,7 @@ Configured connectors:
 
 ```text
 YouTubes       role: resources      D:\Dropbox\Cursos Livros Instrucoes\YouTubes
-Obsidian_Vault role: conversations  D:\Dropbox\Obsidian_Vault
+AI_Chats       role: conversations  D:\Dropbox\AI_Chats
 _Docs          role: documents      D:\Dropbox\_Docs
 ```
 
@@ -129,7 +129,7 @@ Stable search capabilities include:
 Examples:
 
 ```text
-wireguard source:Obsidian_Vault
+wireguard source:AI_Chats
 mikrotik type:pdf
 hermes platform:chatgpt
 retirement collection:"Retirement Automation"
