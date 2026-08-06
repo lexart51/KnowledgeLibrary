@@ -228,13 +228,30 @@ export class AddResourceModal extends Modal {
   }
 
   private renderCommonFields(parent: HTMLElement): void {
-    this.renderTextInput(parent, "Tags", "tags", "Resource tags", "knowledge-library-tags-field", this.plugin.settings.defaultTag);
+    this.renderTagsField(parent);
     this.renderCollectionsField(parent);
     this.renderProgressFields(parent);
     this.renderTextarea(parent, "Notes / observations", "notes", "Notes or observations", "knowledge-library-notes-field");
   }
 
 
+
+  private renderTagsField(parent: HTMLElement): void {
+    const field = parent.createEl("label", { cls: "knowledge-library-add-field knowledge-library-tags-field" });
+    field.createEl("span", { text: "Tags" });
+    const listId = "knowledge-library-tag-options";
+    const input = field.createEl("input", { attr: { "aria-label": "Resource tags", title: "Resource tags", placeholder: this.plugin.settings.defaultTag, list: listId } });
+    input.type = "text";
+    input.value = String(this.state.tags ?? "");
+    input.addEventListener("input", () => {
+      this.setStateValue("tags", input.value);
+      this.updateValidation();
+    });
+    const datalist = field.createEl("datalist", { attr: { id: listId } });
+    for (const tag of this.plugin.addResourceService.getExistingCanonicalTags()) {
+      datalist.createEl("option", { value: tag });
+    }
+  }
 
   private renderCollectionsField(parent: HTMLElement): void {
     const field = parent.createEl("label", { cls: "knowledge-library-add-field knowledge-library-collections-field" });
