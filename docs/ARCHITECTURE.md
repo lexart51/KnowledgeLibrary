@@ -23,8 +23,8 @@ YouTubes active vault
 ## Path Boundaries
 
 - Source repository: `D:\Dropbox\KnowledgeLibrary`
-- Active production vault: `D:\Dropbox\Cursos Livros Instrucoes\YouTubes`
-- Conversation vault connector: `D:\Dropbox\AI_Chats`
+- Active production vault: `D:\Dropbox\OBSIDIAN\YouTubes`
+- Conversation vault connector: `D:\Dropbox\OBSIDIAN\AI_Chats`
 - Document vault connector: `D:\Dropbox\_Docs`
 
 The source repository is not a vault data folder. The production vault owns the active plugin installation and plugin state.

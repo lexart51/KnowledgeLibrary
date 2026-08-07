@@ -11,20 +11,20 @@
 | Path | Role |
 |---|---|
 | `D:\Dropbox\KnowledgeLibrary` | Plugin source, tests, documentation, build scripts and Git repository. It is not a vault. |
-| `D:\Dropbox\Cursos Livros Instrucoes\YouTubes` | Active production Obsidian vault and installed KnowledgeLibrary instance. |
-| `D:\Dropbox\AI_Chats` | Read-only archive of ChatGPT, Claude and Gemini conversations, plus MOCs. |
+| `D:\Dropbox\OBSIDIAN\YouTubes` | Active production Obsidian vault and installed KnowledgeLibrary instance. |
+| `D:\Dropbox\OBSIDIAN\AI_Chats` | Read-only archive of ChatGPT, Claude and Gemini conversations, plus MOCs. |
 | `D:\Dropbox\_Docs` | Read-only document-oriented vault. |
 
 Installed plugin path:
 
 ```text
-D:\Dropbox\Cursos Livros Instrucoes\YouTubes\.obsidian\plugins\knowledge-library-v6
+D:\Dropbox\OBSIDIAN\YouTubes\.obsidian\plugins\knowledge-library-v6
 ```
 
 Plugin state normally lives in:
 
 ```text
-D:\Dropbox\Cursos Livros Instrucoes\YouTubes\.obsidian\plugins\knowledge-library-v6\data.json
+D:\Dropbox\OBSIDIAN\YouTubes\.obsidian\plugins\knowledge-library-v6\data.json
 ```
 
 ## 2. Mission
@@ -61,7 +61,7 @@ D:\Dropbox\KnowledgeLibrary
         | build/deploy artifacts
         v
 Active production vault
-D:\Dropbox\Cursos Livros Instrucoes\YouTubes
+D:\Dropbox\OBSIDIAN\YouTubes
         |
         +-- Active-vault resource notes
         +-- Plugin state
@@ -108,8 +108,8 @@ The active vault and the `YouTubes` connector can describe overlapping content, 
 Configured connectors:
 
 ```text
-YouTubes       role: resources      D:\Dropbox\Cursos Livros Instrucoes\YouTubes
-AI_Chats       role: conversations  D:\Dropbox\AI_Chats
+YouTubes       role: resources      D:\Dropbox\OBSIDIAN\YouTubes
+AI_Chats       role: conversations  D:\Dropbox\OBSIDIAN\AI_Chats
 _Docs          role: documents      D:\Dropbox\_Docs
 ```
 

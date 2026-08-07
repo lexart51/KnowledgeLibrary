@@ -9,8 +9,8 @@ Stable release commit: `890ea68 Fix release version synchronization for 6.4.1`
 ## Local Paths
 
 - Plugin source path: `D:\Dropbox\KnowledgeLibrary`
-- Production vault path: `D:\Dropbox\Cursos Livros Instrucoes\YouTubes`
-- Conversation vault path: `D:\Dropbox\AI_Chats`
+- Production vault path: `D:\Dropbox\OBSIDIAN\YouTubes`
+- Conversation vault path: `D:\Dropbox\OBSIDIAN\AI_Chats`
 - Document vault path: `D:\Dropbox\_Docs`
 
 ## Enabled Connector Roles
@@ -57,7 +57,7 @@ Safe in the production 6.4.1 LTS installation:
 
 ## Recovery To 6.4.1
 
-1. Confirm the production vault path: `D:\Dropbox\Cursos Livros Instrucoes\YouTubes`.
+1. Confirm the production vault path: `D:\Dropbox\OBSIDIAN\YouTubes`.
 2. Confirm the plugin folder: `.obsidian\plugins\knowledge-library-v6` inside that vault.
 3. Restore or rebuild artifacts from commit `890ea68`.
 4. Copy only `main.js`, `manifest.json`, and `styles.css` into the plugin folder.

@@ -26,7 +26,7 @@ The build produces the only files required for deployment:
 ## Production Target
 
 ```text
-D:\Dropbox\Cursos Livros Instrucoes\YouTubes\.obsidian\plugins\knowledge-library-v6
+D:\Dropbox\OBSIDIAN\YouTubes\.obsidian\plugins\knowledge-library-v6
 ```
 
 This folder is inside the active production Obsidian vault. Connected vaults are not deployment targets.

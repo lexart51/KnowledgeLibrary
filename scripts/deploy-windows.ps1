@@ -1,5 +1,5 @@
 param(
-  [string]$TargetPath = "D:\Dropbox\Cursos Livros Instrucoes\YouTubes\.obsidian\plugins\knowledge-library-v6"
+  [string]$TargetPath = "D:\Dropbox\OBSIDIAN\YouTubes\.obsidian\plugins\knowledge-library-v6"
 )
 
 $ErrorActionPreference = "Stop"
