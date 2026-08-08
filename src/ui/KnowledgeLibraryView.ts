@@ -347,6 +347,7 @@ export class KnowledgeLibraryView extends ItemView {
     this.createActionButton(actions, resource.favorite ? "Unfavorite" : "Favorite", resource.favorite ? `Unfavorite ${resource.title}` : `Favorite ${resource.title}`, () => void this.toggleFavorite(item));
     this.createActionButton(actions, resource.completed ? "Mark incomplete" : "Complete", resource.completed ? `Mark ${resource.title} incomplete` : `Mark ${resource.title} complete`, () => void this.toggleCompleted(item));
     this.createActionButton(actions, "Progress", `Edit progress for ${resource.title}`, () => void this.quickEditProgress(item));
+    this.createActionButton(actions, "Delete", `Delete ${resource.title}`, () => void this.deleteResource(item));
   }
 
 
@@ -558,6 +559,20 @@ export class KnowledgeLibraryView extends ItemView {
     }
     await this.plugin.resourceRepository.update(item.path, item.resource);
     await this.refresh();
+  }
+
+  private async deleteResource(item: StoredResource): Promise<void> {
+    if (!window.confirm(`Delete "${item.resource.title}"? The note moves to Obsidian's trash and can be restored from there.`)) {
+      return;
+    }
+
+    const file = this.app.vault.getAbstractFileByPath(item.path);
+    if (file instanceof TFile) {
+      await this.app.fileManager.trashFile(file);
+    }
+
+    await this.refresh();
+    new Notice(`Deleted "${item.resource.title}".`);
   }
 
 

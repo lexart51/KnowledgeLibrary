@@ -16,6 +16,7 @@ vi.mock("obsidian", () => ({
   WorkspaceLeaf: class WorkspaceLeaf {}
 }));
 
+import { TFile } from "obsidian";
 import { DEFAULT_SETTINGS } from "../src/core/settings";
 import { KnowledgeResource } from "../src/models/KnowledgeResource";
 import { TagService } from "../src/services/TagService";
@@ -87,6 +88,42 @@ describe("KnowledgeLibraryView scrolling and tags", () => {
     (view as unknown as { filters: { missingOnly: boolean } }).filters.missingOnly = true;
 
     expect((view as unknown as { getFilteredResources: () => StoredResource[] }).getFilteredResources().map((item) => item.path)).toEqual(["Resource 2.md"]);
+  });
+
+  it("deletes a resource via trashFile after user confirmation", async () => {
+    const item = resource(1);
+    const view = viewWithResources([item]);
+    const trashFile = vi.fn(async () => undefined);
+    (view as unknown as { app: unknown }).app = {
+      vault: { getAbstractFileByPath: () => new TFile() },
+      fileManager: { trashFile },
+      workspace: { getLeaf: () => ({ openFile: vi.fn() }) }
+    };
+    const confirmSpy = vi.fn().mockReturnValue(true);
+    vi.stubGlobal("window", { confirm: confirmSpy });
+
+    await (view as unknown as { deleteResource: (item: StoredResource) => Promise<void> }).deleteResource(item);
+
+    expect(confirmSpy).toHaveBeenCalled();
+    expect(trashFile).toHaveBeenCalledTimes(1);
+    vi.unstubAllGlobals();
+  });
+
+  it("skips deletion when the user cancels the confirmation prompt", async () => {
+    const item = resource(1);
+    const view = viewWithResources([item]);
+    const trashFile = vi.fn(async () => undefined);
+    (view as unknown as { app: unknown }).app = {
+      vault: { getAbstractFileByPath: () => new TFile() },
+      fileManager: { trashFile },
+      workspace: { getLeaf: () => ({ openFile: vi.fn() }) }
+    };
+    vi.stubGlobal("window", { confirm: vi.fn().mockReturnValue(false) });
+
+    await (view as unknown as { deleteResource: (item: StoredResource) => Promise<void> }).deleteResource(item);
+
+    expect(trashFile).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
   });
 
   it("uses the Obsidian content element and a scroll container with regression styles", () => {
