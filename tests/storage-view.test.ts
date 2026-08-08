@@ -62,6 +62,36 @@ describe("ResourceSerializer and ResourceDeserializer", () => {
     expect(markdown).not.toContain("  - ia");
   });
 
+  it("round trips a nested metadata object containing an array", () => {
+    const serializer = new ResourceSerializer();
+    const deserializer = new ResourceDeserializer();
+    const original = resource({
+      metadata: {
+        videoId: "dQw4w9WgXcQ",
+        thumbnailFallbacks: [
+          "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+          "https://i.ytimg.com/vi/dQw4w9WgXcQ/0.jpg"
+        ],
+        provider: "youtube"
+      }
+    });
+    const markdown = serializer.serialize(original);
+    const parsed = deserializer.deserialize(markdown);
+
+    expect(parsed?.resource.metadata).toEqual(original.metadata);
+  });
+
+  it("normalizes legacy DD/MM/YYYY dates to sortable ISO strings", () => {
+    const parsed = new ResourceDeserializer().deserialize(`---
+title: Legacy Shared Video
+url: https://youtu.be/dQw4w9WgXcQ
+date_shared: "31/05/2026"
+---
+Body`);
+
+    expect(parsed?.resource.createdAt).toBe("2026-05-31T00:00:00.000Z");
+    expect(parsed?.resource.createdAt.localeCompare("2026-08-08T13:39:26.634Z")).toBeLessThan(0);
+  });
   it("converts legacy frontmatter without requiring writes", () => {
     const parsed = new ResourceDeserializer().deserialize(`---\ntitle: Legacy Video\nurl: https://youtu.be/dQw4w9WgXcQ\nvideo_id: dQw4w9WgXcQ\nchannel: Legacy Channel\nimage: https://example.com/legacy.jpg\nwatched: true\ndate_added: 2025-05-01\ntags:\n  - IA\n---\nLegacy body`);
 

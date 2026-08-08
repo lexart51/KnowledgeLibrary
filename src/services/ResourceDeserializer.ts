@@ -87,23 +87,35 @@ function parseYamlBlock(yaml: string): Record<string, unknown> {
   return result;
 }
 
+function lineIndent(line: string): number {
+  return /^\s*/.exec(line)?.[0].length ?? 0;
+}
+
 function parseChildren(lines: string[]): unknown {
   if (lines.length === 0) {
     return {};
   }
 
-  if (lines.some((line) => /^\s*-\s*/.test(line))) {
+  const baseIndent = lineIndent(lines[0]);
+  const baseLines = lines.filter((line) => lineIndent(line) === baseIndent);
+  const isList = baseLines.length > 0 && baseLines.every((line) => /^\s*-\s?/.test(line));
+
+  if (isList) {
     const list: unknown[] = [];
     let currentObject: Record<string, unknown> | null = null;
+    let currentObjectIndent = -1;
 
     for (const line of lines) {
-      const itemMatch = /^\s*-\s*(.*)$/.exec(line);
-      if (itemMatch) {
-        const item = itemMatch[1];
-        const pair = /^([^:]+):\s*(.*)$/.exec(item);
-        if (pair) {
+      const indent = lineIndent(line);
+      if (indent === baseIndent) {
+        const itemMatch = /^\s*-\s?(.*)$/.exec(line);
+        const item = itemMatch ? itemMatch[1] : "";
+        const isQuotedItem = /^["']/.test(item);
+        const pair = isQuotedItem ? null : /^([^:]+):\s*(.*)$/.exec(item);
+        if (pair && pair[2].length > 0) {
           currentObject = { [pair[1].trim()]: parseScalar(pair[2]) };
           list.push(currentObject);
+          currentObjectIndent = indent;
         } else {
           currentObject = null;
           list.push(parseScalar(item));
@@ -111,8 +123,8 @@ function parseChildren(lines: string[]): unknown {
         continue;
       }
 
-      const nestedPair = /^\s{4,}([^:]+):\s*(.*)$/.exec(line);
-      if (nestedPair && currentObject) {
+      const nestedPair = /^\s+([^:]+):\s*(.*)$/.exec(line);
+      if (nestedPair && currentObject && indent > currentObjectIndent) {
         currentObject[nestedPair[1].trim()] = parseScalar(nestedPair[2]);
       }
     }
@@ -121,11 +133,30 @@ function parseChildren(lines: string[]): unknown {
   }
 
   const objectValue: Record<string, unknown> = {};
-  for (const line of lines) {
-    const pair = /^\s+([^:]+):\s*(.*)$/.exec(line);
-    if (pair) {
-      objectValue[pair[1].trim()] = parseScalar(pair[2]);
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (lineIndent(line) !== baseIndent) {
+      continue;
     }
+
+    const pair = /^\s*([^:]+):\s*(.*)$/.exec(line);
+    if (!pair) {
+      continue;
+    }
+
+    const key = pair[1].trim();
+    const rawValue = pair[2];
+    if (rawValue.length > 0) {
+      objectValue[key] = parseScalar(rawValue);
+      continue;
+    }
+
+    const nestedLines: string[] = [];
+    while (index + 1 < lines.length && lineIndent(lines[index + 1]) > baseIndent) {
+      index += 1;
+      nestedLines.push(lines[index]);
+    }
+    objectValue[key] = parseChildren(nestedLines);
   }
   return objectValue;
 }
@@ -148,6 +179,22 @@ function splitFrontmatter(markdown: string): { frontmatter: Record<string, unkno
 
 function stringOrNull(value: unknown): string | null {
   return typeof value === "string" && value.trim().length > 0 ? value : null;
+}
+
+function normalizeDateString(value: unknown): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+  const trimmed = value.trim();
+  if (trimmed.length === 0) {
+    return null;
+  }
+  const ddmmyyyy = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(trimmed);
+  if (ddmmyyyy) {
+    const [, day, month, year] = ddmmyyyy;
+    return `${year}-${month}-${day}T00:00:00.000Z`;
+  }
+  return trimmed;
 }
 
 function stringOrDefault(value: unknown, fallback: string): string {
@@ -263,8 +310,8 @@ export class ResourceDeserializer {
     const type = typeFrom(frontmatter.type, url, filePath, legacyVideoId);
     const id = stringOrDefault(frontmatter.resource_id, createResourceId(`${type}:${legacyVideoId ?? url ?? filePath ?? pathSeed}`));
     const title = stringOrDefault(frontmatter.title, "Untitled resource");
-    const createdAt = stringOrDefault(frontmatter.created_at ?? frontmatter.date_added ?? frontmatter.date_shared, new Date(0).toISOString());
-    const updatedAt = stringOrDefault(frontmatter.updated_at, createdAt);
+    const createdAt = normalizeDateString(frontmatter.created_at) ?? normalizeDateString(frontmatter.date_added) ?? normalizeDateString(frontmatter.date_shared) ?? new Date(0).toISOString();
+    const updatedAt = normalizeDateString(frontmatter.updated_at) ?? normalizeDateString(frontmatter.date_updated) ?? createdAt;
     const completed = booleanOrDefault(frontmatter.completed, booleanOrDefault(frontmatter.watched, false));
     const progress = this.progressService.normalize({
       completed,
