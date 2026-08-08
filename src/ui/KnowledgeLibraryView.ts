@@ -72,13 +72,19 @@ export class KnowledgeLibraryView extends ItemView {
   async refresh(): Promise<void> {
     try {
       this.resources = await this.plugin.resourceRepository.list();
+    } catch (error) {
+      new Notice(error instanceof Error ? error.message : "Unable to load Knowledge Library resources.");
+    }
+
+    try {
       const index = await this.plugin.unifiedIndexService.load();
       this.unifiedEntries = index?.entries.filter((entry) => entry.origin === "external") ?? [];
       this.unavailableConnectorCount = index?.connector_statuses.filter((status) => status.connector.enabled && !status.available).length ?? 0;
-      this.renderCards();
     } catch (error) {
-      new Notice(error instanceof Error ? error.message : "Unable to refresh Knowledge Library.");
+      new Notice(error instanceof Error ? error.message : "Unable to load the unified index.");
     }
+
+    this.renderCards();
   }
 
   private renderShell(): void {
