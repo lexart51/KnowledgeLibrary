@@ -69,7 +69,7 @@ export class KnowledgeLibraryView extends ItemView {
     await this.refresh();
   }
 
-  async refresh(): Promise<void> {
+  async refresh(options: { announce?: boolean } = {}): Promise<void> {
     try {
       this.resources = await this.plugin.resourceRepository.list();
     } catch (error) {
@@ -85,6 +85,10 @@ export class KnowledgeLibraryView extends ItemView {
     }
 
     this.renderCards();
+
+    if (options.announce) {
+      new Notice("Knowledge Library refreshed.");
+    }
   }
 
   private renderShell(): void {
@@ -99,7 +103,14 @@ export class KnowledgeLibraryView extends ItemView {
     const addButton = headerActions.createEl("button", { text: "Add", cls: "knowledge-library-button mod-cta", attr: { "aria-label": "Add resource", title: "Add resource" } });
     addButton.addEventListener("click", () => this.plugin.openAddResourceModal());
     const refreshButton = headerActions.createEl("button", { text: "Refresh", cls: "knowledge-library-button", attr: { "aria-label": "Refresh library", title: "Refresh library" } });
-    refreshButton.addEventListener("click", () => void this.refresh());
+    refreshButton.addEventListener("click", () => {
+      refreshButton.disabled = true;
+      refreshButton.setText("Refreshing...");
+      void this.refresh({ announce: true }).finally(() => {
+        refreshButton.disabled = false;
+        refreshButton.setText("Refresh");
+      });
+    });
     const searchButton = headerActions.createEl("button", { text: "Universal Search", cls: "knowledge-library-button", attr: { "aria-label": "Open universal search", title: "Open universal search" } });
     searchButton.addEventListener("click", () => {
       void this.plugin.openUniversalSearch().catch((error) => {
