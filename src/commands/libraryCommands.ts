@@ -241,6 +241,14 @@ export function registerLibraryCommands(plugin: KnowledgeLibraryPlugin): void {
   });
 
   plugin.addCommand({
+    id: "reveal-trash-folder",
+    name: "Knowledge Library: Reveal trash folder",
+    callback: () => {
+      void plugin.revealTrashFolder().catch((error) => new Notice(error instanceof Error ? error.message : "Unable to reveal trash folder."));
+    }
+  });
+
+  plugin.addCommand({
     id: "repair-youtube-thumbnails",
     name: "Knowledge Library: Repair YouTube thumbnails",
     callback: () => {

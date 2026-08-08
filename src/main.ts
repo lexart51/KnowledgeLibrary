@@ -1,4 +1,4 @@
-import { Plugin, TFile } from "obsidian";
+import { FileSystemAdapter, Plugin, TFile } from "obsidian";
 import { registerLibraryCommands } from "./commands/libraryCommands";
 import { DEFAULT_SETTINGS, KnowledgeLibraryPluginSettings } from "./core/settings";
 import { KNOWLEDGE_DASHBOARD_VIEW_TYPE, KNOWLEDGE_DIAGNOSTICS_VIEW_TYPE, KNOWLEDGE_LIBRARY_VIEW_TYPE, KNOWLEDGE_UNIVERSAL_SEARCH_VIEW_TYPE } from "./core/viewTypes";
@@ -241,6 +241,24 @@ export default class KnowledgeLibraryPlugin extends Plugin {
     const leaf = this.app.workspace.getLeaf(true);
     await leaf.setViewState({ type: KNOWLEDGE_LIBRARY_VIEW_TYPE, active: true });
     await this.app.workspace.revealLeaf(leaf);
+  }
+
+  async revealTrashFolder(): Promise<void> {
+    const adapter = this.app.vault.adapter;
+    if (!(adapter instanceof FileSystemAdapter)) {
+      throw new Error("Reveal trash folder is only available on desktop.");
+    }
+
+    if (!(await adapter.exists(".trash"))) {
+      throw new Error("No trash folder yet -- nothing has been deleted in this vault.");
+    }
+
+    const trashPath = `${adapter.getBasePath()}/.trash`;
+    const electron = (window as unknown as { require: (module: string) => { shell: { openPath(path: string): Promise<string> } } }).require("electron");
+    const result = await electron.shell.openPath(trashPath);
+    if (result) {
+      throw new Error(`Unable to open trash folder: ${result}`);
+    }
   }
 
   async loadSettings(): Promise<void> {
